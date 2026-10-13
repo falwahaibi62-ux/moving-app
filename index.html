@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovePro Enterprise - Logistics & Relocation Management System</title>
+    <title>MovePro Enterprise - Logistics & Role Management</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -44,9 +44,9 @@
                     <i class="fa-solid fa-truck-moving w-5 text-center"></i>
                     <span>Fleet & Drivers</span>
                 </button>
-                <button onclick="switchTab('finance')" id="nav-finance" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800/80 text-slate-400 hover:text-white transition">
-                    <i class="fa-solid fa-file-invoice-dollar w-5 text-center"></i>
-                    <span>Quotations & Billing</span>
+                <button onclick="switchTab('users')" id="nav-users" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800/80 text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-users-gear w-5 text-center"></i>
+                    <span>Users & Roles</span>
                 </button>
                 <button onclick="switchTab('reports')" id="nav-reports" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800/80 text-slate-400 hover:text-white transition">
                     <i class="fa-solid fa-chart-pie w-5 text-center"></i>
@@ -57,12 +57,12 @@
 
         <!-- Footer Profile -->
         <div class="p-4 border-t border-slate-800/80 flex items-center space-x-3 bg-slate-950/40">
-            <div class="w-9 h-9 rounded-full bg-slate-700 flex items-center justify-center font-bold text-white text-xs">
-                HQ
+            <div class="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center font-bold text-white text-xs" id="currentUserAvatar">
+                AD
             </div>
             <div class="text-xs">
-                <p class="font-semibold text-white">Muscat Ops Center</p>
-                <p class="text-slate-500">Dispatch Unit #1</p>
+                <p class="font-semibold text-white" id="currentUserName">Admin User</p>
+                <p class="text-emerald-400 font-medium" id="currentUserRole">Full Access Admin</p>
             </div>
         </div>
     </aside>
@@ -80,7 +80,14 @@
                 </span>
             </div>
 
-            <div class="flex items-center space-x-3">
+            <div class="flex items-center space-x-4">
+                <!-- Simulation Role Switcher -->
+                <div class="bg-slate-100 p-1 rounded-xl flex items-center text-xs font-semibold">
+                    <span class="px-2 text-slate-500">Mode:</span>
+                    <button onclick="toggleRole('admin')" id="roleBtnAdmin" class="px-3 py-1 rounded-lg bg-emerald-600 text-white shadow-sm transition">Admin</button>
+                    <button onclick="toggleRole('viewer')" id="roleBtnViewer" class="px-3 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition">Viewer Only</button>
+                </div>
+
                 <button onclick="openModalForAdd()" id="newReqBtn" class="bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-sm transition flex items-center space-x-2">
                     <i class="fa-solid fa-plus text-xs"></i>
                     <span>Create Dispatch Order</span>
@@ -93,7 +100,6 @@
 
             <!-- TAB 1: DASHBOARD & OVERVIEW -->
             <div id="tab-dashboard" class="space-y-6">
-                <!-- KPI Metric Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
                     <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
                         <div class="flex justify-between items-center text-slate-400">
@@ -136,57 +142,10 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- Live Fleet Operations Preview -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
-                        <div class="flex justify-between items-center">
-                            <h3 class="font-bold text-slate-900 text-base">Active Fleet Dispatch Status</h3>
-                            <span class="text-xs text-slate-400 font-medium">Real-time Telematics</span>
-                        </div>
-                        <div class="space-y-3">
-                            <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-100 text-sm">
-                                <div class="flex items-center space-x-3">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                                    <div>
-                                        <p class="font-semibold text-slate-800">Truck #08 (35 Ton Heavy Lift)</p>
-                                        <p class="text-xs text-slate-500">Route: Al Mouj ➔ Qurum Heights</p>
-                                    </div>
-                                </div>
-                                <span class="text-xs font-semibold text-emerald-700 bg-emerald-100/60 px-3 py-1 rounded-full">In Transit</span>
-                            </div>
-                            <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-100 text-sm">
-                                <div class="flex items-center space-x-3">
-                                    <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
-                                    <div>
-                                        <p class="font-semibold text-slate-800">Truck #03 (10 Ton Box Truck)</p>
-                                        <p class="text-xs text-slate-500">Route: Ghala Commercial Area ➔ Seeb</p>
-                                    </div>
-                                </div>
-                                <span class="text-xs font-semibold text-blue-700 bg-blue-100/60 px-3 py-1 rounded-full">Packing & Loading</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Quick Operations Panel -->
-                    <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-lg space-y-4 flex flex-col justify-between">
-                        <div class="space-y-2">
-                            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-lg">
-                                <i class="fa-solid fa-headset"></i>
-                            </div>
-                            <h3 class="text-lg font-bold">Emergency Dispatch</h3>
-                            <p class="text-xs text-slate-400">Direct escalation line for field supervisors and client priority requests.</p>
-                        </div>
-                        <button onclick="switchTab('requests')" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-xl text-sm transition">
-                            Manage All Orders
-                        </button>
-                    </div>
-                </div>
             </div>
 
             <!-- TAB 2: MOVE OPERATIONS & REQUESTS -->
             <div id="tab-requests" class="hidden space-y-6">
-                <!-- Filter Bar -->
                 <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
                     <div class="relative w-full md:w-96">
                         <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
@@ -204,4 +163,272 @@
                 <div id="requestsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </div>
 
-            <!-- TAB 3: FLEET & DRIVERS
+            <!-- TAB 3: FLEET & DRIVERS MANAGEMENT -->
+            <div id="tab-fleet" class="hidden space-y-6">
+                <div class="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-sm space-y-4">
+                    <h3 class="font-bold text-slate-900 text-base">Registered Heavy Trucks & Crew Roster</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="p-4 border border-slate-200 rounded-xl space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-slate-800 text-sm">Truck #01 (Box Truck)</span>
+                                <span class="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-0.5 rounded-full font-semibold">Active</span>
+                            </div>
+                            <p class="text-xs text-slate-500">Driver: Salim Al-Harthy | Capacity: 15 Tons</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: USER MANAGEMENT & PERMISSIONS -->
+            <div id="tab-users" class="hidden space-y-6">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-lg">Team Members & Access Control</h3>
+                        <p class="text-xs text-slate-500">Manage user access roles (Full Control vs View-Only permissions).</p>
+                    </div>
+                    <button id="addUserBtn" onclick="openUserModal()" class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-bold transition flex items-center space-x-2">
+                        <i class="fa-solid fa-user-plus"></i>
+                        <span>Add Team Member</span>
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+                    <table class="w-full text-left border-collapse text-sm">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-slate-400 font-semibold text-xs uppercase">
+                                <th class="py-3.5 px-6">Member Name</th>
+                                <th class="py-3.5 px-6">Email Address</th>
+                                <th class="py-3.5 px-6">Assigned Role</th>
+                                <th class="py-3.5 px-6 text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody" class="text-slate-700 divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 5: EXECUTIVE ANALYTICS -->
+            <div id="tab-reports" class="hidden space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-2">
+                        <p class="text-xs text-slate-400 uppercase font-semibold">Total Orders Processed</p>
+                        <h3 id="repTotal" class="text-3xl font-extrabold text-slate-900">0</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-2">
+                        <p class="text-xs text-emerald-600 uppercase font-semibold">Successfully Completed</p>
+                        <h3 id="repCompleted" class="text-3xl font-extrabold text-emerald-600">0</h3>
+                    </div>
+                    <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-2">
+                        <p class="text-xs text-amber-600 uppercase font-semibold">Pending / In-Survey</p>
+                        <h3 id="repPending" class="text-3xl font-extrabold text-amber-600">0</h3>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ================= MODAL FORM (Order Add / Edit) ================= -->
+    <div id="requestModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl w-full max-w-lg p-6 space-y-5 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 id="modalTitleText" class="text-base font-bold text-slate-900">Create New Dispatch Order</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
+            </div>
+            <form onsubmit="handleFormSubmit(event)" class="space-y-4">
+                <input type="hidden" id="editingId">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Move Title / Scope</label>
+                    <input type="text" id="modalTitle" required placeholder="e.g., Luxury Villa Relocation" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Client Name / Business Entity</label>
+                    <input type="text" id="modalClient" required placeholder="e.g., Ahmed Al-Balushi" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Execution Date</label>
+                        <input type="date" id="modalDate" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 mb-1">Dispatch Status</label>
+                        <select id="modalStatus" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
+                            <option value="Pending Survey">Pending Survey</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-2">Furniture Inventory Photos</label>
+                    <div class="flex gap-2">
+                        <label class="flex-1 bg-blue-50 hover:bg-blue-100/80 text-blue-700 border border-blue-200/80 rounded-xl py-2.5 px-3 text-xs font-bold flex items-center justify-center space-x-2 cursor-pointer transition">
+                            <i class="fa-solid fa-camera text-sm"></i>
+                            <span>Open Camera</span>
+                            <input type="file" id="modalCamera" accept="image/*" capture="environment" onchange="handleImagePreview(event)" class="hidden">
+                        </label>
+                        <label class="flex-1 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl py-2.5 px-3 text-xs font-bold flex items-center justify-center space-x-2 cursor-pointer transition">
+                            <i class="fa-solid fa-images text-sm"></i>
+                            <span>Upload Gallery</span>
+                            <input type="file" id="modalImages" accept="image/*" multiple onchange="handleImagePreview(event)" class="hidden">
+                        </label>
+                    </div>
+                    <div id="imagePreviewContainer" class="flex flex-wrap gap-2 mt-3"></div>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4 border-t border-slate-100">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2.5 border border-slate-200 rounded-xl text-xs font-bold text-slate-600 hover:bg-slate-50">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm">Save Order</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= MODAL FORM (Add Team Member) ================= -->
+    <div id="userModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="text-base font-bold text-slate-900">Add New Team Member</h3>
+                <button onclick="closeUserModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
+            </div>
+            <form onsubmit="handleUserSubmit(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Full Name</label>
+                    <input type="text" id="userNameInput" required placeholder="e.g., Fatma Al-Wahaibi" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Email Address</label>
+                    <input type="email" id="userEmailInput" required placeholder="e.g., fatma@movepro.com" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Access Role</label>
+                    <select id="userRoleInput" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm bg-white">
+                        <option value="Admin">Admin (Full Access: Add/Edit/Delete)</option>
+                        <option value="Viewer">Viewer (Read Only Access)</option>
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-3 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeUserModal()" class="px-4 py-2 border border-slate-200 rounded-xl text-xs font-bold text-slate-600">Cancel</button>
+                    <button type="submit" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold">Add Member</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= INTERACTIVE SCRIPT ================= -->
+    <script>
+        let currentRole = 'admin'; // 'admin' or 'viewer'
+
+        let requests = [
+            { id: 'REQ-2026-0142', title: 'Villa Relocation (Al Mouj to Qurum)', client: 'Ahmed Al-Balushi', date: '2026-10-18', status: 'Pending Survey', badge: 'bg-amber-50 text-amber-700 border-amber-200', images: [] },
+            { id: 'REQ-2026-0141', title: 'Corporate HQ Move (CBD Ghubrah)', client: 'Oman Tech Solutions', date: '2026-10-15', status: 'Completed', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200', images: [] }
+        ];
+
+        let users = [
+            { id: 1, name: 'Fatma Al-Wahaibi', email: 'fatma@movepro.com', role: 'Admin' },
+            { id: 2, name: 'Sultan Al-Raisi', email: 'sultan@movepro.com', role: 'Viewer' }
+        ];
+
+        let currentFilter = 'All';
+        let tempImages = [];
+
+        function toggleRole(role) {
+            currentRole = role;
+            const btnAdmin = document.getElementById('roleBtnAdmin');
+            const btnViewer = document.getElementById('roleBtnViewer');
+            const newReqBtn = document.getElementById('newReqBtn');
+            const addUserBtn = document.getElementById('addUserBtn');
+
+            if (role === 'admin') {
+                btnAdmin.className = 'px-3 py-1 rounded-lg bg-emerald-600 text-white shadow-sm transition';
+                btnViewer.className = 'px-3 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition';
+                newReqBtn.style.display = 'flex';
+                if (addUserBtn) addUserBtn.style.display = 'flex';
+                document.getElementById('currentUserRole').innerText = 'Full Access Admin';
+            } else {
+                btnViewer.className = 'px-3 py-1 rounded-lg bg-emerald-600 text-white shadow-sm transition';
+                btnAdmin.className = 'px-3 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition';
+                newReqBtn.style.display = 'none';
+                if (addUserBtn) addUserBtn.style.display = 'none';
+                document.getElementById('currentUserRole').innerText = 'View Only Member';
+            }
+
+            renderRequests();
+            renderUsers();
+        }
+
+        function renderRequests() {
+            const grid = document.getElementById('requestsGrid');
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            grid.innerHTML = '';
+
+            const filtered = requests.filter(r => {
+                const matchesSearch = r.title.toLowerCase().includes(search) || r.client.toLowerCase().includes(search) || r.id.toLowerCase().includes(search);
+                const matchesFilter = currentFilter === 'All' || r.status === currentFilter;
+                return matchesSearch && matchesFilter;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<p class="text-slate-400 col-span-full text-center py-12 text-sm font-medium">No matching orders found.</p>`;
+                return;
+            }
+
+            filtered.forEach(req => {
+                let imgHtml = '';
+                if (req.images && req.images.length > 0) {
+                    imgHtml = `<div class="flex items-center gap-1.5 overflow-x-auto pt-2">
+                        ${req.images.map(img => `<img src="${img}" class="w-12 h-12 object-cover rounded-xl border border-slate-200 shadow-sm">`).join('')}
+                    </div>`;
+                }
+
+                let actionBtns = '';
+                if (currentRole === 'admin') {
+                    actionBtns = `
+                        <button onclick="openModalForEdit('${req.id}')" class="text-blue-500 hover:text-blue-700 text-xs p-1" title="Edit Order">✏️</button>
+                        <button onclick="deleteRequest('${req.id}')" class="text-red-400 hover:text-red-600 text-xs p-1" title="Delete Order">🗑️</button>
+                    `;
+                }
+
+                grid.innerHTML += `
+                    <div class="bg-white rounded-2xl border border-slate-200/80 p-5 space-y-4 shadow-sm hover:shadow-md transition">
+                        <div class="flex justify-between items-start">
+                            <span class="px-3 py-1 text-[11px] font-bold rounded-full border ${req.badge}">${req.status}</span>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xs text-slate-400 font-mono font-semibold">${req.id}</span>${actionBtns}
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-base tracking-tight">${req.title}</h3>
+                            <p class="text-xs font-medium text-slate-500 mt-1"><i class="fa-solid fa-user text-slate-400 mr-1"></i> ${req.client}</p>
+                        </div>
+                        ${imgHtml}
+                        <div class="border-t border-slate-100 pt-3 flex justify-between items-center text-xs text-slate-500 font-medium">
+                            <span><i class="fa-solid fa-calendar-day mr-1 text-slate-400"></i> ${req.date}</span>
+                            <span class="text-emerald-600 font-semibold">Track Live <i class="fa-solid fa-chevron-right text-[10px]"></i></span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('dashPendingCount').innerText = requests.filter(r => r.status === 'Pending Survey').length;
+        }
+
+        function renderUsers() {
+            const tbody = document.getElementById('usersTableBody');
+            tbody.innerHTML = '';
+
+            users.forEach(u => {
+                let deleteBtn = '';
+                if (currentRole === 'admin') {
+                    deleteBtn = `<button onclick="deleteUser(${u.id})" class="text-red-400 hover:text-red-600 text-xs font-semibold">Remove</button>`;
+                }
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="py-3.5 px-6 font-semibold text-slate-800">${u.name}</td>
+                        <td class="py-3.5 px-6 text-slate-500">${u.email}</td>
+                        <td class="py-3.5 px-6">
+                            <span class="px-2.5 py-1 text-xs font-bold rounded-full ${u.role === 'Admin' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600'}">${u.role}</span>
+                        </td>
+                        <td class="py-3.5 px-6 text-right">${deleteBtn}
