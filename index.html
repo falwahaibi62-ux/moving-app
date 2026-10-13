@@ -12,7 +12,7 @@
 
     <div class="flex h-screen overflow-hidden">
         
-        <!-- Sidebar -->
+        <!-- Sidebar Navigation -->
         <aside class="w-64 bg-slate-900 text-slate-300 hidden md:flex flex-col justify-between">
             <div>
                 <div class="p-5 flex items-center space-x-3 border-b border-slate-800">
@@ -20,18 +20,18 @@
                     <span class="text-xl font-bold text-white">MovePro CRM</span>
                 </div>
                 <nav class="p-4 space-y-2">
-                    <a href="#" class="flex items-center space-x-3 p-3 rounded-lg bg-emerald-600 text-white font-medium">
+                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 p-3 rounded-lg bg-emerald-600 text-white font-medium transition">
                         <i class="fa-solid fa-house"></i>
                         <span>Dashboard</span>
-                    </a>
-                    <a href="#" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-800 transition">
+                    </button>
+                    <button onclick="switchTab('requests')" id="nav-requests" class="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-800 text-slate-300 transition">
                         <i class="fa-solid fa-clipboard-list"></i>
                         <span>Moving Requests</span>
-                    </a>
+                    </button>
                 </nav>
             </div>
             <div class="p-4 border-t border-slate-800 text-xs text-slate-500">
-                Interactive Dashboard v2.0
+                Interactive Dashboard v2.1
             </div>
         </aside>
 
@@ -40,14 +40,14 @@
             
             <!-- Header -->
             <header class="bg-white shadow-sm h-16 flex items-center justify-between px-6">
-                <h1 class="text-xl font-bold text-slate-800">Moving Requests Management</h1>
+                <h1 id="pageTitle" class="text-xl font-bold text-slate-800">Moving Requests Management</h1>
                 <button onclick="openModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium shadow transition flex items-center space-x-2">
                     <i class="fa-solid fa-plus"></i>
                     <span>New Move Request</span>
                 </button>
             </header>
 
-            <!-- Content -->
+            <!-- Content Area -->
             <main class="p-6 space-y-6">
                 
                 <!-- Search & Filters -->
@@ -63,9 +63,9 @@
                     </div>
                 </div>
 
-                <!-- Cards Grid -->
+                <!-- Requests Grid -->
                 <div id="requestsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Dynamic Cards will load here -->
+                    <!-- Dynamic Cards Load Here -->
                 </div>
 
             </main>
@@ -157,6 +157,24 @@
             });
         }
 
+        // دالة التنقل بين القوائم الجانبية
+        function switchTab(tab) {
+            const navDashboard = document.getElementById('nav-dashboard');
+            const navRequests = document.getElementById('nav-requests');
+            const title = document.getElementById('pageTitle');
+
+            if (tab === 'dashboard') {
+                navDashboard.className = 'w-full flex items-center space-x-3 p-3 rounded-lg bg-emerald-600 text-white font-medium transition';
+                navRequests.className = 'w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-800 text-slate-300 transition';
+                title.innerText = 'Dashboard Overview';
+                setStatusFilter('All');
+            } else if (tab === 'requests') {
+                navRequests.className = 'w-full flex items-center space-x-3 p-3 rounded-lg bg-emerald-600 text-white font-medium transition';
+                navDashboard.className = 'w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-800 text-slate-300 transition';
+                title.innerText = 'Moving Requests Management';
+            }
+        }
+
         function openModal() { document.getElementById('requestModal').style.display = 'flex'; }
         function closeModal() { document.getElementById('requestModal').style.display = 'none'; }
 
@@ -164,7 +182,7 @@
             e.preventDefault();
             const title = document.getElementById('modalTitle').value;
             const client = document.getElementById('modalClient').value;
-            const date = document.getElementById('modalDate').value || '2026-06-20';
+            const date = document.getElementById('modalDate').value || '2026-10-13';
             const status = document.getElementById('modalStatus').value;
             let badge = 'bg-amber-50 text-amber-600';
             if(status === 'Completed') badge = 'bg-emerald-50 text-emerald-600';
