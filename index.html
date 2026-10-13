@@ -3,387 +3,205 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovePro - Interactive Moving Dashboard</title>
-    <!-- Tailwind CSS -->
+    <title>MovePro Enterprise - Logistics & Relocation Management System</title>
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
+    </style>
 </head>
-<body class="bg-gray-50 font-sans antialiased">
+<body class="bg-slate-50 font-sans text-slate-800 antialiased h-screen flex overflow-hidden">
 
-    <div class="flex h-screen overflow-hidden">
-        
-        <!-- Sidebar Navigation -->
-        <aside class="w-64 bg-slate-900 text-slate-300 hidden md:flex flex-col justify-between">
-            <div>
-                <div class="p-5 flex items-center space-x-3 border-b border-slate-800">
-                    <i class="fa-solid fa-truck-fast text-2xl text-emerald-400"></i>
-                    <span class="text-xl font-bold text-white">MovePro CRM</span>
+    <!-- ================= SIDEBAR ================= -->
+    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between shrink-0 shadow-xl">
+        <div>
+            <!-- Brand Logo -->
+            <div class="p-5 flex items-center justify-between border-b border-slate-800">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 font-bold text-xl">
+                        <i class="fa-solid fa-truck-ramp-box"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold text-white tracking-wide leading-none">MovePro</h2>
+                        <span class="text-[10px] text-emerald-400 font-semibold tracking-wider uppercase">Enterprise ERP</span>
+                    </div>
                 </div>
-                <nav class="p-4 space-y-2">
-                    <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 p-3 rounded-lg bg-emerald-600 text-white font-medium transition">
-                        <i class="fa-solid fa-house"></i>
-                        <span>Dashboard</span>
-                    </button>
-                    <button onclick="switchTab('requests')" id="nav-requests" class="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-800 text-slate-300 transition">
-                        <i class="fa-solid fa-clipboard-list"></i>
-                        <span>Moving Requests</span>
-                    </button>
-                    <button onclick="switchTab('reports')" id="nav-reports" class="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-800 text-slate-300 transition">
-                        <i class="fa-solid fa-chart-pie"></i>
-                        <span>Monthly Reports</span>
-                    </button>
-                </nav>
             </div>
-            <div class="p-4 border-t border-slate-800 text-xs text-slate-500">
-                Interactive Dashboard v2.5
-            </div>
-        </aside>
 
-        <!-- Main Area -->
-        <div class="flex-1 flex flex-col overflow-y-auto">
-            
-            <!-- Header -->
-            <header class="bg-white shadow-sm h-16 flex items-center justify-between px-6">
-                <h1 id="pageTitle" class="text-xl font-bold text-slate-800">Moving Requests Management</h1>
-                <button onclick="openModalForAdd()" id="newReqBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium shadow transition flex items-center space-x-2">
-                    <i class="fa-solid fa-plus"></i>
-                    <span>New Move Request</span>
+            <!-- Navigation Links -->
+            <nav class="p-4 space-y-1.5 text-sm">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl bg-emerald-600 text-white font-medium shadow-md shadow-emerald-900/30 transition">
+                    <i class="fa-solid fa-chart-line w-5 text-center"></i>
+                    <span>Dashboard & Fleet</span>
                 </button>
-            </header>
-
-            <!-- Content Area -->
-            <main class="p-6 space-y-6">
-                
-                <!-- Section 1: Requests View -->
-                <div id="section-requests" class="space-y-6">
-                    <!-- Search & Filters -->
-                    <div class="bg-white p-4 rounded-xl shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
-                        <div class="relative w-full md:w-96">
-                            <i class="fa-solid fa-search absolute left-3 top-3.5 text-slate-400"></i>
-                            <input type="text" id="searchInput" oninput="renderRequests()" placeholder="Search by client or title..." class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="setStatusFilter('All')" id="btn-All" class="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium">All</button>
-                            <button onclick="setStatusFilter('Pending Survey')" id="btn-Pending" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-medium">Pending</button>
-                            <button onclick="setStatusFilter('Completed')" id="btn-Completed" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-medium">Completed</button>
-                        </div>
-                    </div>
-
-                    <!-- Requests Grid -->
-                    <div id="requestsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-                </div>
-
-                <!-- Section 2: Monthly Reports View -->
-                <div id="section-reports" class="hidden space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 space-y-2">
-                            <p class="text-xs text-slate-400 uppercase font-semibold">Total Requests</p>
-                            <h3 id="repTotal" class="text-3xl font-bold text-slate-800">0</h3>
-                        </div>
-                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 space-y-2">
-                            <p class="text-xs text-emerald-500 uppercase font-semibold">Completed Orders</p>
-                            <h3 id="repCompleted" class="text-3xl font-bold text-emerald-600">0</h3>
-                        </div>
-                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 space-y-2">
-                            <p class="text-xs text-amber-500 uppercase font-semibold">Pending Orders</p>
-                            <h3 id="repPending" class="text-3xl font-bold text-amber-600">0</h3>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 space-y-4">
-                        <h3 class="font-bold text-slate-800 text-lg">Monthly Performance Summary</h3>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left border-collapse text-sm">
-                                <thead>
-                                    <tr class="border-b text-slate-400 font-semibold text-xs uppercase">
-                                        <th class="py-3 px-4">Month</th>
-                                        <th class="py-3 px-4">Total Moves</th>
-                                        <th class="py-3 px-4">Completed</th>
-                                        <th class="py-3 px-4">Performance Rate</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="reportTableBody" class="text-slate-600">
-                                    <!-- Dynamic rows -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-            </main>
+                <button onclick="switchTab('requests')" id="nav-requests" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800/80 text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-boxes-packing w-5 text-center"></i>
+                    <span>Move Operations</span>
+                </button>
+                <button onclick="switchTab('fleet')" id="nav-fleet" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800/80 text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-truck-moving w-5 text-center"></i>
+                    <span>Fleet & Drivers</span>
+                </button>
+                <button onclick="switchTab('finance')" id="nav-finance" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800/80 text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-file-invoice-dollar w-5 text-center"></i>
+                    <span>Quotations & Billing</span>
+                </button>
+                <button onclick="switchTab('reports')" id="nav-reports" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800/80 text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+                    <span>Executive Analytics</span>
+                </button>
+            </nav>
         </div>
 
-    </div>
-
-    <!-- Modal Form (Add / Edit with Camera & File Upload) -->
-    <div id="requestModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center border-b pb-3">
-                <h3 id="modalTitleText" class="text-lg font-bold text-slate-800">Add New Move Request</h3>
-                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
+        <!-- Footer Profile -->
+        <div class="p-4 border-t border-slate-800/80 flex items-center space-x-3 bg-slate-950/40">
+            <div class="w-9 h-9 rounded-full bg-slate-700 flex items-center justify-center font-bold text-white text-xs">
+                HQ
             </div>
-            <form onsubmit="handleFormSubmit(event)" class="space-y-4">
-                <input type="hidden" id="editingId">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Move Title</label>
-                    <input type="text" id="modalTitle" required placeholder="e.g., Villa Relocation" class="w-full px-3 py-2 border rounded-lg text-sm">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Client Name</label>
-                    <input type="text" id="modalClient" required placeholder="e.g., Ahmed Al-Balushi" class="w-full px-3 py-2 border rounded-lg text-sm">
-                </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Date</label>
-                        <input type="date" id="modalDate" class="w-full px-3 py-2 border rounded-lg text-sm">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-600 mb-1">Status</label>
-                        <select id="modalStatus" class="w-full px-3 py-2 border rounded-lg text-sm bg-white">
-                            <option value="Pending Survey">Pending Survey</option>
-                            <option value="In Progress">In Progress</option>
-                            <option value="Completed">Completed</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Media Attachments (Camera & Gallery Upload) -->
-                <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-2">Furniture Photos</label>
-                    <div class="flex gap-2 mb-2">
-                        <!-- Open Camera Button -->
-                        <label class="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg p-2 text-xs font-semibold flex items-center justify-center space-x-2 cursor-pointer transition">
-                            <i class="fa-solid fa-camera text-base"></i>
-                            <span>Open Camera</span>
-                            <input type="file" id="modalCamera" accept="image/*" capture="environment" onchange="handleImagePreview(event)" class="hidden">
-                        </label>
-
-                        <!-- Upload File Button -->
-                        <label class="flex-1 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg p-2 text-xs font-semibold flex items-center justify-center space-x-2 cursor-pointer transition">
-                            <i class="fa-solid fa-image text-base"></i>
-                            <span>Upload Gallery</span>
-                            <input type="file" id="modalImages" accept="image/*" multiple onchange="handleImagePreview(event)" class="hidden">
-                        </label>
-                    </div>
-
-                    <!-- Image Preview Container -->
-                    <div id="imagePreviewContainer" class="flex flex-wrap gap-2 mt-2"></div>
-                </div>
-
-                <div class="flex justify-end space-x-3 pt-3 border-t">
-                    <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-lg text-sm text-slate-600">Cancel</button>
-                    <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium">Save Request</button>
-                </div>
-            </form>
+            <div class="text-xs">
+                <p class="font-semibold text-white">Muscat Ops Center</p>
+                <p class="text-slate-500">Dispatch Unit #1</p>
+            </div>
         </div>
-    </div>
+    </aside>
 
-    <!-- Interactive Script -->
-    <script>
-        let requests = [
-            { id: 'REQ-0142', title: 'Villa Relocation (Al Mouj)', client: 'Ahmed Al-Balushi', date: '2026-06-18', status: 'Pending Survey', badge: 'bg-amber-50 text-amber-600', images: [] },
-            { id: 'REQ-0141', title: 'Office Move (CBD to Ghubrah)', client: 'Tech Solutions', date: '2026-06-12', status: 'Completed', badge: 'bg-emerald-50 text-emerald-600', images: [] }
-        ];
-        let currentFilter = 'All';
-        let tempImages = [];
+    <!-- ================= MAIN WRAPPER ================= -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
 
-        function renderRequests() {
-            const grid = document.getElementById('requestsGrid');
-            const search = document.getElementById('searchInput').value.toLowerCase();
-            grid.innerHTML = '';
+        <!-- Header Bar -->
+        <header class="bg-white border-b border-slate-200 h-16 px-8 flex items-center justify-between shrink-0 shadow-sm">
+            <div class="flex items-center space-x-4">
+                <h1 id="pageTitle" class="text-xl font-bold text-slate-900 tracking-tight">Dashboard & Live Operations</h1>
+                <span id="liveStatusBadge" class="bg-emerald-50 text-emerald-700 text-xs px-2.5 py-1 rounded-full font-medium border border-emerald-200/60 flex items-center space-x-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span>Systems Operational</span>
+                </span>
+            </div>
 
-            const filtered = requests.filter(r => {
-                const matchesSearch = r.title.toLowerCase().includes(search) || r.client.toLowerCase().includes(search);
-                const matchesFilter = currentFilter === 'All' || r.status === currentFilter;
-                return matchesSearch && matchesFilter;
-            });
+            <div class="flex items-center space-x-3">
+                <button onclick="openModalForAdd()" id="newReqBtn" class="bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow-sm transition flex items-center space-x-2">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    <span>Create Dispatch Order</span>
+                </button>
+            </div>
+        </header>
 
-            if (filtered.length === 0) {
-                grid.innerHTML = `<p class="text-slate-500 col-span-full text-center py-10">No requests found.</p>`;
-                return;
-            }
+        <!-- Main Dynamic Content -->
+        <main class="flex-1 overflow-y-auto p-8 custom-scrollbar space-y-8">
 
-            filtered.forEach(req => {
-                let imgHtml = '';
-                if (req.images && req.images.length > 0) {
-                    imgHtml = `<div class="flex items-center gap-1 overflow-x-auto pt-2">
-                        ${req.images.map(img => `<img src="${img}" class="w-12 h-12 object-cover rounded-lg border border-slate-200">`).join('')}
-                    </div>`;
-                }
+            <!-- TAB 1: DASHBOARD & OVERVIEW -->
+            <div id="tab-dashboard" class="space-y-6">
+                <!-- KPI Metric Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
+                        <div class="flex justify-between items-center text-slate-400">
+                            <span class="text-xs font-bold uppercase tracking-wider">Active Moves Today</span>
+                            <i class="fa-solid fa-truck-fast text-emerald-600 text-lg"></i>
+                        </div>
+                        <div class="flex items-baseline justify-between">
+                            <h3 class="text-2xl font-black text-slate-900">12</h3>
+                            <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">+15% vs yesterday</span>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
+                        <div class="flex justify-between items-center text-slate-400">
+                            <span class="text-xs font-bold uppercase tracking-wider">Available Fleet</span>
+                            <i class="fa-solid fa-truck text-blue-600 text-lg"></i>
+                        </div>
+                        <div class="flex items-baseline justify-between">
+                            <h3 class="text-2xl font-black text-slate-900">18 / 24</h3>
+                            <span class="text-xs font-semibold text-slate-500">75% Capacity</span>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
+                        <div class="flex justify-between items-center text-slate-400">
+                            <span class="text-xs font-bold uppercase tracking-wider">Pending Surveys</span>
+                            <i class="fa-solid fa-clipboard-check text-amber-500 text-lg"></i>
+                        </div>
+                        <div class="flex items-baseline justify-between">
+                            <h3 class="text-2xl font-black text-slate-900" id="dashPendingCount">5</h3>
+                            <span class="text-xs font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md">Action Required</span>
+                        </div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
+                        <div class="flex justify-between items-center text-slate-400">
+                            <span class="text-xs font-bold uppercase tracking-wider">Monthly Revenue (OMR)</span>
+                            <i class="fa-solid fa-coins text-purple-600 text-lg"></i>
+                        </div>
+                        <div class="flex items-baseline justify-between">
+                            <h3 class="text-2xl font-black text-slate-900">42,850</h3>
+                            <span class="text-xs font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md">On Target</span>
+                        </div>
+                    </div>
+                </div>
 
-                grid.innerHTML += `
-                    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-5 space-y-4 hover:shadow-md transition">
-                        <div class="flex justify-between items-start">
-                            <span class="px-3 py-1 text-xs font-semibold rounded-full ${req.badge}">${req.status}</span>
-                            <div class="flex items-center space-x-2">
-                                <span class="text-xs text-slate-400 font-mono">${req.id}</span>
-                                <button onclick="openModalForEdit('${req.id}')" class="text-blue-400 hover:text-blue-600 text-xs" title="Edit">✏️</button>
-                                <button onclick="deleteRequest('${req.id}')" class="text-red-400 hover:text-red-600 text-xs" title="Delete">🗑️</button>
+                <!-- Live Fleet Operations Preview -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-bold text-slate-900 text-base">Active Fleet Dispatch Status</h3>
+                            <span class="text-xs text-slate-400 font-medium">Real-time Telematics</span>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-100 text-sm">
+                                <div class="flex items-center space-x-3">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                                    <div>
+                                        <p class="font-semibold text-slate-800">Truck #08 (35 Ton Heavy Lift)</p>
+                                        <p class="text-xs text-slate-500">Route: Al Mouj ➔ Qurum Heights</p>
+                                    </div>
+                                </div>
+                                <span class="text-xs font-semibold text-emerald-700 bg-emerald-100/60 px-3 py-1 rounded-full">In Transit</span>
+                            </div>
+                            <div class="flex items-center justify-between p-3.5 bg-slate-50 rounded-xl border border-slate-100 text-sm">
+                                <div class="flex items-center space-x-3">
+                                    <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+                                    <div>
+                                        <p class="font-semibold text-slate-800">Truck #03 (10 Ton Box Truck)</p>
+                                        <p class="text-xs text-slate-500">Route: Ghala Commercial Area ➔ Seeb</p>
+                                    </div>
+                                </div>
+                                <span class="text-xs font-semibold text-blue-700 bg-blue-100/60 px-3 py-1 rounded-full">Packing & Loading</span>
                             </div>
                         </div>
-                        <div>
-                            <h3 class="font-bold text-slate-800 text-lg">${req.title}</h3>
-                            <p class="text-sm text-slate-500 mt-1">👤 Client: ${req.client}</p>
-                        </div>
-                        ${imgHtml}
-                        <div class="border-t border-slate-100 pt-3 text-xs text-slate-600">
-                            <p>📅 Date: ${req.date}</p>
-                        </div>
                     </div>
-                `;
-            });
-        }
 
-        function handleImagePreview(event) {
-            const files = event.target.files;
-            const container = document.getElementById('imagePreviewContainer');
-            if (files) {
-                Array.from(files).forEach(file => {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        tempImages.push(e.target.result);
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        img.className = 'w-14 h-14 object-cover rounded-lg border border-slate-200';
-                        container.appendChild(img);
-                    }
-                    reader.readAsDataURL(file);
-                });
-            }
-        }
+                    <!-- Quick Operations Panel -->
+                    <div class="bg-slate-900 text-white p-6 rounded-2xl shadow-lg space-y-4 flex flex-col justify-between">
+                        <div class="space-y-2">
+                            <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-lg">
+                                <i class="fa-solid fa-headset"></i>
+                            </div>
+                            <h3 class="text-lg font-bold">Emergency Dispatch</h3>
+                            <p class="text-xs text-slate-400">Direct escalation line for field supervisors and client priority requests.</p>
+                        </div>
+                        <button onclick="switchTab('requests')" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-3 rounded-xl text-sm transition">
+                            Manage All Orders
+                        </button>
+                    </div>
+                </div>
+            </div>
 
-        function renderReports() {
-            document.getElementById('repTotal').innerText = requests.length;
-            const completedCount = requests.filter(r => r.status === 'Completed').length;
-            const pendingCount = requests.filter(r => r.status === 'Pending Survey').length;
-            
-            document.getElementById('repCompleted').innerText = completedCount;
-            document.getElementById('repPending').innerText = pendingCount;
+            <!-- TAB 2: MOVE OPERATIONS & REQUESTS -->
+            <div id="tab-requests" class="hidden space-y-6">
+                <!-- Filter Bar -->
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+                    <div class="relative w-full md:w-96">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+                        <input type="text" id="searchInput" oninput="renderRequests()" placeholder="Search by client, location or ID..." class="w-full pl-10 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
+                    </div>
+                    <div class="flex items-center gap-2 overflow-x-auto w-full md:w-auto">
+                        <button onclick="setStatusFilter('All')" id="btn-All" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-semibold">All Orders</button>
+                        <button onclick="setStatusFilter('Pending Survey')" id="btn-Pending" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-semibold">Pending Survey</button>
+                        <button onclick="setStatusFilter('In Progress')" id="btn-InProgress" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-semibold">In Progress</button>
+                        <button onclick="setStatusFilter('Completed')" id="btn-Completed" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-semibold">Completed</button>
+                    </div>
+                </div>
 
-            const tbody = document.getElementById('reportTableBody');
-            tbody.innerHTML = `
-                <tr class="border-b">
-                    <td class="py-3 px-4 font-medium">October 2026</td>
-                    <td class="py-3 px-4">${requests.length}</td>
-                    <td class="py-3 px-4">${completedCount}</td>
-                    <td class="py-3 px-4 text-emerald-600 font-semibold">${Math.round((completedCount / (requests.length || 1)) * 100)}%</td>
-                </tr>
-            `;
-        }
+                <!-- Orders Grid -->
+                <div id="requestsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </div>
 
-        function switchTab(tab) {
-            const navDashboard = document.getElementById('nav-dashboard');
-            const navRequests = document.getElementById('nav-requests');
-            const navReports = document.getElementById('nav-reports');
-            const secRequests = document.getElementById('section-requests');
-            const secReports = document.getElementById('section-reports');
-            const title = document.getElementById('pageTitle');
-            const newBtn = document.getElementById('newReqBtn');
-
-            navDashboard.className = 'w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-800 text-slate-300 transition';
-            navRequests.className = 'w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-800 text-slate-300 transition';
-            navReports.className = 'w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-800 text-slate-300 transition';
-            secRequests.classList.add('hidden');
-            secReports.classList.add('hidden');
-            newBtn.style.display = 'flex';
-
-            if (tab === 'dashboard' || tab === 'requests') {
-                if(tab === 'dashboard') navDashboard.className = 'w-full flex items-center space-x-3 p-3 rounded-lg bg-emerald-600 text-white font-medium transition';
-                if(tab === 'requests') navRequests.className = 'w-full flex items-center space-x-3 p-3 rounded-lg bg-emerald-600 text-white font-medium transition';
-                secRequests.classList.remove('hidden');
-                title.innerText = tab === 'dashboard' ? 'Dashboard Overview' : 'Moving Requests Management';
-                setStatusFilter('All');
-            } else if (tab === 'reports') {
-                navReports.className = 'w-full flex items-center space-x-3 p-3 rounded-lg bg-emerald-600 text-white font-medium transition';
-                secReports.classList.remove('hidden');
-                title.innerText = 'Monthly Reports & Analytics';
-                newBtn.style.display = 'none';
-                renderReports();
-            }
-        }
-
-        function openModalForAdd() {
-            tempImages = [];
-            document.getElementById('editingId').value = '';
-            document.getElementById('modalTitleText').innerText = 'Add New Move Request';
-            document.getElementById('modalTitle').value = '';
-            document.getElementById('modalClient').value = '';
-            document.getElementById('modalDate').value = '';
-            document.getElementById('modalStatus').value = 'Pending Survey';
-            document.getElementById('modalImages').value = '';
-            document.getElementById('modalCamera').value = '';
-            document.getElementById('imagePreviewContainer').innerHTML = '';
-            document.getElementById('requestModal').style.display = 'flex';
-        }
-
-        function openModalForEdit(id) {
-            const req = requests.find(r => r.id === id);
-            if (!req) return;
-
-            tempImages = req.images ? [...req.images] : [];
-            document.getElementById('editingId').value = req.id;
-            document.getElementById('modalTitleText').innerText = 'Edit Move Request (' + req.id + ')';
-            document.getElementById('modalTitle').value = req.title;
-            document.getElementById('modalClient').value = req.client;
-            document.getElementById('modalDate').value = req.date;
-            document.getElementById('modalStatus').value = req.status;
-            document.getElementById('modalImages').value = '';
-            document.getElementById('modalCamera').value = '';
-
-            const container = document.getElementById('imagePreviewContainer');
-            container.innerHTML = '';
-            tempImages.forEach(imgSrc => {
-                const img = document.createElement('img');
-                img.src = imgSrc;
-                img.className = 'w-14 h-14 object-cover rounded-lg border border-slate-200';
-                container.appendChild(img);
-            });
-
-            document.getElementById('requestModal').style.display = 'flex';
-        }
-
-        function closeModal() { 
-            document.getElementById('requestModal').style.display = 'none'; 
-        }
-
-        function handleFormSubmit(e) {
-            e.preventDefault();
-            const editingId = document.getElementById('editingId').value;
-            const title = document.getElementById('modalTitle').value;
-            const client = document.getElementById('modalClient').value;
-            const date = document.getElementById('modalDate').value || '2026-10-13';
-            const status = document.getElementById('modalStatus').value;
-
-            let badge = 'bg-amber-50 text-amber-600';
-            if (status === 'Completed') badge = 'bg-emerald-50 text-emerald-600';
-            if (status === 'In Progress') badge = 'bg-blue-50 text-blue-600';
-
-            if (editingId) {
-                requests = requests.map(r => r.id === editingId ? { ...r, title, client, date, status, badge, images: tempImages } : r);
-            } else {
-                requests.unshift({
-                    id: 'REQ-' + Math.floor(Math.random() * 900 + 100),
-                    title, client, date, status, badge, images: tempImages
-                });
-            }
-
-            closeModal();
-            renderRequests();
-            renderReports();
-        }
-
-        function deleteRequest(id) {
-            requests = requests.filter(r => r.id !== id);
-            renderRequests();
-            renderReports();
-        }
-
-        function setStatusFilter(status) {
-            currentFilter = status;
-            renderRequests();
-        }
-
-        renderRequests();
-    </script>
-</body>
-</html>
+            <!-- TAB 3: FLEET & DRIVERS
