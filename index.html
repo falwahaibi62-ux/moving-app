@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MovePro - Moving Services Dashboard</title>
+    <!-- Tailwind CSS CDN for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 font-sans antialiased">
+
+    <div class="flex h-screen overflow-hidden">
+        
+        <!-- Sidebar Navigation -->
+        <aside class="w-64 bg-slate-900 text-slate-300 hidden md:flex flex-col justify-between">
+            <div>
+                <div class="p-5 flex items-center space-x-3 border-b border-slate-800">
+                    <i class="fa-solid fa-truck-fast text-2xl text-emerald-400"></i>
+                    <span class="text-xl font-bold text-white">MovePro CRM</span>
+                </div>
+                <nav class="p-4 space-y-2">
+                    <a href="#" class="flex items-center space-x-3 p-3 rounded-lg bg-emerald-600 text-white font-medium">
+                        <i class="fa-solid fa-house"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-800 transition">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                        <span>Moving Requests</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-800 transition">
+                        <i class="fa-solid fa-calendar-days"></i>
+                        <span>Schedule & Trips</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-800 transition">
+                        <i class="fa-solid fa-users"></i>
+                        <span>Crew & Drivers</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-800 transition">
+                        <i class="fa-solid fa-chart-line"></i>
+                        <span>Reports & Analytics</span>
+                    </a>
+                </nav>
+            </div>
+            <div class="p-4 border-t border-slate-800 text-xs text-slate-500">
+                MovePro Dashboard v1.0 <br>Furniture Logistics
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="flex-1 flex flex-col overflow-y-auto">
+            
+            <!-- Top Header -->
+            <header class="bg-white shadow-sm h-16 flex items-center justify-between px-6">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-xl font-bold text-slate-800">Moving Requests Management</h1>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <button class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium shadow transition flex items-center space-x-2">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>New Move Request</span>
+                    </button>
+                    <div class="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-700">
+                        MP
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <main class="p-6 space-y-6">
+                
+                <!-- Search and Filters Bar -->
+                <div class="bg-white p-4 rounded-xl shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+                    <div class="relative w-full md:w-96">
+                        <i class="fa-solid fa-search absolute left-3 top-3.5 text-slate-400"></i>
+                        <input type="text" placeholder="Search by client name, phone, or request ID..." class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div class="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
+                        <button class="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium">All</button>
+                        <button class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-sm font-medium">New Orders</button>
+                        <button class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-sm font-medium">Dispatched</button>
+                        <button class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg text-sm font-medium">Completed</button>
+                    </div>
+                </div>
+
+                <!-- Requests Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    
+                    <!-- Card 1 -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-5 space-y-4 hover:shadow-md transition">
+                        <div class="flex justify-between items-start">
+                            <span class="px-3 py-1 bg-amber-50 text-amber-600 text-xs font-semibold rounded-full">Pending Survey</span>
+                            <span class="text-xs text-slate-400 font-mono">REQ-2026-0142</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-lg">Villa Relocation (Al Mouj to Qurum)</h3>
+                            <p class="text-sm text-slate-500 mt-1"><i class="fa-solid fa-user mr-1 text-slate-400"></i> Client: Ahmed Al-Balushi</p>
+                        </div>
+                        <div class="border-t border-slate-100 pt-3 text-xs text-slate-600 space-y-1">
+                            <p><i class="fa-solid fa-calendar mr-1 text-slate-400"></i> Move Date: 18-06-2026</p>
+                            <p><i class="fa-solid fa-truck-moving mr-1 text-slate-400"></i> Assigned Crew: Truck #3 (3 Movers)</p>
+                        </div>
+                    </div>
+
+                    <!-- Card 2 -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-5 space-y-4 hover:shadow-md transition">
+                        <div class="flex justify-between items-start">
+                            <span class="px-3 py-1 bg-emerald-50 text-emerald-600 text-xs font-semibold rounded-full">Completed</span>
+                            <span class="text-xs text-slate-400 font-mono">REQ-2026-0141</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-lg">Office Move (CBD to Ghubrah)</h3>
+                            <p class="text-sm text-slate-500 mt-1"><i class="fa-solid fa-user mr-1 text-slate-400"></i> Client: Tech Solutions LLC</p>
+                        </div>
+                        <div class="border-t border-slate-100 pt-3 text-xs text-slate-600 space-y-1">
+                            <p><i class="fa-solid fa-calendar mr-1 text-slate-400"></i> Move Date: 12-06-2026</p>
+                            <p><i class="fa-solid fa-truck-moving mr-1 text-slate-400"></i> Assigned Crew: Truck #1 (5 Movers)</p>
+                        </div>
+                    </div>
+
+                    <!-- Card 3 -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-5 space-y-4 hover:shadow-md transition">
+                        <div class="flex justify-between items-start">
+                            <span class="px-3 py-1 bg-blue-50 text-blue-600 text-xs font-semibold rounded-full">In Progress</span>
+                            <span class="text-xs text-slate-400 font-mono">REQ-2026-0140</span>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-lg">Apartment Packing & Moving</h3>
+                            <p class="text-sm text-slate-500 mt-1"><i class="fa-solid fa-user mr-1 text-slate-400"></i> Client: Sarah Smith</p>
+                        </div>
+                        <div class="border-t border-slate-100 pt-3 text-xs text-slate-600 space-y-1">
+                            <p><i class="fa-solid fa-calendar mr-1 text-slate-400"></i> Move Date: 15-06-2026</p>
+                            <p><i class="fa-solid fa-truck-moving mr-1 text-slate-400"></i> Assigned Crew: Truck #2 (2 Movers)</p>
+                        </div>
+                    </div>
+
+                </div>
+
+            </main>
+        </div>
+
+    </div>
+
+</body>
+</html>
