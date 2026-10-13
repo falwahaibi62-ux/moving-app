@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovePro Enterprise - ERP v3.1 with Fleet Map</title>
+    <title>MovePro Enterprise - ERP v3.2</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -28,20 +28,20 @@
                     </div>
                     <div>
                         <h2 class="text-lg font-bold text-white tracking-wide leading-none">MovePro</h2>
-                        <span class="text-[10px] text-emerald-400 font-semibold tracking-wider uppercase">Enterprise v3.1 (GPS Map)</span>
+                        <span class="text-[10px] text-emerald-400 font-semibold tracking-wider uppercase">Enterprise v3.2</span>
                     </div>
                 </div>
             </div>
 
             <!-- Navigation Links -->
             <nav class="p-4 space-y-1.5 text-sm">
-                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl bg-emerald-600 text-white font-medium shadow-md shadow-emerald-900/30 transition">
-                    <i class="fa-solid fa-chart-line w-5 text-center"></i>
-                    <span>Dashboard & Fleet</span>
-                </button>
-                <button onclick="switchTab('requests')" id="nav-requests" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800/80 text-slate-400 hover:text-white transition">
+                <button onclick="switchTab('requests')" id="nav-requests" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl bg-emerald-600 text-white font-medium shadow-md shadow-emerald-900/30 transition">
                     <i class="fa-solid fa-boxes-packing w-5 text-center"></i>
                     <span>Move Operations</span>
+                </button>
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800/80 text-slate-400 hover:text-white transition">
+                    <i class="fa-solid fa-chart-line w-5 text-center"></i>
+                    <span>Dashboard & Stats</span>
                 </button>
                 <button onclick="switchTab('map')" id="nav-map" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800/80 text-slate-400 hover:text-white transition">
                     <i class="fa-solid fa-map-location-dot w-5 text-center"></i>
@@ -85,7 +85,7 @@
         <!-- Header Bar -->
         <header class="bg-white border-b border-slate-200 h-16 px-8 flex items-center justify-between shrink-0 shadow-sm">
             <div class="flex items-center space-x-4">
-                <h1 id="pageTitle" class="text-xl font-bold text-slate-900 tracking-tight">Dashboard & Live Operations</h1>
+                <h1 id="pageTitle" class="text-xl font-bold text-slate-900 tracking-tight">Move Operations & Dispatch Management</h1>
                 <span id="liveStatusBadge" class="bg-emerald-50 text-emerald-700 text-xs px-2.5 py-1 rounded-full font-medium border border-emerald-200/60 flex items-center space-x-1.5">
                     <i class="fa-solid fa-satellite text-[10px] text-emerald-600 animate-pulse"></i>
                     <span>GPS Telematics Online</span>
@@ -111,8 +111,27 @@
         <!-- Main Dynamic Content -->
         <main class="flex-1 overflow-y-auto p-8 custom-scrollbar space-y-8">
 
-            <!-- TAB 1: DASHBOARD & OVERVIEW -->
-            <div id="tab-dashboard" class="space-y-6">
+            <!-- TAB 1: MOVE OPERATIONS & REQUESTS (DEFAULT ACTIVE) -->
+            <div id="tab-requests" class="space-y-6">
+                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+                    <div class="relative w-full md:w-96">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
+                        <input type="text" id="searchInput" oninput="renderRequests()" placeholder="Search by client, location or ID..." class="w-full pl-10 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
+                    </div>
+                    <div class="flex items-center gap-2 overflow-x-auto w-full md:w-auto">
+                        <button onclick="setStatusFilter('All')" id="btn-All" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-semibold">All Orders</button>
+                        <button onclick="setStatusFilter('Pending Survey')" id="btn-Pending" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-semibold">Pending Survey</button>
+                        <button onclick="setStatusFilter('In Progress')" id="btn-InProgress" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-semibold">In Progress</button>
+                        <button onclick="setStatusFilter('Completed')" id="btn-Completed" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-semibold">Completed</button>
+                    </div>
+                </div>
+
+                <!-- Orders Grid -->
+                <div id="requestsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </div>
+
+            <!-- TAB 2: DASHBOARD & OVERVIEW -->
+            <div id="tab-dashboard" class="hidden space-y-6">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
                     <div class="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm space-y-3">
                         <div class="flex justify-between items-center text-slate-400">
@@ -157,26 +176,7 @@
                 </div>
             </div>
 
-            <!-- TAB 2: MOVE OPERATIONS & REQUESTS -->
-            <div id="tab-requests" class="hidden space-y-6">
-                <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
-                    <div class="relative w-full md:w-96">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
-                        <input type="text" id="searchInput" oninput="renderRequests()" placeholder="Search by client, location or ID..." class="w-full pl-10 pr-4 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
-                    </div>
-                    <div class="flex items-center gap-2 overflow-x-auto w-full md:w-auto">
-                        <button onclick="setStatusFilter('All')" id="btn-All" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-semibold">All Orders</button>
-                        <button onclick="setStatusFilter('Pending Survey')" id="btn-Pending" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-semibold">Pending Survey</button>
-                        <button onclick="setStatusFilter('In Progress')" id="btn-InProgress" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-semibold">In Progress</button>
-                        <button onclick="setStatusFilter('Completed')" id="btn-Completed" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-semibold">Completed</button>
-                    </div>
-                </div>
-
-                <!-- Orders Grid -->
-                <div id="requestsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-            </div>
-
-            <!-- TAB 3: FLEET LIVE MAP (NEW) -->
+            <!-- TAB 3: FLEET LIVE MAP -->
             <div id="tab-map" class="hidden space-y-6 h-full flex flex-col">
                 <div class="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex justify-between items-center">
                     <div>
@@ -318,4 +318,163 @@
 
     <!-- Staff Modal -->
     <div id="staffModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl w-full max-w-md p-6 space
+        <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="text-base font-bold text-slate-900">Add Field Crew Member</h3>
+                <button onclick="closeStaffModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
+            </div>
+            <form onsubmit="handleStaffSubmit(event)" class="space-y-4">
+                <div><label class="block text-xs font-bold text-slate-700 mb-1">Full Name</label><input type="text" id="staffNameInput" required placeholder="e.g., Tariq Mahmood" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm"></div>
+                <div><label class="block text-xs font-bold text-slate-700 mb-1">Specialty</label><select id="staffRoleInput" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm bg-white"><option value="Heavy Truck Driver">Heavy Truck Driver</option><option value="Furniture Tech Specialist">Furniture Tech Specialist</option><option value="Field Inspector">Field Inspector</option></select></div>
+                <div><label class="block text-xs font-bold text-slate-700 mb-1">Phone</label><input type="text" id="staffPhoneInput" required placeholder="+968 9123 4567" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm"></div>
+                <div class="flex justify-end space-x-3 pt-3 border-t border-slate-100"><button type="button" onclick="closeStaffModal()" class="px-4 py-2 border rounded-xl text-xs font-bold text-slate-600">Cancel</button><button type="submit" class="px-5 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold">Add Staff</button></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- User Modal -->
+    <div id="userModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="text-base font-bold text-slate-900">Add System User</h3>
+                <button onclick="closeUserModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
+            </div>
+            <form onsubmit="handleUserSubmit(event)" class="space-y-4">
+                <div><label class="block text-xs font-bold text-slate-700 mb-1">Name</label><input type="text" id="userNameInput" required placeholder="Mohamed" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm"></div>
+                <div><label class="block text-xs font-bold text-slate-700 mb-1">Email</label><input type="email" id="userEmailInput" required placeholder="mohamed@movepro.com" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm"></div>
+                <div><label class="block text-xs font-bold text-slate-700 mb-1">Role</label><select id="userRoleInput" class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm bg-white"><option value="Admin">Admin</option><option value="Member">Member</option><option value="Viewer">Viewer</option></select></div>
+                <div class="flex justify-end space-x-3 pt-3 border-t border-slate-100"><button type="button" onclick="closeUserModal()" class="px-4 py-2 border rounded-xl text-xs font-bold text-slate-600">Cancel</button><button type="submit" class="px-5 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-bold">Save User</button></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Leaflet JS for Interactive Map -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <!-- Script -->
+    <script>
+        let currentRole = 'Admin';
+        let currentFilter = 'All';
+        let tempImages = [];
+        let map = null;
+
+        const initialRequests = [{ id: 'REQ-2026-0142', title: 'Villa Relocation (Al Mouj to Qurum)', client: 'Ahmed Al-Balushi', date: '2026-10-18', status: 'Pending Survey', assigned: 'Salim Al-Harthy', badge: 'bg-amber-50 text-amber-700 border-amber-200', images: [] }];
+        const initialStaff = [
+            { id: 1, name: 'Salim Al-Harthy', role: 'Heavy Truck Driver', phone: '+968 9511 2233', status: 'In Transit' },
+            { id: 2, name: 'Tariq Mahmood', role: 'Furniture Tech Specialist', phone: '+968 9822 3344', status: 'On Duty' }
+        ];
+        const initialUsers = [
+            { id: 1, name: 'Fatma Al-Wahaibi', email: 'fatma@movepro.com', role: 'Admin' },
+            { id: 2, name: 'Jalil Al-Balushi', email: 'jalil@movepro.com', role: 'Member' }
+        ];
+
+        let requests = JSON.parse(localStorage.getItem('movepro_requests')) || initialRequests;
+        let staff = JSON.parse(localStorage.getItem('movepro_staff')) || initialStaff;
+        let users = JSON.parse(localStorage.getItem('movepro_users')) || initialUsers;
+
+        function saveToStorage() {
+            localStorage.setItem('movepro_requests', JSON.stringify(requests));
+            localStorage.setItem('movepro_staff', JSON.stringify(staff));
+            localStorage.setItem('movepro_users', JSON.stringify(users));
+            updateDashStats();
+        }
+
+        function resetData() {
+            if(confirm('Are you sure you want to reset all data?')) {
+                localStorage.clear();
+                location.reload();
+            }
+        }
+
+        function updateDashStats() {
+            document.getElementById('dashTotalCount').innerText = requests.length;
+            document.getElementById('dashActiveCount').innerText = requests.filter(r => r.status === 'In Progress').length;
+            document.getElementById('dashPendingCount').innerText = requests.filter(r => r.status === 'Pending Survey').length;
+            document.getElementById('dashStaffCount').innerText = staff.length;
+            document.getElementById('repTotal').innerText = requests.length;
+            document.getElementById('repCompleted').innerText = requests.filter(r => r.status === 'Completed').length;
+            document.getElementById('repPending').innerText = requests.filter(r => r.status === 'Pending Survey').length;
+        }
+
+        function populateStaffOptions() {
+            const select = document.getElementById('modalAssignedStaff');
+            select.innerHTML = '';
+            staff.forEach(s => { select.innerHTML += `<option value="${s.name}">${s.name} (${s.role})</option>`; });
+        }
+
+        function setRole(role) {
+            currentRole = role;
+            document.getElementById('roleBtnAdmin').className = role === 'Admin' ? 'px-3 py-1 rounded-lg bg-emerald-600 text-white shadow-sm transition' : 'px-3 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition';
+            document.getElementById('roleBtnMember').className = role === 'Member' ? 'px-3 py-1 rounded-lg bg-emerald-600 text-white shadow-sm transition' : 'px-3 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition';
+            document.getElementById('roleBtnViewer').className = role === 'Viewer' ? 'px-3 py-1 rounded-lg bg-emerald-600 text-white shadow-sm transition' : 'px-3 py-1 rounded-lg text-slate-600 hover:text-slate-900 transition';
+
+            document.getElementById('newReqBtn').style.display = role === 'Viewer' ? 'none' : 'flex';
+            document.getElementById('currentUserRoleBadge').innerText = role === 'Admin' ? 'System Admin' : (role === 'Member' ? 'Operations Member' : 'Viewer (Read Only)');
+
+            renderRequests();
+            renderStaff();
+            renderUsers();
+        }
+
+        function switchTab(tab) {
+            const tabs = ['requests', 'dashboard', 'map', 'team', 'users', 'reports'];
+            tabs.forEach(t => {
+                const sec = document.getElementById(`tab-${t}`);
+                if(sec) sec.classList.add('hidden');
+                const btn = document.getElementById(`nav-${t}`);
+                if(btn) btn.className = 'w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800/80 text-slate-400 hover:text-white transition';
+            });
+
+            const activeSec = document.getElementById(`tab-${tab}`);
+            if(activeSec) activeSec.classList.remove('hidden');
+            const activeBtn = document.getElementById(`nav-${tab}`);
+            if(activeBtn) activeBtn.className = 'w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl bg-emerald-600 text-white font-medium shadow-md shadow-emerald-900/30 transition';
+
+            const pageTitle = document.getElementById('pageTitle');
+            if (tab === 'requests') pageTitle.innerText = 'Move Operations & Dispatch Management';
+            if (tab === 'dashboard') { pageTitle.innerText = 'Dashboard & Fleet Analytics'; updateDashStats(); }
+            if (tab === 'map') {
+                pageTitle.innerText = 'Muscat Fleet GPS Tracking Map';
+                setTimeout(() => { initMap(); }, 200);
+            }
+            if (tab === 'team') { pageTitle.innerText = 'Field Crew & Logistics Staff Roster'; renderStaff(); }
+            if (tab === 'users') { pageTitle.innerText = 'User Access & Permission Control'; renderUsers(); }
+            if (tab === 'reports') pageTitle.innerText = 'Executive Analytics & Performance Reports';
+        }
+
+        function initMap() {
+            if (!map) {
+                map = L.map('map').setView([23.5880, 58.3829], 12);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '© OpenStreetMap contributors'
+                }).addTo(map);
+
+                const fleetUnits = [
+                    { name: 'Truck #01 (Box Truck)', lat: 23.5900, lng: 58.4100, driver: 'Salim Al-Harthy', status: 'In Transit to Al Mouj' },
+                    { name: 'Truck #02 (Hydraulic Lift)', lat: 23.6100, lng: 58.5400, driver: 'Tariq Mahmood', status: 'At Client Location - Muttrah' },
+                    { name: 'Truck #03 (Heavy Duty)', lat: 23.5600, lng: 58.1800, driver: 'Rashid Amur', status: 'Returning to Depot - Seeb' }
+                ];
+
+                fleetUnits.forEach(unit => {
+                    L.marker([unit.lat, unit.lng]).addTo(map)
+                        .bindPopup(`<b>${unit.name}</b><br>Driver: ${unit.driver}<br>Status: ${unit.status}`);
+                });
+            } else {
+                map.invalidateSize();
+            }
+        }
+
+        function renderRequests() {
+            const grid = document.getElementById('requestsGrid');
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            grid.innerHTML = '';
+            const filtered = requests.filter(r => (r.title.toLowerCase().includes(search) || r.client.toLowerCase().includes(search)) && (currentFilter === 'All' || r.status === currentFilter));
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<p class="text-slate-400 col-span-full text-center py-12 text-sm font-medium">No matching orders found. Click "Create Dispatch Order" above to add one.</p>`;
+                return;
+            }
+
+            filtered.forEach(req => {
+                let imgHtml = req.images && req.images.length ? `<div class="flex gap-1.5 overflow-x-auto pt-2">${req.images.map(img => `<img src="${img}" class="w-12 h-12 object-cover rounded-xl border">`).join('')}</div>` : '';
+                let
