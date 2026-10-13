@@ -28,10 +28,14 @@
                         <i class="fa-solid fa-clipboard-list"></i>
                         <span>Moving Requests</span>
                     </button>
+                    <button onclick="switchTab('reports')" id="nav-reports" class="w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-800 text-slate-300 transition">
+                        <i class="fa-solid fa-chart-pie"></i>
+                        <span>Monthly Reports</span>
+                    </button>
                 </nav>
             </div>
             <div class="p-4 border-t border-slate-800 text-xs text-slate-500">
-                Interactive Dashboard v2.2
+                Interactive Dashboard v2.3
             </div>
         </aside>
 
@@ -41,7 +45,7 @@
             <!-- Header -->
             <header class="bg-white shadow-sm h-16 flex items-center justify-between px-6">
                 <h1 id="pageTitle" class="text-xl font-bold text-slate-800">Moving Requests Management</h1>
-                <button onclick="openModalForAdd()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium shadow transition flex items-center space-x-2">
+                <button onclick="openModalForAdd()" id="newReqBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium shadow transition flex items-center space-x-2">
                     <i class="fa-solid fa-plus"></i>
                     <span>New Move Request</span>
                 </button>
@@ -50,22 +54,60 @@
             <!-- Content Area -->
             <main class="p-6 space-y-6">
                 
-                <!-- Search & Filters -->
-                <div class="bg-white p-4 rounded-xl shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
-                    <div class="relative w-full md:w-96">
-                        <i class="fa-solid fa-search absolute left-3 top-3.5 text-slate-400"></i>
-                        <input type="text" id="searchInput" oninput="renderRequests()" placeholder="Search by client or title..." class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                <!-- Section 1: Requests View -->
+                <div id="section-requests" class="space-y-6">
+                    <!-- Search & Filters -->
+                    <div class="bg-white p-4 rounded-xl shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+                        <div class="relative w-full md:w-96">
+                            <i class="fa-solid fa-search absolute left-3 top-3.5 text-slate-400"></i>
+                            <input type="text" id="searchInput" oninput="renderRequests()" placeholder="Search by client or title..." class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="setStatusFilter('All')" id="btn-All" class="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium">All</button>
+                            <button onclick="setStatusFilter('Pending Survey')" id="btn-Pending" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-medium">Pending</button>
+                            <button onclick="setStatusFilter('Completed')" id="btn-Completed" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-medium">Completed</button>
+                        </div>
                     </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="setStatusFilter('All')" id="btn-All" class="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium">All</button>
-                        <button onclick="setStatusFilter('Pending Survey')" id="btn-Pending" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-medium">Pending</button>
-                        <button onclick="setStatusFilter('Completed')" id="btn-Completed" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-medium">Completed</button>
-                    </div>
+
+                    <!-- Requests Grid -->
+                    <div id="requestsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
                 </div>
 
-                <!-- Requests Grid -->
-                <div id="requestsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Dynamic Cards Load Here -->
+                <!-- Section 2: Monthly Reports View -->
+                <div id="section-reports" class="hidden space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 space-y-2">
+                            <p class="text-xs text-slate-400 uppercase font-semibold">Total Requests</p>
+                            <h3 id="repTotal" class="text-3xl font-bold text-slate-800">0</h3>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 space-y-2">
+                            <p class="text-xs text-emerald-500 uppercase font-semibold">Completed Orders</p>
+                            <h3 id="repCompleted" class="text-3xl font-bold text-emerald-600">0</h3>
+                        </div>
+                        <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-100 space-y-2">
+                            <p class="text-xs text-amber-500 uppercase font-semibold">Pending Orders</p>
+                            <h3 id="repPending" class="text-3xl font-bold text-amber-600">0</h3>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-6 space-y-4">
+                        <h3 class="font-bold text-slate-800 text-lg">Monthly Performance Summary</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left border-collapse text-sm">
+                                <thead>
+                                    <tr class="border-b text-slate-400 font-semibold text-xs uppercase">
+                                        <th class="py-3 px-4">Month</th>
+                                        <th class="py-3 px-4">Total Moves</th>
+                                        <th class="py-3 px-4">Completed</th>
+                                        <th class="py-3 px-4">Performance Rate</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="reportTableBody" class="text-slate-600">
+                                    <!-- Dynamic rows -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
 
             </main>
@@ -116,7 +158,8 @@
     <script>
         let requests = [
             { id: 'REQ-0142', title: 'Villa Relocation (Al Mouj)', client: 'Ahmed Al-Balushi', date: '2026-06-18', status: 'Pending Survey', badge: 'bg-amber-50 text-amber-600' },
-            { id: 'REQ-0141', title: 'Office Move (CBD to Ghubrah)', client: 'Tech Solutions', date: '2026-06-12', status: 'Completed', badge: 'bg-emerald-50 text-emerald-600' }
+            { id: 'REQ-0141', title: 'Office Move (CBD to Ghubrah)', client: 'Tech Solutions', date: '2026-06-12', status: 'Completed', badge: 'bg-emerald-50 text-emerald-600' },
+            { id: 'REQ-0140', title: 'Apartment Packing & Moving', client: 'Sarah Smith', date: '2026-10-13', status: 'Completed', badge: 'bg-emerald-50 text-emerald-600' }
         ];
         let currentFilter = 'All';
 
@@ -159,20 +202,54 @@
             });
         }
 
+        function renderReports() {
+            document.getElementById('repTotal').innerText = requests.length;
+            const completedCount = requests.filter(r => r.status === 'Completed').length;
+            const pendingCount = requests.filter(r => r.status === 'Pending Survey').length;
+            
+            document.getElementById('repCompleted').innerText = completedCount;
+            document.getElementById('repPending').innerText = pendingCount;
+
+            const tbody = document.getElementById('reportTableBody');
+            tbody.innerHTML = `
+                <tr class="border-b">
+                    <td class="py-3 px-4 font-medium">October 2026</td>
+                    <td class="py-3 px-4">${requests.length}</td>
+                    <td class="py-3 px-4">${completedCount}</td>
+                    <td class="py-3 px-4 text-emerald-600 font-semibold">${Math.round((completedCount / (requests.length || 1)) * 100)}%</td>
+                </tr>
+            `;
+        }
+
         function switchTab(tab) {
             const navDashboard = document.getElementById('nav-dashboard');
             const navRequests = document.getElementById('nav-requests');
+            const navReports = document.getElementById('nav-reports');
+            const secRequests = document.getElementById('section-requests');
+            const secReports = document.getElementById('section-reports');
             const title = document.getElementById('pageTitle');
+            const newBtn = document.getElementById('newReqBtn');
 
-            if (tab === 'dashboard') {
-                navDashboard.className = 'w-full flex items-center space-x-3 p-3 rounded-lg bg-emerald-600 text-white font-medium transition';
-                navRequests.className = 'w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-800 text-slate-300 transition';
-                title.innerText = 'Dashboard Overview';
+            // Reset all
+            navDashboard.className = 'w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-800 text-slate-300 transition';
+            navRequests.className = 'w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-800 text-slate-300 transition';
+            navReports.className = 'w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-800 text-slate-300 transition';
+            secRequests.classList.add('hidden');
+            secReports.classList.add('hidden');
+            newBtn.style.display = 'flex';
+
+            if (tab === 'dashboard' || tab === 'requests') {
+                if(tab === 'dashboard') navDashboard.className = 'w-full flex items-center space-x-3 p-3 rounded-lg bg-emerald-600 text-white font-medium transition';
+                if(tab === 'requests') navRequests.className = 'w-full flex items-center space-x-3 p-3 rounded-lg bg-emerald-600 text-white font-medium transition';
+                secRequests.classList.remove('hidden');
+                title.innerText = tab === 'dashboard' ? 'Dashboard Overview' : 'Moving Requests Management';
                 setStatusFilter('All');
-            } else if (tab === 'requests') {
-                navRequests.className = 'w-full flex items-center space-x-3 p-3 rounded-lg bg-emerald-600 text-white font-medium transition';
-                navDashboard.className = 'w-full flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-800 text-slate-300 transition';
-                title.innerText = 'Moving Requests Management';
+            } else if (tab === 'reports') {
+                navReports.className = 'w-full flex items-center space-x-3 p-3 rounded-lg bg-emerald-600 text-white font-medium transition';
+                secReports.classList.remove('hidden');
+                title.innerText = 'Monthly Reports & Analytics';
+                newBtn.style.display = 'none';
+                renderReports();
             }
         }
 
@@ -216,15 +293,8 @@
             if (status === 'In Progress') badge = 'bg-blue-50 text-blue-600';
 
             if (editingId) {
-                // تعديل طلب موجود مسبقاً
-                requests = requests.map(r => {
-                    if (r.id === editingId) {
-                        return { ...r, title, client, date, status, badge };
-                    }
-                    return r;
-                });
+                requests = requests.map(r => r.id === editingId ? { ...r, title, client, date, status, badge } : r);
             } else {
-                // إضافة طلب جديد
                 requests.unshift({
                     id: 'REQ-' + Math.floor(Math.random() * 900 + 100),
                     title, client, date, status, badge
@@ -233,11 +303,13 @@
 
             closeModal();
             renderRequests();
+            renderReports();
         }
 
         function deleteRequest(id) {
             requests = requests.filter(r => r.id !== id);
             renderRequests();
+            renderReports();
         }
 
         function setStatusFilter(status) {
