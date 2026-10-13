@@ -35,7 +35,7 @@
                 </nav>
             </div>
             <div class="p-4 border-t border-slate-800 text-xs text-slate-500">
-                Interactive Dashboard v2.4
+                Interactive Dashboard v2.5
             </div>
         </aside>
 
@@ -115,7 +115,7 @@
 
     </div>
 
-    <!-- Modal Form (Add / Edit with Image Upload) -->
+    <!-- Modal Form (Add / Edit with Camera & File Upload) -->
     <div id="requestModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-xl max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center border-b pb-3">
@@ -147,10 +147,26 @@
                     </div>
                 </div>
 
-                <!-- Picture Upload Field -->
+                <!-- Media Attachments (Camera & Gallery Upload) -->
                 <div>
-                    <label class="block text-xs font-semibold text-slate-600 mb-1">Upload Furniture Photos</label>
-                    <input type="file" id="modalImages" accept="image/*" multiple onchange="handleImagePreview(event)" class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100 cursor-pointer border rounded-lg p-1">
+                    <label class="block text-xs font-semibold text-slate-600 mb-2">Furniture Photos</label>
+                    <div class="flex gap-2 mb-2">
+                        <!-- Open Camera Button -->
+                        <label class="flex-1 bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 rounded-lg p-2 text-xs font-semibold flex items-center justify-center space-x-2 cursor-pointer transition">
+                            <i class="fa-solid fa-camera text-base"></i>
+                            <span>Open Camera</span>
+                            <input type="file" id="modalCamera" accept="image/*" capture="environment" onchange="handleImagePreview(event)" class="hidden">
+                        </label>
+
+                        <!-- Upload File Button -->
+                        <label class="flex-1 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-lg p-2 text-xs font-semibold flex items-center justify-center space-x-2 cursor-pointer transition">
+                            <i class="fa-solid fa-image text-base"></i>
+                            <span>Upload Gallery</span>
+                            <input type="file" id="modalImages" accept="image/*" multiple onchange="handleImagePreview(event)" class="hidden">
+                        </label>
+                    </div>
+
+                    <!-- Image Preview Container -->
                     <div id="imagePreviewContainer" class="flex flex-wrap gap-2 mt-2"></div>
                 </div>
 
@@ -295,6 +311,7 @@
             document.getElementById('modalDate').value = '';
             document.getElementById('modalStatus').value = 'Pending Survey';
             document.getElementById('modalImages').value = '';
+            document.getElementById('modalCamera').value = '';
             document.getElementById('imagePreviewContainer').innerHTML = '';
             document.getElementById('requestModal').style.display = 'flex';
         }
@@ -311,6 +328,7 @@
             document.getElementById('modalDate').value = req.date;
             document.getElementById('modalStatus').value = req.status;
             document.getElementById('modalImages').value = '';
+            document.getElementById('modalCamera').value = '';
 
             const container = document.getElementById('imagePreviewContainer');
             container.innerHTML = '';
