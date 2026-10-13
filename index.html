@@ -1,291 +1,195 @@
-import React, { useState } from 'react';
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MovePro - Interactive Moving Dashboard</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-50 font-sans antialiased">
 
-export default function App() {
-  // حالة الطلبات الأولية
-  const [requests, setRequests] = useState([
-    {
-      id: 'REQ-2026-0142',
-      title: 'Villa Relocation (Al Mouj to Qurum)',
-      client: 'Ahmed Al-Balushi',
-      date: '2026-06-18',
-      crew: 'Truck #3 (3 Movers)',
-      status: 'Pending Survey',
-      badgeClass: 'bg-amber-50 text-amber-600'
-    },
-    {
-      id: 'REQ-2026-0141',
-      title: 'Office Move (CBD to Ghubrah)',
-      client: 'Tech Solutions LLC',
-      date: '2026-06-12',
-      crew: 'Truck #1 (5 Movers)',
-      status: 'Completed',
-      badgeClass: 'bg-emerald-50 text-emerald-600'
-    },
-    {
-      id: 'REQ-2026-0140',
-      title: 'Apartment Packing & Moving',
-      client: 'Sarah Smith',
-      date: '2026-06-15',
-      crew: 'Truck #2 (2 Movers)',
-      status: 'In Progress',
-      badgeClass: 'bg-blue-50 text-blue-600'
-    }
-  ]);
-
-  // حالات لوحة التحكم (البحث، الفلترة، نافذة الإضافة)
-  const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState('All');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
-  // حقول نموذج إضافة طلب جديد
-  const [newTitle, setNewTitle] = useState('');
-  const [newClient, setNewClient] = useState('');
-  const [newDate, setNewDate] = useState('');
-  const [newCrew, setNewCrew] = useState('');
-  const [newStatus, setNewStatus] = useState('Pending Survey');
-
-  // دالة إضافة طلب جديد
-  const handleAddRequest = (e) => {
-    e.preventDefault();
-    if (!newTitle || !newClient) return;
-
-    let badgeClass = 'bg-amber-50 text-amber-600';
-    if (newStatus === 'Completed') badgeClass = 'bg-emerald-50 text-emerald-600';
-    if (newStatus === 'In Progress') badgeClass = 'bg-blue-50 text-blue-600';
-
-    const newReq = {
-      id: `REQ-2026-01${Math.floor(Math.random() * 90 + 10)}`,
-      title: newTitle,
-      client: newClient,
-      date: newDate || '2026-06-20',
-      crew: newCrew || 'Truck #1 (3 Movers)',
-      status: newStatus,
-      badgeClass: badgeClass
-    };
-
-    setRequests([newReq, ...requests]);
-    // إعادة تعيين النموذج وإغلاقه
-    setNewTitle('');
-    setNewClient('');
-    setNewDate('');
-    setNewCrew('');
-    setIsModalOpen(false);
-  };
-
-  // دالة حذف طلب
-  const handleDelete = (id) => {
-    setRequests(requests.filter(req => req.id !== id));
-  };
-
-  // تصفية الطلبات بناءً على البحث والفلتر
-  const filteredRequests = requests.filter(req => {
-    const matchesSearch = 
-      req.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      req.client.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      req.id.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesFilter = statusFilter === 'All' || req.status === statusFilter;
-
-    return matchesSearch && matchesFilter;
-  });
-
-  return (
-    <div className="flex h-screen overflow-hidden bg-gray-50 font-sans antialiased">
-      
-      {/* القائمة الجانبية */}
-      <aside className="w-64 bg-slate-900 text-slate-300 hidden md:flex flex-col justify-between">
-        <div>
-          <div className="p-5 flex items-center space-x-3 border-b border-slate-800">
-            <i className="fa-solid fa-truck-fast text-2xl text-emerald-400"></i>
-            <span className="text-xl font-bold text-white">MovePro CRM</span>
-          </div>
-          <nav className="p-4 space-y-2">
-            <a href="#" className="flex items-center space-x-3 p-3 rounded-lg bg-emerald-600 text-white font-medium">
-              <i className="fa-solid fa-house"></i>
-              <span>Dashboard</span>
-            </a>
-            <a href="#" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-800 transition">
-              <i className="fa-solid fa-clipboard-list"></i>
-              <span>Moving Requests</span>
-            </a>
-            <a href="#" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-800 transition">
-              <i className="fa-solid fa-calendar-days"></i>
-              <span>Schedule & Trips</span>
-            </a>
-            <a href="#" className="flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-800 transition">
-              <i className="fa-solid fa-users"></i>
-              <span>Crew & Drivers</span>
-            </a>
-          </nav>
-        </div>
-        <div className="p-4 border-t border-slate-800 text-xs text-slate-500">
-          Interactive React Version <br />Furniture Logistics
-        </div>
-      </aside>
-
-      {/* المحتوى الرئيسي */}
-      <div className="flex-1 flex flex-col overflow-y-auto">
+    <div class="flex h-screen overflow-hidden">
         
-        {/* الترويسة العلوية */}
-        <header className="bg-white shadow-sm h-16 flex items-center justify-between px-6">
-          <h1 className="text-xl font-bold text-slate-800">Moving Requests Management (Interactive)</h1>
-          <button 
-            onClick={() => setIsModalOpen(true)}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium shadow transition flex items-center space-x-2"
-          >
-            <i className="fa-solid fa-plus"></i>
-            <span>New Move Request</span>
-          </button>
-        </header>
-
-        {/* محتوى اللوحة */}
-        <main className="p-6 space-y-6">
-          
-          {/* شريط البحث والفلترة */}
-          <div className="bg-white p-4 rounded-xl shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div className="relative w-full md:w-96">
-              <span className="absolute left-3 top-3.5 text-slate-400">🔍</span>
-              <input 
-                type="text" 
-                placeholder="Search by client name, phone, or ID..." 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
-              />
+        <!-- Sidebar -->
+        <aside class="w-64 bg-slate-900 text-slate-300 hidden md:flex flex-col justify-between">
+            <div>
+                <div class="p-5 flex items-center space-x-3 border-b border-slate-800">
+                    <i class="fa-solid fa-truck-fast text-2xl text-emerald-400"></i>
+                    <span class="text-xl font-bold text-white">MovePro CRM</span>
+                </div>
+                <nav class="p-4 space-y-2">
+                    <a href="#" class="flex items-center space-x-3 p-3 rounded-lg bg-emerald-600 text-white font-medium">
+                        <i class="fa-solid fa-house"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#" class="flex items-center space-x-3 p-3 rounded-lg hover:bg-slate-800 transition">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                        <span>Moving Requests</span>
+                    </a>
+                </nav>
             </div>
-            <div className="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-2 md:pb-0">
-              {['All', 'Pending Survey', 'In Progress', 'Completed'].map((filter) => (
-                <button 
-                  key={filter}
-                  onClick={() => setStatusFilter(filter)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition ${statusFilter === filter ? 'bg-slate-900 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-600'}`}
-                >
-                  {filter}
+            <div class="p-4 border-t border-slate-800 text-xs text-slate-500">
+                Interactive Dashboard v2.0
+            </div>
+        </aside>
+
+        <!-- Main Area -->
+        <div class="flex-1 flex flex-col overflow-y-auto">
+            
+            <!-- Header -->
+            <header class="bg-white shadow-sm h-16 flex items-center justify-between px-6">
+                <h1 class="text-xl font-bold text-slate-800">Moving Requests Management</h1>
+                <button onclick="openModal()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium shadow transition flex items-center space-x-2">
+                    <i class="fa-solid fa-plus"></i>
+                    <span>New Move Request</span>
                 </button>
-              ))}
-            </div>
-          </div>
+            </header>
 
-          {/* شبكة البطاقات (Requests Grid) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredRequests.length > 0 ? (
-              filteredRequests.map((req) => (
-                <div key={req.id} className="bg-white rounded-xl shadow-sm border border-slate-100 p-5 space-y-4 hover:shadow-md transition relative group">
-                  <div className="flex justify-between items-start">
-                    <span className={`px-3 py-1 text-xs font-semibold rounded-full ${req.badgeClass}`}>{req.status}</span>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-xs text-slate-400 font-mono">{req.id}</span>
-                      <button 
-                        onClick={() => handleDelete(req.id)}
-                        className="text-red-400 hover:text-red-600 text-xs ml-2"
-                        title="Delete Request"
-                      >
-                        🗑️
-                      </button>
+            <!-- Content -->
+            <main class="p-6 space-y-6">
+                
+                <!-- Search & Filters -->
+                <div class="bg-white p-4 rounded-xl shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+                    <div class="relative w-full md:w-96">
+                        <i class="fa-solid fa-search absolute left-3 top-3.5 text-slate-400"></i>
+                        <input type="text" id="searchInput" oninput="filterRequests()" placeholder="Search by client or title..." class="w-full pl-10 pr-4 py-2 border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500">
                     </div>
-                  </div>
-                  <div>
-                    <h3 className="font-bold text-slate-800 text-lg">{req.title}</h3>
-                    <p className="text-sm text-slate-500 mt-1">👤 Client: {req.client}</p>
-                  </div>
-                  <div className="border-t border-slate-100 pt-3 text-xs text-slate-600 space-y-1">
-                    <p>📅 Move Date: {req.date}</p>
-                    <p>🚚 Assigned Crew: {req.crew}</p>
-                  </div>
+                    <div class="flex items-center gap-2">
+                        <button onclick="setStatusFilter('All')" id="btn-All" class="px-4 py-2 bg-slate-900 text-white rounded-lg text-sm font-medium">All</button>
+                        <button onclick="setStatusFilter('Pending Survey')" id="btn-Pending" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-medium">Pending</button>
+                        <button onclick="setStatusFilter('Completed')" id="btn-Completed" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-lg text-sm font-medium">Completed</button>
+                    </div>
                 </div>
-              ))
-            ) : (
-              <p className="text-slate-500 col-span-full text-center py-10">No requests found matching your criteria.</p>
-            )}
-          </div>
 
-        </main>
-      </div>
+                <!-- Cards Grid -->
+                <div id="requestsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Dynamic Cards will load here -->
+                </div>
 
-      {/* نافذة منبثقة (Modal) لإضافة طلب جديد */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-xl">
-            <div className="flex justify-between items-center border-b pb-3">
-              <h3 className="text-lg font-bold text-slate-800">Add New Move Request</h3>
-              <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600 text-xl">✕</button>
-            </div>
-            <form onSubmit={handleAddRequest} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Move Title / Description</label>
-                <input 
-                  type="text" 
-                  required
-                  placeholder="e.g., Villa Relocation" 
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 text-sm"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Client Name</label>
-                <input 
-                  type="text" 
-                  required
-                  placeholder="e.g., Mohammed Al-Lawati" 
-                  value={newClient}
-                  onChange={(e) => setNewClient(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 text-sm"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Move Date</label>
-                  <input 
-                    type="date" 
-                    value={newDate}
-                    onChange={(e) => setNewDate(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 text-sm"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-semibold text-slate-600 mb-1">Status</label>
-                  <select 
-                    value={newStatus}
-                    onChange={(e) => setNewStatus(e.target.value)}
-                    className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 text-sm bg-white"
-                  >
-                    <option value="Pending Survey">Pending Survey</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Completed">Completed</option>
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-slate-600 mb-1">Assigned Crew</label>
-                <input 
-                  type="text" 
-                  placeholder="e.g., Truck #2 (4 Movers)" 
-                  value={newCrew}
-                  onChange={(e) => setNewCrew(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 text-sm"
-                />
-              </div>
-              <div className="flex justify-end space-x-3 pt-3 border-t">
-                <button 
-                  type="button" 
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 border rounded-lg text-sm text-slate-600 hover:bg-slate-50"
-                >
-                  Cancel
-                </button>
-                <button 
-                  type="submit" 
-                  className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-medium"
-                >
-                  Save Request
-                </button>
-              </div>
-            </form>
-          </div>
+            </main>
         </div>
-      )}
 
     </div>
-  );
-}
+
+    <!-- Modal Form -->
+    <div id="requestModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-xl">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-lg font-bold text-slate-800">Add New Move Request</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 text-xl font-bold">✕</button>
+            </div>
+            <form onsubmit="addNewRequest(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Move Title</label>
+                    <input type="text" id="modalTitle" required placeholder="e.g., Villa Relocation" class="w-full px-3 py-2 border rounded-lg text-sm">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-600 mb-1">Client Name</label>
+                    <input type="text" id="modalClient" required placeholder="e.g., Ahmed Al-Balushi" class="w-full px-3 py-2 border rounded-lg text-sm">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Date</label>
+                        <input type="date" id="modalDate" class="w-full px-3 py-2 border rounded-lg text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Status</label>
+                        <select id="modalStatus" class="w-full px-3 py-2 border rounded-lg text-sm bg-white">
+                            <option value="Pending Survey">Pending Survey</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 pt-3 border-t">
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-lg text-sm text-slate-600">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-lg text-sm font-medium">Save Request</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Interactive Script -->
+    <script>
+        let requests = [
+            { id: 'REQ-0142', title: 'Villa Relocation (Al Mouj)', client: 'Ahmed Al-Balushi', date: '2026-06-18', status: 'Pending Survey', badge: 'bg-amber-50 text-amber-600' },
+            { id: 'REQ-0141', title: 'Office Move (CBD to Ghubrah)', client: 'Tech Solutions', date: '2026-06-12', status: 'Completed', badge: 'bg-emerald-50 text-emerald-600' }
+        ];
+        let currentFilter = 'All';
+
+        function renderRequests() {
+            const grid = document.getElementById('requestsGrid');
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            grid.innerHTML = '';
+
+            const filtered = requests.filter(r => {
+                const matchesSearch = r.title.toLowerCase().includes(search) || r.client.toLowerCase().includes(search);
+                const matchesFilter = currentFilter === 'All' || r.status === currentFilter;
+                return matchesSearch && matchesFilter;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<p class="text-slate-500 col-span-full text-center py-10">No requests found.</p>`;
+                return;
+            }
+
+            filtered.forEach(req => {
+                grid.innerHTML += `
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-100 p-5 space-y-4 hover:shadow-md transition">
+                        <div class="flex justify-between items-start">
+                            <span class="px-3 py-1 text-xs font-semibold rounded-full ${req.badge}">${req.status}</span>
+                            <div class="flex items-center space-x-2">
+                                <span class="text-xs text-slate-400 font-mono">${req.id}</span>
+                                <button onclick="deleteRequest('${req.id}')" class="text-red-400 hover:text-red-600 text-xs">🗑️</button>
+                            </div>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-lg">${req.title}</h3>
+                            <p class="text-sm text-slate-500 mt-1">👤 Client: ${req.client}</p>
+                        </div>
+                        <div class="border-t border-slate-100 pt-3 text-xs text-slate-600">
+                            <p>📅 Date: ${req.date}</p>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        function openModal() { document.getElementById('requestModal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('requestModal').style.display = 'none'; }
+
+        function addNewRequest(e) {
+            e.preventDefault();
+            const title = document.getElementById('modalTitle').value;
+            const client = document.getElementById('modalClient').value;
+            const date = document.getElementById('modalDate').value || '2026-06-20';
+            const status = document.getElementById('modalStatus').value;
+            let badge = 'bg-amber-50 text-amber-600';
+            if(status === 'Completed') badge = 'bg-emerald-50 text-emerald-600';
+            if(status === 'In Progress') badge = 'bg-blue-50 text-blue-600';
+
+            requests.unshift({
+                id: 'REQ-' + Math.floor(Math.random() * 900 + 100),
+                title, client, date, status, badge
+            });
+
+            closeModal();
+            renderRequests();
+        }
+
+        function deleteRequest(id) {
+            requests = requests.filter(r => r.id !== id);
+            renderRequests();
+        }
+
+        function setStatusFilter(status) {
+            currentFilter = status;
+            renderRequests();
+        }
+
+        renderRequests();
+    </script>
+</body>
+</html>
