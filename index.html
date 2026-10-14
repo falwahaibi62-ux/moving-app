@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovePro Enterprise - RBAC Edition v4.5</title>
+    <title>MovePro Enterprise - RBAC Edition v4.6</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,7 +13,6 @@
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
         #map { height: 100%; min-height: 480px; border-radius: 1rem; z-index: 10; }
-        .hidden-tab { display: none !important; }
     </style>
 </head>
 <body class="bg-slate-50 font-sans text-slate-800 antialiased h-screen flex overflow-hidden">
@@ -46,8 +45,8 @@
                     <i class="fa-solid fa-people-group w-5 text-center"></i>
                     <span>Field Staff</span>
                 </button>
-                <!-- User Management Tab - Controlled strictly by hidden-tab class -->
-                <button onclick="switchTab('users')" id="nav-users" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition hidden-tab">
+                <!-- User Management Tab - Controlled via classList hidden -->
+                <button onclick="switchTab('users')" id="nav-users" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition hidden">
                     <i class="fa-solid fa-users-gear w-5 text-center"></i>
                     <span>Users & Roles</span>
                 </button>
@@ -234,20 +233,18 @@
             const userTabBtn = document.getElementById('nav-users');
             const newReqBtn = document.getElementById('newReqBtn');
 
-            // إخفاء أو إظهار زر إدارة المستخدمين باستخدام فئة CSS الصارمة hidden-tab
             if (role === 'Admin') {
-                userTabBtn.classList.remove('hidden-tab');
-                userTabBtn.style.display = 'flex';
-                newReqBtn.style.display = 'flex';
+                userTabBtn.classList.remove('hidden');
+                newReqBtn.classList.remove('hidden');
             } else {
-                userTabBtn.classList.add('hidden-tab'); // إخفاء قطعي عن Member و Viewer
+                userTabBtn.classList.add('hidden'); // إخفاء زر Users & Roles بآلية Tailwind المباشرة
                 if (role === 'Viewer') {
-                    newReqBtn.style.display = 'none';
+                    newReqBtn.classList.add('hidden');
                     if(!document.getElementById('tab-users').classList.contains('hidden')) {
                         switchTab('requests');
                     }
                 } else {
-                    newReqBtn.style.display = 'flex'; // Member يمكنه الإضافة
+                    newReqBtn.classList.remove('hidden'); // Member يمكنه إضافة السجلات
                 }
             }
 
@@ -396,6 +393,7 @@
             saveToStorage(); renderRequests();
         }
 
+        // Initialize default role
         setRole('Admin');
         renderRequests();
         renderUsers();
