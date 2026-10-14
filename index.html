@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovePro Enterprise - RBAC Edition v4.1</title>
+    <title>MovePro Enterprise - RBAC Edition v4.2</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -45,8 +45,8 @@
                     <i class="fa-solid fa-people-group w-5 text-center"></i>
                     <span>Field Staff</span>
                 </button>
-                <!-- User Management Tab - Visible for Admin Only -->
-                <button onclick="switchTab('users')" id="nav-users" class="w-full items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
+                <!-- User Management Tab - Visible for Admin Only with strict ID -->
+                <button onclick="switchTab('users')" id="nav-users" class="w-full items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition" style="display: none;">
                     <i class="fa-solid fa-users-gear w-5 text-center"></i>
                     <span>Users & Roles</span>
                 </button>
@@ -237,14 +237,14 @@
                 userTabBtn.style.display = 'flex';
                 newReqBtn.style.display = 'flex';
             } else {
-                userTabBtn.style.display = 'none'; // إخفاء تام لزر إدارة المستخدمين عن Member و Viewer
+                userTabBtn.style.display = 'none'; // إخفاء قطعي لزر Users & Roles للعضو والمشاهد
                 if (role === 'Viewer') {
                     newReqBtn.style.display = 'none';
                     if(!document.getElementById('tab-users').classList.contains('hidden')) {
                         switchTab('requests');
                     }
                 } else {
-                    newReqBtn.style.display = 'flex'; // Member يمكنه إضافة السجلات
+                    newReqBtn.style.display = 'flex'; // Member يمكنه الإضافة
                 }
             }
 
