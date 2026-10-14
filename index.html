@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovePro Enterprise - Logistics & ERP</title>
+    <title>MovePro Enterprise - GPS & ETA v3.5</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -27,7 +27,7 @@
                     </div>
                     <div>
                         <h2 class="text-lg font-bold text-white tracking-wide leading-none">MovePro</h2>
-                        <span class="text-[10px] text-emerald-400 font-semibold tracking-wider uppercase">Enterprise v3.4</span>
+                        <span class="text-[10px] text-emerald-400 font-semibold tracking-wider uppercase">GPS-map Branch v3.5</span>
                     </div>
                 </div>
             </div>
@@ -37,13 +37,9 @@
                     <i class="fa-solid fa-boxes-packing w-5 text-center"></i>
                     <span>Move Operations</span>
                 </button>
-                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
-                    <i class="fa-solid fa-chart-line w-5 text-center"></i>
-                    <span>Dashboard & Stats</span>
-                </button>
                 <button onclick="switchTab('map')" id="nav-map" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
                     <i class="fa-solid fa-map-location-dot w-5 text-center"></i>
-                    <span>Fleet Live Map</span>
+                    <span>Live GPS & ETA Map</span>
                 </button>
                 <button onclick="switchTab('team')" id="nav-team" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
                     <i class="fa-solid fa-people-group w-5 text-center"></i>
@@ -61,7 +57,7 @@
                 <div class="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center font-bold text-white text-xs">FA</div>
                 <div class="text-xs">
                     <p class="font-semibold text-white">Fatma Al-Wahaibi</p>
-                    <p class="text-emerald-400 font-medium" id="currentUserRoleBadge">System Admin</p>
+                    <p class="text-emerald-400 font-medium">Branch: GPS-map</p>
                 </div>
             </div>
             <button onclick="resetData()" class="w-full text-center text-[11px] text-slate-500 hover:text-red-400 transition">
@@ -78,18 +74,17 @@
                 <h1 id="pageTitle" class="text-xl font-bold text-slate-900">Move Operations & Dispatch Management</h1>
                 <span class="bg-emerald-50 text-emerald-700 text-xs px-2.5 py-1 rounded-full font-medium border border-emerald-200 flex items-center space-x-1.5">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span>Systems Operational</span>
+                    <span>GPS Telematics Live</span>
                 </span>
             </div>
 
             <div class="flex items-center space-x-4">
-                <div class="bg-slate-100 p-1 rounded-xl flex items-center text-xs font-semibold">
-                    <span class="px-2 text-slate-500">Active Role:</span>
-                    <button onclick="setRole('Admin')" id="roleBtnAdmin" class="px-3 py-1 rounded-lg bg-emerald-600 text-white shadow-sm transition">Admin</button>
-                    <button onclick="setRole('Member')" id="roleBtnMember" class="px-3 py-1 rounded-lg text-slate-600 transition">Member</button>
-                    <button onclick="setRole('Viewer')" id="roleBtnViewer" class="px-3 py-1 rounded-lg text-slate-600 transition">Viewer</button>
-                </div>
-                <button onclick="openModalForAdd()" id="newReqBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow transition flex items-center space-x-2">
+                <!-- Driver Live GPS Sharing Button -->
+                <button onclick="shareMyGPS()" class="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-2 rounded-xl text-xs font-bold shadow flex items-center space-x-2 transition">
+                    <i class="fa-solid fa-location-crosshairs"></i>
+                    <span>Share My GPS Location</span>
+                </button>
+                <button onclick="openModalForAdd()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow flex items-center space-x-2">
                     <i class="fa-solid fa-plus text-xs"></i>
                     <span>Create Dispatch Order</span>
                 </button>
@@ -103,74 +98,47 @@
                 <div class="bg-white p-4 rounded-2xl border shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
                     <div class="relative w-full md:w-96">
                         <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
-                        <input type="text" id="searchInput" oninput="renderRequests()" placeholder="Search by client or title..." class="w-full pl-10 pr-4 py-2 text-sm border rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="setStatusFilter('All')" id="btn-All" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-semibold">All</button>
-                        <button onclick="setStatusFilter('Pending Survey')" id="btn-Pending" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-semibold">Pending</button>
-                        <button onclick="setStatusFilter('In Progress')" id="btn-InProgress" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-semibold">In Progress</button>
-                        <button onclick="setStatusFilter('Completed')" id="btn-Completed" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-semibold">Completed</button>
+                        <input type="text" id="searchInput" oninput="renderRequests()" placeholder="Search orders..." class="w-full pl-10 pr-4 py-2 text-sm border rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
                     </div>
                 </div>
                 <div id="requestsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </div>
 
-            <!-- TAB 2: DASHBOARD -->
-            <div id="tab-dashboard" class="hidden space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
-                    <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-2">
-                        <p class="text-xs font-bold text-slate-400 uppercase">Active Moves</p>
-                        <h3 class="text-3xl font-black text-slate-900" id="dashActiveCount">0</h3>
+            <!-- TAB 2: LIVE GPS & ETA MAP -->
+            <div id="tab-map" class="hidden space-y-4 h-[550px] flex flex-col">
+                <div class="bg-white p-4 rounded-2xl border shadow-sm flex justify-between items-center">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Fleet Live Tracking & ETA Calculator</h3>
+                        <p class="text-xs text-slate-500">Real-time coordinates and automated distance / travel time estimation.</p>
                     </div>
-                    <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-2">
-                        <p class="text-xs font-bold text-slate-400 uppercase">Total Orders</p>
-                        <h3 class="text-3xl font-black text-slate-900" id="dashTotalCount">0</h3>
-                    </div>
-                    <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-2">
-                        <p class="text-xs font-bold text-slate-400 uppercase">Staff On Duty</p>
-                        <h3 class="text-3xl font-black text-slate-900" id="dashStaffCount">0</h3>
-                    </div>
-                    <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-2">
-                        <p class="text-xs font-bold text-slate-400 uppercase">Pending Surveys</p>
-                        <h3 class="text-3xl font-black text-slate-900" id="dashPendingCount">0</h3>
+                    <div id="etaInfoBox" class="text-xs bg-emerald-50 text-emerald-800 px-3 py-1.5 rounded-xl font-bold border border-emerald-200">
+                        Select an order to calculate ETA 📍
                     </div>
                 </div>
-            </div>
-
-            <!-- TAB 3: MAP -->
-            <div id="tab-map" class="hidden space-y-4 h-[520px]">
-                <div class="bg-white p-2 rounded-2xl border shadow-sm h-full">
+                <div class="bg-white p-2 rounded-2xl border shadow-sm flex-1">
                     <div id="map"></div>
                 </div>
             </div>
 
-            <!-- TAB 4: TEAM -->
+            <!-- TAB 3: TEAM -->
             <div id="tab-team" class="hidden space-y-6">
                 <div class="flex justify-between items-center">
                     <h3 class="font-bold text-slate-900 text-lg">Field Crew Roster</h3>
-                    <button id="addStaffBtn" onclick="openStaffModal()" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-bold">Add Staff</button>
+                    <button onclick="openStaffModal()" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-bold">Add Staff</button>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-5" id="staffGrid"></div>
             </div>
 
-            <!-- TAB 5: USERS & ROLES -->
+            <!-- TAB 4: USERS -->
             <div id="tab-users" class="hidden space-y-6">
                 <div class="flex justify-between items-center">
-                    <div>
-                        <h3 class="font-bold text-slate-900 text-lg">Dashboard Users & Access Control</h3>
-                        <p class="text-xs text-slate-500">Manage user accounts and system permissions (Admin, Member, Viewer).</p>
-                    </div>
-                    <button id="addUserBtn" onclick="openUserModal()" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-bold">Add User</button>
+                    <h3 class="font-bold text-slate-900 text-lg">Dashboard Users & Access Control</h3>
+                    <button onclick="openUserModal()" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-bold">Add User</button>
                 </div>
                 <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
                     <table class="w-full text-left text-sm">
                         <thead class="bg-slate-50 border-b text-slate-400 text-xs uppercase">
-                            <tr>
-                                <th class="py-3.5 px-6">Name</th>
-                                <th class="py-3.5 px-6">Email</th>
-                                <th class="py-3.5 px-6">Access Role</th>
-                                <th class="py-3.5 px-6 text-right">Actions</th>
-                            </tr>
+                            <tr><th class="py-3 px-6">Name</th><th class="py-3 px-6">Email</th><th class="py-3 px-6">Role</th></tr>
                         </thead>
                         <tbody id="usersTableBody" class="divide-y text-slate-700"></tbody>
                     </table>
@@ -186,7 +154,7 @@
             <h3 id="modalTitleText" class="text-base font-bold text-slate-900">Create New Dispatch Order</h3>
             <form onsubmit="handleFormSubmit(event)" class="space-y-4">
                 <input type="hidden" id="editingId">
-                <input type="text" id="modalTitle" required placeholder="Move Title" class="w-full p-2.5 border rounded-xl text-sm">
+                <input type="text" id="modalTitle" required placeholder="Move Title (e.g., Villa Relocation)" class="w-full p-2.5 border rounded-xl text-sm">
                 <input type="text" id="modalClient" required placeholder="Client Name" class="w-full p-2.5 border rounded-xl text-sm">
                 <div class="grid grid-cols-2 gap-4">
                     <input type="date" id="modalDate" class="w-full p-2.5 border rounded-xl text-sm">
@@ -196,52 +164,19 @@
                         <option value="Completed">Completed</option>
                     </select>
                 </div>
-                <select id="modalAssignedStaff" class="w-full p-2.5 border rounded-xl text-sm bg-white"></select>
-                <div class="flex justify-end space-x-2 pt-2 border-t">
-                    <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-xl text-xs font-bold text-slate-600">Cancel</button>
-                    <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold">Save Order</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <div id="staffModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
-            <h3 class="font-bold text-slate-900">Add Field Staff</h3>
-            <form onsubmit="handleStaffSubmit(event)" class="space-y-4">
-                <input type="text" id="staffNameInput" required placeholder="Full Name" class="w-full p-2.5 border rounded-xl text-sm">
-                <select id="staffRoleInput" class="w-full p-2.5 border rounded-xl text-sm bg-white">
-                    <option value="Heavy Truck Driver">Heavy Truck Driver</option>
-                    <option value="Furniture Tech">Furniture Tech</option>
-                    <option value="Field Inspector">Field Inspector</option>
-                </select>
-                <input type="text" id="staffPhoneInput" required placeholder="Phone Number" class="w-full p-2.5 border rounded-xl text-sm">
-                <div class="flex justify-end space-x-2 pt-2 border-t">
-                    <button type="button" onclick="closeStaffModal()" class="px-4 py-2 border rounded-xl text-xs">Cancel</button>
-                    <button type="submit" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs">Save Staff</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- User Modal - English Only -->
-    <div id="userModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
-            <h3 class="font-bold text-slate-900 text-base">Add Dashboard User & Role</h3>
-            <form onsubmit="handleUserSubmit(event)" class="space-y-4">
-                <input type="text" id="userNameInput" required placeholder="User Name" class="w-full p-2.5 border rounded-xl text-sm">
-                <input type="email" id="userEmailInput" required placeholder="Email Address" class="w-full p-2.5 border rounded-xl text-sm">
                 <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Access Level</label>
-                    <select id="userRoleInput" class="w-full p-2.5 border rounded-xl text-sm bg-white">
-                        <option value="Admin">Admin (Full Control)</option>
-                        <option value="Member">Member (Operations & Add)</option>
-                        <option value="Viewer">Viewer (Read Only)</option>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Destination Location (for ETA & Map)</label>
+                    <select id="modalDestination" class="w-full p-2.5 border rounded-xl text-sm bg-white">
+                        <option value="23.5900,58.4100">Al Mouj Muscat (Lat: 23.59, Lng: 58.41)</option>
+                        <option value="23.6100,58.5400">Muttrah Corniche (Lat: 23.61, Lng: 58.54)</option>
+                        <option value="23.5600,58.1800">Seeb Wilayat (Lat: 23.56, Lng: 58.18)</option>
+                        <option value="23.5850,58.3850">Qurum Heights (Lat: 23.585, Lng: 58.385)</option>
                     </select>
                 </div>
+                <select id="modalAssignedStaff" class="w-full p-2.5 border rounded-xl text-sm bg-white"></select>
                 <div class="flex justify-end space-x-2 pt-2 border-t">
-                    <button type="button" onclick="closeUserModal()" class="px-4 py-2 border rounded-xl text-xs">Cancel</button>
-                    <button type="submit" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs">Save User</button>
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-xl text-xs font-bold">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold">Save Order</button>
                 </div>
             </form>
         </div>
@@ -250,12 +185,11 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        let currentRole = 'Admin';
-        let currentFilter = 'All';
         let map = null;
+        let driverMarker = null;
 
         let requests = JSON.parse(localStorage.getItem('movepro_requests')) || [
-            { id: 'REQ-2026-0142', title: 'Villa Relocation (Al Mouj to Qurum)', client: 'Ahmed Al-Balushi', date: '2026-10-18', status: 'Pending Survey', assigned: 'Salim Al-Harthy', badge: 'bg-amber-50 text-amber-700 border-amber-200' }
+            { id: 'REQ-2026-0142', title: 'Villa Relocation (Al Mouj to Qurum)', client: 'Ahmed Al-Balushi', date: '2026-10-18', status: 'In Progress', assigned: 'Salim Al-Harthy', destCoords: [23.5900, 58.4100], badge: 'bg-blue-50 text-blue-700 border-blue-200' }
         ];
         let staff = JSON.parse(localStorage.getItem('movepro_staff')) || [
             { id: 1, name: 'Salim Al-Harthy', role: 'Heavy Truck Driver', phone: '+968 9511 2233', status: 'In Transit' }
@@ -268,50 +202,99 @@
             localStorage.setItem('movepro_requests', JSON.stringify(requests));
             localStorage.setItem('movepro_staff', JSON.stringify(staff));
             localStorage.setItem('movepro_users', JSON.stringify(users));
-            updateDashStats();
-        }
-
-        function resetData() {
-            if(confirm('Reset all data?')) { localStorage.clear(); location.reload(); }
-        }
-
-        function updateDashStats() {
-            document.getElementById('dashTotalCount').innerText = requests.length;
-            document.getElementById('dashActiveCount').innerText = requests.filter(r => r.status === 'In Progress').length;
-            document.getElementById('dashPendingCount').innerText = requests.filter(r => r.status === 'Pending Survey').length;
-            document.getElementById('dashStaffCount').innerText = staff.length;
-        }
-
-        function setRole(role) {
-            currentRole = role;
-            document.getElementById('roleBtnAdmin').className = role === 'Admin' ? 'px-3 py-1 rounded-lg bg-emerald-600 text-white shadow-sm transition' : 'px-3 py-1 rounded-lg text-slate-600 transition';
-            document.getElementById('roleBtnMember').className = role === 'Member' ? 'px-3 py-1 rounded-lg bg-emerald-600 text-white shadow-sm transition' : 'px-3 py-1 rounded-lg text-slate-600 transition';
-            document.getElementById('roleBtnViewer').className = role === 'Viewer' ? 'px-3 py-1 rounded-lg bg-emerald-600 text-white shadow-sm transition' : 'px-3 py-1 rounded-lg text-slate-600 transition';
-            document.getElementById('newReqBtn').style.display = role === 'Viewer' ? 'none' : 'flex';
-            document.getElementById('currentUserRoleBadge').innerText = role === 'Admin' ? 'System Admin' : (role === 'Member' ? 'Operations Member' : 'Viewer Only');
-            renderRequests();
-            renderUsers();
         }
 
         function switchTab(tab) {
-            ['requests', 'dashboard', 'map', 'team', 'users'].forEach(t => {
+            ['requests', 'map', 'team', 'users'].forEach(t => {
                 document.getElementById(`tab-${t}`).classList.add('hidden');
                 document.getElementById(`nav-${t}`).className = 'w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition';
             });
             document.getElementById(`tab-${tab}`).classList.remove('hidden');
             document.getElementById(`nav-${tab}`).className = 'w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl bg-emerald-600 text-white font-medium shadow-md transition';
 
-            const titles = { requests: 'Move Operations & Dispatch Management', dashboard: 'Dashboard & Statistics', map: 'Muscat Fleet GPS Tracking Map', team: 'Field Crew Roster', users: 'Dashboard Users & Access Control' };
+            const titles = { requests: 'Move Operations & Dispatch Management', map: 'Live GPS Tracking & ETA Calculator', team: 'Field Crew Roster', users: 'Dashboard Users & Roles' };
             document.getElementById('pageTitle').innerText = titles[tab];
 
             if(tab === 'map') {
-                setTimeout(() => {
-                    if(!map) {
-                        map = L.map('map').setView([23.5880, 58.3829], 12);
-                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-                        L.marker([23.5900, 58.4100]).addTo(map).bindPopup('<b>Truck #01</b><br>Salim Al-Harthy');
-                    } else { map.invalidateSize(); }
-                }, 200);
+                setTimeout(() => { initMap(); }, 200);
+            }
+        }
+
+        // Feature 1: Live Driver GPS Tracking via HTML5 Geolocation API
+        function shareMyGPS() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    alert(`GPS Location Acquired Successfully!\nLat: ${lat.toFixed(4)}, Lng: ${lng.toFixed(4)}`);
+                    
+                    // Save live driver position to localStorage
+                    localStorage.setItem('live_driver_lat', lat);
+                    localStorage.setItem('live_driver_lng', lng);
+
+                    // Switch to map tab and update marker
+                    switchTab('map');
+                    if (map) {
+                        if (driverMarker) map.removeLayer(driverMarker);
+                        driverMarker = L.marker([lat, lng]).addTo(map)
+                            .bindPopup('<b>Your Live GPS Location (Driver)</b>').openPopup();
+                        map.setView([lat, lng], 14);
+                    }
+                }, error => {
+                    alert('Unable to retrieve your location. Please enable GPS permissions.');
+                });
+            } else {
+                alert('Geolocation is not supported by your browser');
+            }
+        }
+
+        // Feature 2: ETA and Distance Calculation using OSRM Public API
+        async function calculateETA(destLat, destLng, orderTitle) {
+            const box = document.getElementById('etaInfoBox');
+            box.innerHTML = `Calculating ETA for ${orderTitle}... ⏳`;
+
+            // Default starting point (Muscat Depot / Al Khuwair)
+            const startLat = 23.5880;
+            const startLng = 58.3829;
+
+            try {
+                // Free public OSRM driving routing API
+                const response = await fetch(`https://router.project-osrm.org/route/v1/driving/${startLng},${startLat};${destLng},${destLat}?overview=false`);
+                const data = await response.json();
+
+                if (data.routes && data.routes.length > 0) {
+                    const distanceKm = (data.routes[0].distance / 1000).toFixed(1);
+                    const durationMinutes = Math.round(data.routes[0].duration / 60);
+                    box.innerHTML = `📍 <b>${orderTitle}</b> | Distance: <b>${distanceKm} km</b> | Est. ETA: <span class="text-blue-700 font-black">${durationMinutes} mins</span>`;
+                } else {
+                    box.innerHTML = `Route calculation failed. Showing direct coordinates.`;
+                }
+            } catch (err) {
+                box.innerHTML = `ETA Error: Could not connect to routing service.`;
+            }
+        }
+
+        function initMap() {
+            if (!map) {
+                map = L.map('map').setView([23.5880, 58.3829], 12);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+
+                // Check if driver shared live GPS
+                const savedLat = localStorage.getItem('live_driver_lat');
+                const savedLng = localStorage.getItem('live_driver_lng');
+                if (savedLat && savedLng) {
+                    driverMarker = L.marker([savedLat, savedLng]).addTo(map).bindPopup('<b>Live Driver GPS Position</b>');
+                }
+
+                // Render active orders on map
+                requests.forEach(req => {
+                    if (req.destCoords) {
+                        const marker = L.marker(req.destCoords).addTo(map);
+                        marker.bindPopup(`<b>${req.title}</b><br>Client: ${req.client}<br><button onclick="calculateETA(${req.destCoords[0]}, ${req.destCoords[1]}, '${req.title}')" class="mt-2 bg-emerald-600 text-white px-2 py-1 rounded text-xs">Calculate ETA ⏱️</button>`);
+                    }
+                });
+            } else {
+                map.invalidateSize();
             }
         }
 
@@ -319,57 +302,29 @@
             const grid = document.getElementById('requestsGrid');
             const search = document.getElementById('searchInput').value.toLowerCase();
             grid.innerHTML = '';
-            const filtered = requests.filter(r => (r.title.toLowerCase().includes(search) || r.client.toLowerCase().includes(search)) && (currentFilter === 'All' || r.status === currentFilter));
+            const filtered = requests.filter(r => r.title.toLowerCase().includes(search) || r.client.toLowerCase().includes(search));
 
             if(filtered.length === 0) { grid.innerHTML = `<p class="text-slate-400 col-span-full text-center py-12 text-sm">No orders found.</p>`; return; }
 
             filtered.forEach(req => {
-                let actionBtns = currentRole === 'Admin' ? `<button onclick="openModalForEdit('${req.id}')" class="text-blue-500 text-xs p-1">✏️</button><button onclick="deleteRequest('${req.id}')" class="text-red-400 text-xs p-1">🗑️</button>` : (currentRole === 'Member' ? `<button onclick="openModalForEdit('${req.id}')" class="text-blue-500 text-xs p-1">✏️</button>` : '');
                 grid.innerHTML += `
                     <div class="bg-white rounded-2xl border p-5 space-y-3 shadow-sm">
                         <div class="flex justify-between items-start">
                             <span class="px-3 py-1 text-[11px] font-bold rounded-full border ${req.badge}">${req.status}</span>
-                            <div class="flex items-center space-x-2"><span class="text-xs font-mono text-slate-400">${req.id}</span>${actionBtns}</div>
+                            <span class="text-xs font-mono text-slate-400">${req.id}</span>
                         </div>
-                        <div><h3 class="font-bold text-slate-900 text-base">${req.title}</h3><p class="text-xs text-slate-500 mt-1">👤 ${req.client}</p><p class="text-xs text-emerald-700 mt-0.5">🚚 ${req.assigned || 'Unassigned'}</p></div>
-                        <div class="border-t pt-3 flex justify-between text-xs text-slate-500"><span>📅 ${req.date}</span><span class="text-emerald-600 font-bold cursor-pointer" onclick="switchTab('map')">View Map 📍</span></div>
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-base">${req.title}</h3>
+                            <p class="text-xs text-slate-500 mt-1">👤 Client: ${req.client}</p>
+                            <p class="text-xs text-emerald-700 mt-0.5">🚚 Crew: ${req.assigned || 'Unassigned'}</p>
+                        </div>
+                        <div class="border-t pt-3 flex justify-between text-xs text-slate-500">
+                            <span>📅 ${req.date}</span>
+                            <span class="text-emerald-600 font-bold cursor-pointer" onclick="switchTab('map'); calculateETA(${req.destCoords ? req.destCoords[0] : 23.59}, ${req.destCoords ? req.destCoords[1] : 58.41}, '${req.title}');">Track & ETA 📍</span>
+                        </div>
                     </div>`;
             });
         }
-
-        function renderStaff() {
-            const grid = document.getElementById('staffGrid');
-            grid.innerHTML = '';
-            staff.forEach(s => {
-                grid.innerHTML += `<div class="bg-white rounded-2xl border p-5 space-y-2 shadow-sm"><div class="flex justify-between"><h4 class="font-bold text-slate-900">${s.name}</h4><span class="text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-bold">${s.status}</span></div><p class="text-xs text-slate-500">${s.role}</p><p class="text-xs text-emerald-600 font-bold">📞 ${s.phone}</p></div>`;
-            });
-        }
-
-        function renderUsers() {
-            const tbody = document.getElementById('usersTableBody');
-            tbody.innerHTML = '';
-            users.forEach(u => {
-                let deleteBtn = currentRole === 'Admin' ? `<button onclick="deleteUser(${u.id})" class="text-red-400 text-xs font-semibold">Remove</button>` : '';
-                tbody.innerHTML += `<tr><td class="py-3.5 px-6 font-semibold">${u.name}</td><td class="py-3.5 px-6 text-slate-500">${u.email}</td><td class="py-3.5 px-6"><span class="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-bold">${u.role}</span></td><td class="py-3.5 px-6 text-right">${deleteBtn}</td></tr>`;
-            });
-        }
-
-        function openStaffModal() { document.getElementById('staffModal').style.display = 'flex'; }
-        function closeStaffModal() { document.getElementById('staffModal').style.display = 'none'; }
-        function handleStaffSubmit(e) {
-            e.preventDefault();
-            staff.push({ id: Date.now(), name: document.getElementById('staffNameInput').value, role: document.getElementById('staffRoleInput').value, phone: document.getElementById('staffPhoneInput').value, status: 'On Duty' });
-            saveToStorage(); closeStaffModal(); renderStaff(); populateStaffOptions();
-        }
-
-        function openUserModal() { document.getElementById('userModal').style.display = 'flex'; }
-        function closeUserModal() { document.getElementById('userModal').style.display = 'none'; }
-        function handleUserSubmit(e) {
-            e.preventDefault();
-            users.push({ id: Date.now(), name: document.getElementById('userNameInput').value, email: document.getElementById('userEmailInput').value, role: document.getElementById('userRoleInput').value });
-            saveToStorage(); closeUserModal(); renderUsers();
-        }
-        function deleteUser(id) { users = users.filter(u => u.id !== id); saveToStorage(); renderUsers(); }
 
         function populateStaffOptions() {
             const select = document.getElementById('modalAssignedStaff');
@@ -384,38 +339,43 @@
             document.getElementById('modalTitle').value = ''; document.getElementById('modalClient').value = '';
             document.getElementById('requestModal').style.display = 'flex';
         }
-        function openModalForEdit(id) {
-            const req = requests.find(r => r.id === id); if(!req) return;
-            populateStaffOptions();
-            document.getElementById('editingId').value = req.id;
-            document.getElementById('modalTitleText').innerText = 'Edit Order (' + req.id + ')';
-            document.getElementById('modalTitle').value = req.title; document.getElementById('modalClient').value = req.client;
-            document.getElementById('requestModal').style.display = 'flex';
-        }
         function closeModal() { document.getElementById('requestModal').style.display = 'none'; }
 
         function handleFormSubmit(e) {
             e.preventDefault();
-            const editingId = document.getElementById('editingId').value;
             const title = document.getElementById('modalTitle').value;
             const client = document.getElementById('modalClient').value;
             const date = document.getElementById('modalDate').value || '2026-10-20';
             const status = document.getElementById('modalStatus').value;
             const assigned = document.getElementById('modalAssignedStaff').value;
-            let badge = status === 'Completed' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : (status === 'In Progress' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-amber-50 text-amber-700 border-amber-200');
+            const destCoords = document.getElementById('modalDestination').value.split(',').map(Number);
+            let badge = status === 'Completed' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-blue-50 text-blue-700 border-blue-200';
 
-            if (editingId) {
-                requests = requests.map(r => r.id === editingId ? { ...r, title, client, date, status, assigned, badge } : r);
-            } else {
-                requests.unshift({ id: 'REQ-2026-' + Math.floor(Math.random() * 9000 + 1000), title, client, date, status, assigned, badge });
-            }
+            requests.unshift({ id: 'REQ-2026-' + Math.floor(Math.random() * 9000 + 1000), title, client, date, status, assigned, destCoords, badge });
             saveToStorage(); closeModal(); renderRequests();
         }
 
-        function deleteRequest(id) { requests = requests.filter(r => r.id !== id); saveToStorage(); renderRequests(); }
-        function setStatusFilter(status) { currentFilter = status; renderRequests(); }
+        function renderStaff() {
+            const grid = document.getElementById('staffGrid');
+            if(grid) {
+                grid.innerHTML = '';
+                staff.forEach(s => {
+                    grid.innerHTML += `<div class="bg-white rounded-2xl border p-5 space-y-2 shadow-sm"><h4 class="font-bold text-slate-900">${s.name}</h4><p class="text-xs text-slate-500">${s.role}</p><p class="text-xs text-emerald-600 font-bold">📞 ${s.phone}</p></div>`;
+                });
+            }
+        }
 
-        populateStaffOptions(); updateDashStats(); renderRequests(); renderStaff(); renderUsers();
+        function renderUsers() {
+            const tbody = document.getElementById('usersTableBody');
+            if(tbody) {
+                tbody.innerHTML = '';
+                users.forEach(u => {
+                    tbody.innerHTML += `<tr><td class="py-3 px-6 font-semibold">${u.name}</td><td class="py-3 px-6 text-slate-500">${u.email}</td><td class="py-3 px-6"><span class="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-bold">${u.role}</span></td></tr>`;
+                });
+            }
+        }
+
+        populateStaffOptions(); renderRequests(); renderStaff(); renderUsers();
     </script>
 </body>
 </html>
