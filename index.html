@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovePro Enterprise - RBAC Edition v4.3</title>
+    <title>MovePro Enterprise - RBAC Edition v4.4</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -45,7 +45,7 @@
                     <i class="fa-solid fa-people-group w-5 text-center"></i>
                     <span>Field Staff</span>
                 </button>
-                <!-- User Management Tab - Controlled strictly by JS -->
+                <!-- User Management Tab - Hidden for Member and Viewer -->
                 <button onclick="switchTab('users')" id="nav-users" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
                     <i class="fa-solid fa-users-gear w-5 text-center"></i>
                     <span>Users & Roles</span>
@@ -233,19 +233,19 @@
             const userTabBtn = document.getElementById('nav-users');
             const newReqBtn = document.getElementById('newReqBtn');
 
-            // التحكم الحاسم في ظهور عناصر الإدارة بناءً على الصلاحية
+            // إخفاء أو إظهار القุ่ม بشكل قاطع ودقيق
             if (role === 'Admin') {
-                userTabBtn.style.display = 'flex';
+                userTabBtn.style.setProperty('display', 'flex', 'important');
                 newReqBtn.style.display = 'flex';
             } else {
-                userTabBtn.style.display = 'none'; // إخفاء زر إدارة المستخدمين تماماً للعضو والمشاهد
+                userTabBtn.style.setProperty('display', 'none', 'important'); // إخفاء تام عن Member و Viewer
                 if (role === 'Viewer') {
                     newReqBtn.style.display = 'none';
                     if(!document.getElementById('tab-users').classList.contains('hidden')) {
                         switchTab('requests');
                     }
                 } else {
-                    newReqBtn.style.display = 'flex'; // العضو يمكنه الإضافة
+                    newReqBtn.style.display = 'flex'; // Member يمكنه الإضافة
                 }
             }
 
@@ -281,7 +281,7 @@
                 setTimeout(() => {
                     if(!map) {
                         map = L.map('map').setView([23.5880, 58.3829], 12);
-                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/*').addTo(map);
+                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
                     } else { map.invalidateSize(); }
                 }, 200);
             }
