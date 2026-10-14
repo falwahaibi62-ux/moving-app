@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovePro Enterprise - Mobile Responsive v5.2</title>
+    <title>MovePro Enterprise - Mobile Responsive v5.3</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -79,7 +79,6 @@
     <!-- ================= MAIN WRAPPER ================= -->
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden h-full">
 
-        <!-- HEADER -->
         <header class="bg-white border-b border-slate-200 h-16 px-4 md:px-8 flex items-center justify-between shrink-0 shadow-sm gap-2">
             <div class="flex items-center space-x-3 min-w-0">
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-700 p-2 rounded-lg hover:bg-slate-100 shrink-0">
@@ -95,14 +94,12 @@
             </div>
 
             <div class="flex items-center space-x-2 shrink-0">
-                <!-- Role Switcher Simulator -->
                 <div class="bg-slate-100 p-1 rounded-xl flex items-center text-[11px] md:text-xs font-semibold">
                     <span class="px-1.5 text-slate-500 hidden sm:inline">Role:</span>
                     <button onclick="setRole('Admin')" id="roleBtnAdmin" class="px-2 md:px-3 py-1 rounded-lg bg-emerald-600 text-white shadow-sm transition">Admin</button>
                     <button onclick="setRole('Member')" id="roleBtnMember" class="px-2 md:px-3 py-1 rounded-lg text-slate-600 transition">Member</button>
                     <button onclick="setRole('Viewer')" id="roleBtnViewer" class="px-2 md:px-3 py-1 rounded-lg text-slate-600 transition">Viewer</button>
                 </div>
-                <!-- Create Button -->
                 <button onclick="openModalForAdd()" id="newReqBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white p-2 md:px-4 md:py-2 rounded-xl text-xs md:text-sm font-semibold shadow flex items-center space-x-1.5">
                     <i class="fa-solid fa-plus"></i>
                     <span class="hidden sm:inline">Create Dispatch</span>
@@ -110,7 +107,6 @@
             </div>
         </header>
 
-        <!-- CONTENT BODY -->
         <main class="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar space-y-6">
 
             <!-- TAB 1: REQUESTS -->
@@ -220,7 +216,9 @@
                 <!-- Customer Signature Canvas -->
                 <div class="space-y-1">
                     <label class="block text-xs font-bold text-slate-700">Customer Signature</label>
-                    <canvas id="signatureCanvas" width="400" height="140" class="border border-slate-300 rounded-xl bg-white w-full cursor-crosshair touch-none"></canvas>
+                    <div class="border border-slate-300 rounded-xl bg-white overflow-hidden">
+                        <canvas id="signatureCanvas" width="400" height="140" class="w-full cursor-crosshair touch-none block"></canvas>
+                    </div>
                     <button type="button" onclick="clearSignature()" class="text-xs text-red-500 font-semibold hover:underline">Clear Signature</button>
                 </div>
 
@@ -290,17 +288,17 @@
             ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            canvas.removeEventListener('mousedown', startDraw);
-            canvas.removeEventListener('touchstart', startDraw);
-            canvas.removeEventListener('mousemove', drawing);
-            canvas.removeEventListener('touchmove', drawing);
+            // إزالة الأحداث السابقة لمنع التكرار
+            canvas.onmousedown = null;
+            canvas.ontart = null;
+            canvas.onmousemove = null;
+            canvas.ontouchmove = null;
 
             canvas.addEventListener('mousedown', startDraw);
-            canvas.addEventListener('touchstart', startDraw);
+            canvas.addEventListener('touchstart', startDraw, { passive: false });
             canvas.addEventListener('mousemove', drawing);
-            canvas.addEventListener('touchmove', drawing);
-            window.removeEventListener('mouseup', stopDraw);
-            window.removeEventListener('touchend', stopDraw);
+            canvas.addEventListener('touchmove', drawing, { passive: false });
+            
             window.addEventListener('mouseup', stopDraw);
             window.addEventListener('touchend', stopDraw);
         }
@@ -309,7 +307,10 @@
             const rect = canvas.getBoundingClientRect();
             const clientX = e.clientX || (e.touches && e.touches[0].clientX);
             const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-            return { x: clientX - rect.left, y: clientY - rect.top };
+            return { 
+                x: clientX - rect.left, 
+                y: clientY - rect.top 
+            };
         }
 
         function startDraw(e) {
@@ -326,7 +327,8 @@
             const pos = getPosition(e);
             ctx.lineTo(pos.x, pos.y);
             ctx.strokeStyle = '#0f172a';
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 2.5;
+            ctx.lineCap = 'round';
             ctx.stroke();
         }
 
@@ -446,7 +448,7 @@
                     actionBtns = `<button onclick="openModalForEdit('${req.id}')" class="text-blue-500 text-xs p-1">✏️</button>`;
                 }
 
-                let sigThumb = req.signature ? `<div class="mt-2 text-[10px] text-emerald-600 font-bold">✓ Signed</div>` : '';
+                let sigThumb = req.signature ? `<div class="mt-2"><span class="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">✓ Signed</span><div class="mt-1"><img src="${req.signature}" class="h-10 border rounded bg-white p-1"></div></div>` : '';
                 let imgCount = (req.images && req.images.length > 0) ? `<div class="mt-1 text-[10px] text-blue-600 font-semibold">📷 ${req.images.length} Image(s) Attached</div>` : '';
 
                 grid.innerHTML += `
@@ -543,7 +545,7 @@
             document.getElementById('modalTitle').value = ''; 
             document.getElementById('modalClient').value = '';
             document.getElementById('requestModal').style.display = 'flex';
-            setTimeout(initSignaturePad, 100);
+            setTimeout(initSignaturePad, 150);
         }
 
         function openModalForEdit(id) {
@@ -555,7 +557,7 @@
             document.getElementById('modalTitle').value = req.title; 
             document.getElementById('modalClient').value = req.client;
             document.getElementById('requestModal').style.display = 'flex';
-            setTimeout(initSignaturePad, 100);
+            setTimeout(initSignaturePad, 150);
         }
 
         function closeModal() { document.getElementById('requestModal').style.display = 'none'; }
@@ -588,14 +590,14 @@
                 if (editingId) {
                     requests = requests.map(r => r.id === editingId ? { 
                         ...r, title, client, date, status, assigned, badge, 
-                        signature: signatureData || r.signature,
+                        signature: signatureData && signatureData.length > 50 ? signatureData : r.signature,
                         images: processedImages.length > 0 ? processedImages : r.images 
                     } : r);
                 } else {
                     requests.unshift({ 
                         id: 'REQ-2026-' + Math.floor(Math.random() * 9000 + 1000), 
                         title, client, date, status, assigned, badge,
-                        signature: signatureData,
+                        signature: signatureData && signatureData.length > 50 ? signatureData : '',
                         images: processedImages
                     });
                 }
