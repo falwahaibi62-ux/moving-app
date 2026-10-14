@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovePro Enterprise - RBAC Edition v4.9</title>
+    <title>MovePro Enterprise - RBAC Edition v5.0</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -48,6 +48,11 @@
                 <button onclick="switchTab('users')" id="nav-users" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition hidden">
                     <i class="fa-solid fa-users-gear w-5 text-center"></i>
                     <span>Users & Roles</span>
+                </button>
+                <!-- PDF Reports Tab - Admin Only -->
+                <button onclick="switchTab('reports')" id="nav-reports" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition hidden">
+                    <i class="fa-solid fa-file-pdf w-5 text-center"></i>
+                    <span>PDF Reports</span>
                 </button>
             </nav>
         </div>
@@ -146,6 +151,37 @@
                 </div>
             </div>
 
+            <!-- TAB 5: PDF REPORTS (ADMIN ONLY) -->
+            <div id="tab-reports" class="hidden space-y-6">
+                <div class="flex justify-between items-center bg-white p-6 rounded-2xl border shadow-sm">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-lg">Executive Operations PDF Report</h3>
+                        <p class="text-xs text-slate-500 mt-1">Generate comprehensive analytics and dispatch summaries. Restricted to Admin.</p>
+                    </div>
+                    <button onclick="generatePDFReport()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow flex items-center space-x-2">
+                        <i class="fa-solid fa-file-pdf"></i>
+                        <span>Export Detailed PDF</span>
+                    </button>
+                </div>
+                <div class="bg-white p-6 rounded-2xl border shadow-sm space-y-4">
+                    <h4 class="font-bold text-slate-800 text-sm">Report Preview Summary</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="p-4 bg-slate-50 rounded-xl border">
+                            <p class="text-xs text-slate-500">Total Dispatch Orders</p>
+                            <p class="text-xl font-bold text-slate-900 mt-1" id="reportTotalReqs">0</p>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-xl border">
+                            <p class="text-xs text-slate-500">Active Field Staff</p>
+                            <p class="text-xl font-bold text-emerald-600 mt-1" id="reportTotalStaff">0</p>
+                        </div>
+                        <div class="p-4 bg-slate-50 rounded-xl border">
+                            <p class="text-xs text-slate-500">System Users</p>
+                            <p class="text-xl font-bold text-blue-600 mt-1" id="reportTotalUsers">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </main>
     </div>
 
@@ -228,37 +264,42 @@
             document.getElementById('currentUserRoleBadge').innerText = role + ' Role';
 
             const userTabBtn = document.getElementById('nav-users');
+            const reportsTabBtn = document.getElementById('nav-reports');
             const newReqBtn = document.getElementById('newReqBtn');
             const addStaffBtn = document.getElementById('addStaffBtn');
             const isAdmin = role === 'Admin';
             const isViewer = role === 'Viewer';
 
             userTabBtn.classList.toggle('hidden', !isAdmin);
+            reportsTabBtn.classList.toggle('hidden', !isAdmin);
             newReqBtn.classList.toggle('hidden', isViewer);
             if (addStaffBtn) {
                 addStaffBtn.classList.toggle('hidden', isViewer);
             }
 
-            if (!isAdmin && !document.getElementById('tab-users').classList.contains('hidden')) {
+            if (!isAdmin && (!document.getElementById('tab-users').classList.contains('hidden') || !document.getElementById('tab-reports').classList.contains('hidden'))) {
                 switchTab('requests');
             }
 
             renderRequests();
             renderUsers();
             renderStaff();
+            updateReportStats();
         }
 
         function switchTab(tab) {
-            if (tab === 'users' && currentRole !== 'Admin') {
-                alert('Access Denied: User Management is restricted to Administrators only.');
+            if ((tab === 'users' || tab === 'reports') && currentRole !== 'Admin') {
+                alert('Access Denied: Restricted to Administrators only.');
                 return;
             }
 
-            ['requests', 'map', 'team', 'users'].forEach(t => {
+            ['requests', 'map', 'team', 'users', 'reports'].forEach(t => {
                 const el = document.getElementById(`tab-${t}`);
                 const navEl = document.getElementById(`nav-${t}`);
                 if (el) el.classList.add('hidden');
-                if (navEl && t !== 'users') {
+                if (navEl && t !== 'users' && t !== 'reports') {
+                    navEl.className = 'w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition';
+                } else if (navEl) {
                     navEl.className = 'w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition';
                 }
             });
@@ -269,7 +310,7 @@
                 activeNav.className = 'w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl bg-emerald-600 text-white font-medium shadow-md transition';
             }
 
-            const titles = { requests: 'Move Operations & Dispatch Management', map: 'Live Fleet GPS Map', team: 'Field Crew Roster', users: 'Dashboard Users & Access Control' };
+            const titles = { requests: 'Move Operations & Dispatch Management', map: 'Live Fleet GPS Map', team: 'Field Crew Roster', users: 'Dashboard Users & Access Control', reports: 'Executive PDF Reports' };
             document.getElementById('pageTitle').innerText = titles[tab];
 
             if(tab === 'map') {
@@ -280,6 +321,20 @@
                     } else { map.invalidateSize(); }
                 }, 200);
             }
+        }
+
+        function updateReportStats() {
+            document.getElementById('reportTotalReqs').innerText = requests.length;
+            document.getElementById('reportTotalStaff').innerText = staff.length;
+            document.getElementById('reportTotalUsers').innerText = users.length;
+        }
+
+        function generatePDFReport() {
+            if (currentRole !== 'Admin') {
+                alert('Access Denied');
+                return;
+            }
+            window.print();
         }
 
         function renderRequests() {
@@ -365,7 +420,7 @@
             e.preventDefault();
             if (currentRole !== 'Admin') return;
             users.push({ id: Date.now(), name: document.getElementById('userNameInput').value, email: document.getElementById('userEmailInput').value, role: document.getElementById('userRoleInput').value });
-            saveToStorage(); closeUserModal(); renderUsers();
+            saveToStorage(); closeUserModal(); renderUsers(); updateReportStats();
         }
 
         function deleteUser(id) {
@@ -373,6 +428,7 @@
             users = users.filter(u => u.id !== id);
             saveToStorage();
             renderUsers();
+            updateReportStats();
         }
 
         function populateStaffOptions() {
@@ -415,7 +471,7 @@
             } else {
                 requests.unshift({ id: 'REQ-2026-' + Math.floor(Math.random() * 9000 + 1000), title, client, date, status, assigned, badge });
             }
-            saveToStorage(); closeModal(); renderRequests();
+            saveToStorage(); closeModal(); renderRequests(); updateReportStats();
         }
 
         function deleteRequest(id) {
@@ -424,13 +480,14 @@
                 return;
             }
             requests = requests.filter(r => r.id !== id);
-            saveToStorage(); renderRequests();
+            saveToStorage(); renderRequests(); updateReportStats();
         }
 
         setRole('Admin');
         renderRequests();
         renderUsers();
         renderStaff();
+        updateReportStats();
     </script>
 </body>
 </html>
