@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovePro Enterprise - Logistics & ERP</title>
+    <title>MovePro Enterprise - RBAC Edition v3.6</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -23,11 +23,11 @@
             <div class="p-5 flex items-center justify-between border-b border-slate-800">
                 <div class="flex items-center space-x-3">
                     <div class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 font-bold text-xl">
-                        <i class="fa-solid fa-truck-ramp-box"></i>
+                        <i class="fa-solid fa-shield-halved"></i>
                     </div>
                     <div>
                         <h2 class="text-lg font-bold text-white tracking-wide leading-none">MovePro</h2>
-                        <span class="text-[10px] text-emerald-400 font-semibold tracking-wider uppercase">Enterprise v3.4</span>
+                        <span class="text-[10px] text-emerald-400 font-semibold tracking-wider uppercase">Branch: user-roles</span>
                     </div>
                 </div>
             </div>
@@ -37,21 +37,18 @@
                     <i class="fa-solid fa-boxes-packing w-5 text-center"></i>
                     <span>Move Operations</span>
                 </button>
-                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
-                    <i class="fa-solid fa-chart-line w-5 text-center"></i>
-                    <span>Dashboard & Stats</span>
-                </button>
                 <button onclick="switchTab('map')" id="nav-map" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
                     <i class="fa-solid fa-map-location-dot w-5 text-center"></i>
-                    <span>Fleet Live Map</span>
+                    <span>Live GPS Map</span>
                 </button>
                 <button onclick="switchTab('team')" id="nav-team" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
                     <i class="fa-solid fa-people-group w-5 text-center"></i>
                     <span>Field Staff</span>
                 </button>
+                <!-- Users & Roles tab wrapper controlled dynamically by RBAC -->
                 <button onclick="switchTab('users')" id="nav-users" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
                     <i class="fa-solid fa-users-gear w-5 text-center"></i>
-                    <span>Users & Roles</span>
+                    <span>Users & Roles (Admin Only)</span>
                 </button>
             </nav>
         </div>
@@ -61,7 +58,7 @@
                 <div class="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center font-bold text-white text-xs">FA</div>
                 <div class="text-xs">
                     <p class="font-semibold text-white">Fatma Al-Wahaibi</p>
-                    <p class="text-emerald-400 font-medium" id="currentUserRoleBadge">System Admin</p>
+                    <p class="text-emerald-400 font-medium" id="currentUserRoleBadge">Admin Role</p>
                 </div>
             </div>
             <button onclick="resetData()" class="w-full text-center text-[11px] text-slate-500 hover:text-red-400 transition">
@@ -78,18 +75,20 @@
                 <h1 id="pageTitle" class="text-xl font-bold text-slate-900">Move Operations & Dispatch Management</h1>
                 <span class="bg-emerald-50 text-emerald-700 text-xs px-2.5 py-1 rounded-full font-medium border border-emerald-200 flex items-center space-x-1.5">
                     <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span>Systems Operational</span>
+                    <span>RBAC Enforced</span>
                 </span>
             </div>
 
             <div class="flex items-center space-x-4">
+                <!-- Role Switcher Simulator for Testing RBAC -->
                 <div class="bg-slate-100 p-1 rounded-xl flex items-center text-xs font-semibold">
-                    <span class="px-2 text-slate-500">Active Role:</span>
+                    <span class="px-2 text-slate-500">Test Role:</span>
                     <button onclick="setRole('Admin')" id="roleBtnAdmin" class="px-3 py-1 rounded-lg bg-emerald-600 text-white shadow-sm transition">Admin</button>
                     <button onclick="setRole('Member')" id="roleBtnMember" class="px-3 py-1 rounded-lg text-slate-600 transition">Member</button>
                     <button onclick="setRole('Viewer')" id="roleBtnViewer" class="px-3 py-1 rounded-lg text-slate-600 transition">Viewer</button>
                 </div>
-                <button onclick="openModalForAdd()" id="newReqBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow transition flex items-center space-x-2">
+                <!-- Create Button (Hidden for Viewer) -->
+                <button onclick="openModalForAdd()" id="newReqBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow flex items-center space-x-2">
                     <i class="fa-solid fa-plus text-xs"></i>
                     <span>Create Dispatch Order</span>
                 </button>
@@ -103,74 +102,47 @@
                 <div class="bg-white p-4 rounded-2xl border shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
                     <div class="relative w-full md:w-96">
                         <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
-                        <input type="text" id="searchInput" oninput="renderRequests()" placeholder="Search by client or title..." class="w-full pl-10 pr-4 py-2 text-sm border rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
-                    </div>
-                    <div class="flex items-center gap-2">
-                        <button onclick="setStatusFilter('All')" id="btn-All" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-semibold">All</button>
-                        <button onclick="setStatusFilter('Pending Survey')" id="btn-Pending" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-semibold">Pending</button>
-                        <button onclick="setStatusFilter('In Progress')" id="btn-InProgress" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-semibold">In Progress</button>
-                        <button onclick="setStatusFilter('Completed')" id="btn-Completed" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-semibold">Completed</button>
+                        <input type="text" id="searchInput" oninput="renderRequests()" placeholder="Search orders..." class="w-full pl-10 pr-4 py-2 text-sm border rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/40">
                     </div>
                 </div>
                 <div id="requestsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </div>
 
-            <!-- TAB 2: DASHBOARD -->
-            <div id="tab-dashboard" class="hidden space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
-                    <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-2">
-                        <p class="text-xs font-bold text-slate-400 uppercase">Active Moves</p>
-                        <h3 class="text-3xl font-black text-slate-900" id="dashActiveCount">0</h3>
-                    </div>
-                    <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-2">
-                        <p class="text-xs font-bold text-slate-400 uppercase">Total Orders</p>
-                        <h3 class="text-3xl font-black text-slate-900" id="dashTotalCount">0</h3>
-                    </div>
-                    <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-2">
-                        <p class="text-xs font-bold text-slate-400 uppercase">Staff On Duty</p>
-                        <h3 class="text-3xl font-black text-slate-900" id="dashStaffCount">0</h3>
-                    </div>
-                    <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-2">
-                        <p class="text-xs font-bold text-slate-400 uppercase">Pending Surveys</p>
-                        <h3 class="text-3xl font-black text-slate-900" id="dashPendingCount">0</h3>
+            <!-- TAB 2: LIVE MAP -->
+            <div id="tab-map" class="hidden space-y-4 h-[550px] flex flex-col">
+                <div class="bg-white p-4 rounded-2xl border shadow-sm flex justify-between items-center">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-base">Live Fleet Map & Tracking</h3>
+                        <p class="text-xs text-slate-500">Real-time GPS tracking and route overview.</p>
                     </div>
                 </div>
-            </div>
-
-            <!-- TAB 3: MAP -->
-            <div id="tab-map" class="hidden space-y-4 h-[520px]">
-                <div class="bg-white p-2 rounded-2xl border shadow-sm h-full">
+                <div class="bg-white p-2 rounded-2xl border shadow-sm flex-1">
                     <div id="map"></div>
                 </div>
             </div>
 
-            <!-- TAB 4: TEAM -->
+            <!-- TAB 3: TEAM -->
             <div id="tab-team" class="hidden space-y-6">
                 <div class="flex justify-between items-center">
                     <h3 class="font-bold text-slate-900 text-lg">Field Crew Roster</h3>
-                    <button id="addStaffBtn" onclick="openStaffModal()" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-bold">Add Staff</button>
+                    <button onclick="openStaffModal()" id="addStaffBtn" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-bold">Add Staff</button>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-5" id="staffGrid"></div>
             </div>
 
-            <!-- TAB 5: USERS & ROLES -->
+            <!-- TAB 4: USERS & ROLES (ADMIN ONLY) -->
             <div id="tab-users" class="hidden space-y-6">
                 <div class="flex justify-between items-center">
                     <div>
-                        <h3 class="font-bold text-slate-900 text-lg">Dashboard Users & Access Control</h3>
-                        <p class="text-xs text-slate-500">Manage user accounts and system permissions (Admin, Member, Viewer).</p>
+                        <h3 class="font-bold text-slate-900 text-lg">Dashboard Users & Access Management</h3>
+                        <p class="text-xs text-slate-500">Restricted to System Administrator only.</p>
                     </div>
-                    <button id="addUserBtn" onclick="openUserModal()" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-bold">Add User</button>
+                    <button onclick="openUserModal()" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-bold">Add User Account</button>
                 </div>
                 <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
                     <table class="w-full text-left text-sm">
                         <thead class="bg-slate-50 border-b text-slate-400 text-xs uppercase">
-                            <tr>
-                                <th class="py-3.5 px-6">Name</th>
-                                <th class="py-3.5 px-6">Email</th>
-                                <th class="py-3.5 px-6">Access Role</th>
-                                <th class="py-3.5 px-6 text-right">Actions</th>
-                            </tr>
+                            <tr><th class="py-3 px-6">Name</th><th class="py-3 px-6">Email</th><th class="py-3 px-6">Role</th><th class="py-3 px-6 text-right">Actions</th></tr>
                         </thead>
                         <tbody id="usersTableBody" class="divide-y text-slate-700"></tbody>
                     </table>
@@ -198,47 +170,24 @@
                 </div>
                 <select id="modalAssignedStaff" class="w-full p-2.5 border rounded-xl text-sm bg-white"></select>
                 <div class="flex justify-end space-x-2 pt-2 border-t">
-                    <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-xl text-xs font-bold text-slate-600">Cancel</button>
+                    <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-xl text-xs font-bold">Cancel</button>
                     <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold">Save Order</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <div id="staffModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
-            <h3 class="font-bold text-slate-900">Add Field Staff</h3>
-            <form onsubmit="handleStaffSubmit(event)" class="space-y-4">
-                <input type="text" id="staffNameInput" required placeholder="Full Name" class="w-full p-2.5 border rounded-xl text-sm">
-                <select id="staffRoleInput" class="w-full p-2.5 border rounded-xl text-sm bg-white">
-                    <option value="Heavy Truck Driver">Heavy Truck Driver</option>
-                    <option value="Furniture Tech">Furniture Tech</option>
-                    <option value="Field Inspector">Field Inspector</option>
-                </select>
-                <input type="text" id="staffPhoneInput" required placeholder="Phone Number" class="w-full p-2.5 border rounded-xl text-sm">
-                <div class="flex justify-end space-x-2 pt-2 border-t">
-                    <button type="button" onclick="closeStaffModal()" class="px-4 py-2 border rounded-xl text-xs">Cancel</button>
-                    <button type="submit" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs">Save Staff</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- User Modal - English Only -->
     <div id="userModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
-            <h3 class="font-bold text-slate-900 text-base">Add Dashboard User & Role</h3>
+            <h3 class="font-bold text-slate-900 text-base">Add System User</h3>
             <form onsubmit="handleUserSubmit(event)" class="space-y-4">
                 <input type="text" id="userNameInput" required placeholder="User Name" class="w-full p-2.5 border rounded-xl text-sm">
                 <input type="email" id="userEmailInput" required placeholder="Email Address" class="w-full p-2.5 border rounded-xl text-sm">
-                <div>
-                    <label class="block text-xs font-bold text-slate-700 mb-1">Access Level</label>
-                    <select id="userRoleInput" class="w-full p-2.5 border rounded-xl text-sm bg-white">
-                        <option value="Admin">Admin (Full Control)</option>
-                        <option value="Member">Member (Operations & Add)</option>
-                        <option value="Viewer">Viewer (Read Only)</option>
-                    </select>
-                </div>
+                <select id="userRoleInput" class="w-full p-2.5 border rounded-xl text-sm bg-white">
+                    <option value="Admin">Admin (Full Control)</option>
+                    <option value="Member">Member (Input Only - No Delete)</option>
+                    <option value="Viewer">Viewer (Read Only)</option>
+                </select>
                 <div class="flex justify-end space-x-2 pt-2 border-t">
                     <button type="button" onclick="closeUserModal()" class="px-4 py-2 border rounded-xl text-xs">Cancel</button>
                     <button type="submit" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs">Save User</button>
@@ -251,11 +200,10 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         let currentRole = 'Admin';
-        let currentFilter = 'All';
         let map = null;
 
         let requests = JSON.parse(localStorage.getItem('movepro_requests')) || [
-            { id: 'REQ-2026-0142', title: 'Villa Relocation (Al Mouj to Qurum)', client: 'Ahmed Al-Balushi', date: '2026-10-18', status: 'Pending Survey', assigned: 'Salim Al-Harthy', badge: 'bg-amber-50 text-amber-700 border-amber-200' }
+            { id: 'REQ-2026-0142', title: 'Villa Relocation (Al Mouj to Qurum)', client: 'Ahmed Al-Balushi', date: '2026-10-18', status: 'In Progress', assigned: 'Salim Al-Harthy', badge: 'bg-blue-50 text-blue-700 border-blue-200' }
         ];
         let staff = JSON.parse(localStorage.getItem('movepro_staff')) || [
             { id: 1, name: 'Salim Al-Harthy', role: 'Heavy Truck Driver', phone: '+968 9511 2233', status: 'In Transit' }
@@ -268,40 +216,58 @@
             localStorage.setItem('movepro_requests', JSON.stringify(requests));
             localStorage.setItem('movepro_staff', JSON.stringify(staff));
             localStorage.setItem('movepro_users', JSON.stringify(users));
-            updateDashStats();
         }
 
         function resetData() {
             if(confirm('Reset all data?')) { localStorage.clear(); location.reload(); }
         }
 
-        function updateDashStats() {
-            document.getElementById('dashTotalCount').innerText = requests.length;
-            document.getElementById('dashActiveCount').innerText = requests.filter(r => r.status === 'In Progress').length;
-            document.getElementById('dashPendingCount').innerText = requests.filter(r => r.status === 'Pending Survey').length;
-            document.getElementById('dashStaffCount').innerText = staff.length;
-        }
-
+        // RBAC Role Switcher & Permission Enforcement
         function setRole(role) {
             currentRole = role;
             document.getElementById('roleBtnAdmin').className = role === 'Admin' ? 'px-3 py-1 rounded-lg bg-emerald-600 text-white shadow-sm transition' : 'px-3 py-1 rounded-lg text-slate-600 transition';
             document.getElementById('roleBtnMember').className = role === 'Member' ? 'px-3 py-1 rounded-lg bg-emerald-600 text-white shadow-sm transition' : 'px-3 py-1 rounded-lg text-slate-600 transition';
             document.getElementById('roleBtnViewer').className = role === 'Viewer' ? 'px-3 py-1 rounded-lg bg-emerald-600 text-white shadow-sm transition' : 'px-3 py-1 rounded-lg text-slate-600 transition';
-            document.getElementById('newReqBtn').style.display = role === 'Viewer' ? 'none' : 'flex';
-            document.getElementById('currentUserRoleBadge').innerText = role === 'Admin' ? 'System Admin' : (role === 'Member' ? 'Operations Member' : 'Viewer Only');
+            
+            document.getElementById('currentUserRoleBadge').innerText = role + ' Role';
+
+            // RBAC UI Enforcement:
+            // Viewer & Member cannot see User Management Tab
+            const userTabBtn = document.getElementById('nav-users');
+            if (role === 'Admin') {
+                userTabBtn.style.display = 'flex';
+                document.getElementById('newReqBtn.style.display') = 'flex';
+            } else {
+                userTabBtn.style.display = 'none';
+                if (currentRole === 'Viewer') {
+                    document.getElementById('newReqBtn').style.display = 'none';
+                    if(document.getElementById('tab-users').classList.contains('hidden') === false) {
+                        switchTab('requests');
+                    }
+                } else {
+                    document.getElementById('newReqBtn').style.display = 'flex'; // Member can add input
+                }
+            }
+
             renderRequests();
             renderUsers();
         }
 
         function switchTab(tab) {
-            ['requests', 'dashboard', 'map', 'team', 'users'].forEach(t => {
+            // Block Viewer from accessing Users Tab
+            if (tab === 'users' && currentRole !== 'Admin') {
+                alert('Access Denied: User Management is restricted to Administrators only.');
+                return;
+            }
+
+            ['requests', 'map', 'team', 'users'].forEach(t => {
                 document.getElementById(`tab-${t}`).classList.add('hidden');
                 document.getElementById(`nav-${t}`).className = 'w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition';
             });
             document.getElementById(`tab-${tab}`).classList.remove('hidden');
             document.getElementById(`nav-${tab}`).className = 'w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl bg-emerald-600 text-white font-medium shadow-md transition';
 
-            const titles = { requests: 'Move Operations & Dispatch Management', dashboard: 'Dashboard & Statistics', map: 'Muscat Fleet GPS Tracking Map', team: 'Field Crew Roster', users: 'Dashboard Users & Access Control' };
+            const titles = { requests: 'Move Operations & Dispatch Management', map: 'Live Fleet GPS Map', team: 'Field Crew Roster', users: 'Dashboard Users & Access Control' };
             document.getElementById('pageTitle').innerText = titles[tab];
 
             if(tab === 'map') {
@@ -309,7 +275,7 @@
                     if(!map) {
                         map = L.map('map').setView([23.5880, 58.3829], 12);
                         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-                        L.marker([23.5900, 58.4100]).addTo(map).bindPopup('<b>Truck #01</b><br>Salim Al-Harthy');
+                        L.marker([23.5900, 58.4100]).addTo(map).bindPopup('<b>Truck #01</b>');
                     } else { map.invalidateSize(); }
                 }, 200);
             }
@@ -319,47 +285,50 @@
             const grid = document.getElementById('requestsGrid');
             const search = document.getElementById('searchInput').value.toLowerCase();
             grid.innerHTML = '';
-            const filtered = requests.filter(r => (r.title.toLowerCase().includes(search) || r.client.toLowerCase().includes(search)) && (currentFilter === 'All' || r.status === currentFilter));
+            const filtered = requests.filter(r => r.title.toLowerCase().includes(search) || r.client.toLowerCase().includes(search));
 
             if(filtered.length === 0) { grid.innerHTML = `<p class="text-slate-400 col-span-full text-center py-12 text-sm">No orders found.</p>`; return; }
 
             filtered.forEach(req => {
-                let actionBtns = currentRole === 'Admin' ? `<button onclick="openModalForEdit('${req.id}')" class="text-blue-500 text-xs p-1">✏️</button><button onclick="deleteRequest('${req.id}')" class="text-red-400 text-xs p-1">🗑️</button>` : (currentRole === 'Member' ? `<button onclick="openModalForEdit('${req.id}')" class="text-blue-500 text-xs p-1">✏️</button>` : '');
+                // RBAC Actions Rule:
+                // Admin: Edit & Delete
+                // Member: Edit only (No Delete)
+                // Viewer: No Edit, No Delete
+                let actionBtns = '';
+                if (currentRole === 'Admin') {
+                    actionBtns = `<button onclick="openModalForEdit('${req.id}')" class="text-blue-500 text-xs p-1">✏️</button><button onclick="deleteRequest('${req.id}')" class="text-red-400 text-xs p-1">🗑️</button>`;
+                } else if (currentRole === 'Member') {
+                    actionBtns = `<button onclick="openModalForEdit('${req.id}')" class="text-blue-500 text-xs p-1">✏️</button>`;
+                }
+
                 grid.innerHTML += `
                     <div class="bg-white rounded-2xl border p-5 space-y-3 shadow-sm">
                         <div class="flex justify-between items-start">
                             <span class="px-3 py-1 text-[11px] font-bold rounded-full border ${req.badge}">${req.status}</span>
                             <div class="flex items-center space-x-2"><span class="text-xs font-mono text-slate-400">${req.id}</span>${actionBtns}</div>
                         </div>
-                        <div><h3 class="font-bold text-slate-900 text-base">${req.title}</h3><p class="text-xs text-slate-500 mt-1">👤 ${req.client}</p><p class="text-xs text-emerald-700 mt-0.5">🚚 ${req.assigned || 'Unassigned'}</p></div>
-                        <div class="border-t pt-3 flex justify-between text-xs text-slate-500"><span>📅 ${req.date}</span><span class="text-emerald-600 font-bold cursor-pointer" onclick="switchTab('map')">View Map 📍</span></div>
+                        <div>
+                            <h3 class="font-bold text-slate-900 text-base">${req.title}</h3>
+                            <p class="text-xs text-slate-500 mt-1">👤 Client: ${req.client}</p>
+                            <p class="text-xs text-emerald-700 mt-0.5">🚚 Crew: ${req.assigned || 'Unassigned'}</p>
+                        </div>
+                        <div class="border-t pt-3 flex justify-between text-xs text-slate-500">
+                            <span>📅 ${req.date}</span>
+                            <span class="text-emerald-600 font-bold cursor-pointer" onclick="switchTab('map')">View Map 📍</span>
+                        </div>
                     </div>`;
-            });
-        }
-
-        function renderStaff() {
-            const grid = document.getElementById('staffGrid');
-            grid.innerHTML = '';
-            staff.forEach(s => {
-                grid.innerHTML += `<div class="bg-white rounded-2xl border p-5 space-y-2 shadow-sm"><div class="flex justify-between"><h4 class="font-bold text-slate-900">${s.name}</h4><span class="text-xs bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full font-bold">${s.status}</span></div><p class="text-xs text-slate-500">${s.role}</p><p class="text-xs text-emerald-600 font-bold">📞 ${s.phone}</p></div>`;
             });
         }
 
         function renderUsers() {
             const tbody = document.getElementById('usersTableBody');
-            tbody.innerHTML = '';
-            users.forEach(u => {
-                let deleteBtn = currentRole === 'Admin' ? `<button onclick="deleteUser(${u.id})" class="text-red-400 text-xs font-semibold">Remove</button>` : '';
-                tbody.innerHTML += `<tr><td class="py-3.5 px-6 font-semibold">${u.name}</td><td class="py-3.5 px-6 text-slate-500">${u.email}</td><td class="py-3.5 px-6"><span class="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-bold">${u.role}</span></td><td class="py-3.5 px-6 text-right">${deleteBtn}</td></tr>`;
-            });
-        }
-
-        function openStaffModal() { document.getElementById('staffModal').style.display = 'flex'; }
-        function closeStaffModal() { document.getElementById('staffModal').style.display = 'none'; }
-        function handleStaffSubmit(e) {
-            e.preventDefault();
-            staff.push({ id: Date.now(), name: document.getElementById('staffNameInput').value, role: document.getElementById('staffRoleInput').value, phone: document.getElementById('staffPhoneInput').value, status: 'On Duty' });
-            saveToStorage(); closeStaffModal(); renderStaff(); populateStaffOptions();
+            if(tbody) {
+                tbody.innerHTML = '';
+                users.forEach(u => {
+                    let deleteBtn = currentRole === 'Admin' ? `<button onclick="deleteUser(${u.id})" class="text-red-400 text-xs font-semibold">Remove</button>` : '';
+                    tbody.innerHTML += `<tr><td class="py-3 px-6 font-semibold">${u.name}</td><td class="py-3 px-6 text-slate-500">${u.email}</td><td class="py-3 px-6"><span class="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-bold">${u.role}</span></td><td class="py-3 px-6 text-right">${deleteBtn}</td></tr>`;
+                });
+            }
         }
 
         function openUserModal() { document.getElementById('userModal').style.display = 'flex'; }
@@ -378,6 +347,7 @@
         }
 
         function openModalForAdd() {
+            if (currentRole === 'Viewer') { alert('Permission Denied: Viewer role cannot create or input records.'); return; }
             populateStaffOptions();
             document.getElementById('editingId').value = '';
             document.getElementById('modalTitleText').innerText = 'Create New Dispatch Order';
@@ -385,6 +355,7 @@
             document.getElementById('requestModal').style.display = 'flex';
         }
         function openModalForEdit(id) {
+            if (currentRole === 'Viewer') { alert('Permission Denied: Viewer role cannot edit records.'); return; }
             const req = requests.find(r => r.id === id); if(!req) return;
             populateStaffOptions();
             document.getElementById('editingId').value = req.id;
@@ -402,7 +373,7 @@
             const date = document.getElementById('modalDate').value || '2026-10-20';
             const status = document.getElementById('modalStatus').value;
             const assigned = document.getElementById('modalAssignedStaff').value;
-            let badge = status === 'Completed' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : (status === 'In Progress' ? 'bg-blue-50 text-blue-700 border-blue-200' : 'bg-amber-50 text-amber-700 border-amber-200');
+            let badge = status === 'Completed' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-blue-50 text-blue-700 border-blue-200';
 
             if (editingId) {
                 requests = requests.map(r => r.id === editingId ? { ...r, title, client, date, status, assigned, badge } : r);
@@ -412,10 +383,18 @@
             saveToStorage(); closeModal(); renderRequests();
         }
 
-        function deleteRequest(id) { requests = requests.filter(r => r.id !== id); saveToStorage(); renderRequests(); }
-        function setStatusFilter(status) { currentFilter = status; renderRequests(); }
+        function deleteRequest(id) {
+            if (currentRole !== 'Admin') {
+                alert('Permission Denied: Only Admin can delete records.');
+                return;
+            }
+            requests = requests.filter(r => r.id !== id);
+            saveToStorage(); renderRequests();
+        }
 
-        populateStaffOptions(); updateDashStats(); renderRequests(); renderStaff(); renderUsers();
+        setRole('Admin');
+        renderRequests();
+        renderUsers();
     </script>
 </body>
 </html>
