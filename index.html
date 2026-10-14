@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovePro Enterprise - RBAC Edition v3.8</title>
+    <title>MovePro Enterprise - RBAC Edition v3.9</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -231,18 +231,20 @@
             document.getElementById('currentUserRoleBadge').innerText = role + ' Role';
 
             const userTabBtn = document.getElementById('nav-users');
+            const newReqBtn = document.getElementById('newReqBtn');
+
             if (role === 'Admin') {
                 userTabBtn.style.display = 'flex';
-                document.getElementById('newReqBtn').style.display = 'flex';
+                newReqBtn.style.display = 'flex';
             } else {
-                userTabBtn.style.display = 'none';
+                userTabBtn.style.display = 'none'; // مخفي تماماً للعضو والمشاهد
                 if (role === 'Viewer') {
-                    document.getElementById('newReqBtn').style.display = 'none';
+                    newReqBtn.style.display = 'none';
                     if(!document.getElementById('tab-users').classList.contains('hidden')) {
                         switchTab('requests');
                     }
                 } else {
-                    document.getElementById('newReqBtn').style.display = 'flex';
+                    newReqBtn.style.display = 'flex'; // العضو يمكنه الإضافة
                 }
             }
 
@@ -257,9 +259,12 @@
             }
 
             ['requests', 'map', 'team', 'users'].forEach(t => {
-                document.getElementById(`tab-${t}`).classList.add('hidden');
-                document.getElementById(`nav-${t}`).className = 'w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition';
+                const el = document.getElementById(`tab-${t}`);
+                const navEl = document.getElementById(`nav-${t}`);
+                if (el) el.classList.add('hidden');
+                if (navEl) navEl.className = 'w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition';
             });
+            
             document.getElementById(`tab-${tab}`).classList.remove('hidden');
             document.getElementById(`nav-${tab}`).className = 'w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl bg-emerald-600 text-white font-medium shadow-md transition';
 
