@@ -12,10 +12,10 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     
-    <!-- React & ReactDOM (Development / Production via CDN) -->
+    <!-- React & ReactDOM -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <!-- Babel standalone for JSX parsing in browser -->
+    <!-- Babel standalone -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
     <style>
@@ -28,7 +28,6 @@
 
     <div id="root" class="w-full h-full"></div>
 
-    <!-- React Application Component Script -->
     <script type="text/babel">
         const { useState, useEffect } = React;
 
@@ -54,17 +53,14 @@
             const [filterStatus, setFilterStatus] = useState('All');
             const [searchTerm, setSearchTerm] = useState('');
 
-            // Persistent State Management via localStorage
             const [requests, setRequests] = useState(() => JSON.parse(localStorage.getItem('react_movepro_reqs')) || initialRequests);
             const [staff, setStaff] = useState(() => JSON.parse(localStorage.getItem('react_movepro_staff')) || initialStaff);
             const [users, setUsers] = useState(() => JSON.parse(localStorage.getItem('react_movepro_users')) || initialUsers);
 
-            // Modals Visibility State
             const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
             const [isStaffModalOpen, setIsStaffModalOpen] = useState(false);
             const [isUserModalOpen, setIsUserModalOpen] = useState(false);
 
-            // Form Inputs State
             const [editingId, setEditingId] = useState(null);
             const [formTitle, setFormTitle] = useState('');
             const [formClient, setFormClient] = useState('');
@@ -93,7 +89,6 @@
                 localStorage.setItem('react_movepro_users', JSON.stringify(users));
             }, [users]);
 
-            // Leaflet Map Initialization Hook
             useEffect(() => {
                 if (activeTab === 'map') {
                     const timer = setTimeout(() => {
@@ -161,3 +156,259 @@
             };
 
             const handleAddUser = (e) => {
+                e.preventDefault();
+                setUsers([...users, { id: Date.now(), name: userName, email: userEmail, role: userRole }]);
+                setIsUserModalOpen(false);
+                setUserName(''); setUserEmail('');
+            };
+
+            const filteredRequests = requests.filter(r => 
+                (r.title.toLowerCase().includes(searchTerm.toLowerCase()) || r.client.toLowerCase().includes(searchTerm.toLowerCase())) &&
+                (filterStatus === 'All' || r.status === filterStatus)
+            );
+
+            return (
+                <div className="flex h-full w-full">
+                    <aside className="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between shrink-0 shadow-xl">
+                        <div>
+                            <div className="p-5 flex items-center space-x-3 border-b border-slate-800">
+                                <i className="fa-solid fa-atom text-2xl text-emerald-400"></i>
+                                <div>
+                                    <h2 className="text-lg font-bold text-white leading-none">MovePro</h2>
+                                    <span className="text-[10px] text-emerald-400 font-semibold uppercase">React Architecture</span>
+                                </div>
+                            </div>
+                            <nav className="p-4 space-y-1.5 text-sm">
+                                <button onClick={() => setActiveTab('requests')} className={`w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl transition font-medium ${activeTab === 'requests' ? 'bg-emerald-600 text-white shadow-md' : 'hover:bg-slate-800/80 text-slate-400'}`}>
+                                    <i className="fa-solid fa-boxes-packing w-5 text-center"></i>
+                                    <span>Move Operations</span>
+                                </button>
+                                <button onClick={() => setActiveTab('dashboard')} className={`w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl transition font-medium ${activeTab === 'dashboard' ? 'bg-emerald-600 text-white shadow-md' : 'hover:bg-slate-800/80 text-slate-400'}`}>
+                                    <i className="fa-solid fa-chart-line w-5 text-center"></i>
+                                    <span>Dashboard & Stats</span>
+                                </button>
+                                <button onClick={() => setActiveTab('map')} className={`w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl transition font-medium ${activeTab === 'map' ? 'bg-emerald-600 text-white shadow-md' : 'hover:bg-slate-800/80 text-slate-400'}`}>
+                                    <i className="fa-solid fa-map-location-dot w-5 text-center"></i>
+                                    <span>Fleet Live Map</span>
+                                </button>
+                                <button onClick={() => setActiveTab('team')} className={`w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl transition font-medium ${activeTab === 'team' ? 'bg-emerald-600 text-white shadow-md' : 'hover:bg-slate-800/80 text-slate-400'}`}>
+                                    <i className="fa-solid fa-people-group w-5 text-center"></i>
+                                    <span>Field Staff</span>
+                                </button>
+                                <button onClick={() => setActiveTab('users')} className={`w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl transition font-medium ${activeTab === 'users' ? 'bg-emerald-600 text-white shadow-md' : 'hover:bg-slate-800/80 text-slate-400'}`}>
+                                    <i className="fa-solid fa-users-gear w-5 text-center"></i>
+                                    <span>Users & Roles</span>
+                                </button>
+                            </nav>
+                        </div>
+                        <div className="p-4 border-t border-slate-800 text-xs flex items-center space-x-3">
+                            <div className="w-8 h-8 rounded-full bg-emerald-600 flex items-center justify-center font-bold text-white">FA</div>
+                            <div>
+                                <p className="font-semibold text-white">Fatma Al-Wahaibi</p>
+                                <p className="text-emerald-400">{currentRole} Access</p>
+                            </div>
+                        </div>
+                    </aside>
+
+                    <div className="flex-1 flex flex-col min-w-0">
+                        <header className="bg-white border-b border-slate-200 h-16 px-8 flex items-center justify-between shrink-0 shadow-sm">
+                            <h1 className="text-xl font-bold text-slate-900">
+                                {activeTab === 'requests' && 'Move Operations & Dispatch Management'}
+                                {activeTab === 'dashboard' && 'Executive Metrics & Dashboard'}
+                                {activeTab === 'map' && 'Muscat Fleet GPS Tracking Map'}
+                                {activeTab === 'team' && 'Field Crew & Staff Roster'}
+                                {activeTab === 'users' && 'Dashboard Access & Permissions'}
+                            </h1>
+                            <div className="flex items-center space-x-4">
+                                <div className="bg-slate-100 p-1 rounded-xl text-xs font-semibold flex items-center">
+                                    <span className="px-2 text-slate-500">Role:</span>
+                                    <button onClick={() => setCurrentRole('Admin')} className={`px-3 py-1 rounded-lg ${currentRole === 'Admin' ? 'bg-emerald-600 text-white' : 'text-slate-600'}`}>Admin</button>
+                                    <button onClick={() => setCurrentRole('Member')} className={`px-3 py-1 rounded-lg ${currentRole === 'Member' ? 'bg-emerald-600 text-white' : 'text-slate-600'}`}>Member</button>
+                                    <button onClick={() => setCurrentRole('Viewer')} className={`px-3 py-1 rounded-lg ${currentRole === 'Viewer' ? 'bg-emerald-600 text-white' : 'text-slate-600'}`}>Viewer</button>
+                                </div>
+                                {currentRole !== 'Viewer' && (
+                                    <button onClick={openAddModal} className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow flex items-center space-x-2">
+                                        <i className="fa-solid fa-plus text-xs"></i>
+                                        <span>Create Dispatch Order</span>
+                                    </button>
+                                )}
+                            </div>
+                        </header>
+
+                        <main className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar">
+                            {activeTab === 'requests' && (
+                                <div className="space-y-6">
+                                    <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex justify-between items-center">
+                                        <input type="text" placeholder="Search orders..." value={searchTerm} onChange={e => setSearchTerm(e.target.value)} className="w-80 px-4 py-2 border rounded-xl text-sm"/>
+                                        <div className="flex gap-2">
+                                            {['All', 'Pending Survey', 'In Progress', 'Completed'].map(status => (
+                                                <button key={status} onClick={() => setFilterStatus(status)} className={`px-4 py-2 rounded-xl text-xs font-bold ${filterStatus === status ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-600'}`}>
+                                                    {status}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                        {filteredRequests.map(req => (
+                                            <div key={req.id} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+                                                <div className="flex justify-between items-start">
+                                                    <span className={`px-3 py-1 text-[11px] font-bold rounded-full border ${req.badge}`}>{req.status}</span>
+                                                    <div className="flex items-center space-x-2">
+                                                        <span className="text-xs font-mono text-slate-400">{req.id}</span>
+                                                        {currentRole === 'Admin' && (
+                                                            <>
+                                                                <button onClick={() => openEditModal(req)} className="text-blue-500 text-xs">✏️</button>
+                                                                <button onClick={() => handleDeleteRequest(req.id)} className="text-red-400 text-xs">🗑️</button>
+                                                            </>
+                                                        )}
+                                                        {currentRole === 'Member' && <button onClick={() => openEditModal(req)} className="text-blue-500 text-xs">✏️</button>}
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <h3 className="font-bold text-slate-900 text-base">{req.title}</h3>
+                                                    <p className="text-xs text-slate-500 mt-1">👤 Client: {req.client}</p>
+                                                    <p className="text-xs text-emerald-700 mt-0.5">🚚 Crew Lead: {req.assigned || 'Unassigned'}</p>
+                                                </div>
+                                                <div className="border-t pt-3 flex justify-between text-xs text-slate-500">
+                                                    <span>📅 {req.date}</span>
+                                                    <span onClick={() => setActiveTab('map')} className="text-emerald-600 font-bold cursor-pointer">View Map 📍</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {activeTab === 'dashboard' && (
+                                <div className="grid grid-cols-4 gap-5">
+                                    <div className="bg-white p-5 rounded-2xl border shadow-sm">
+                                        <p className="text-xs font-bold text-slate-400 uppercase">Active Moves</p>
+                                        <h3 className="text-3xl font-black text-slate-900 mt-2">{requests.filter(r => r.status === 'In Progress').length}</h3>
+                                    </div>
+                                    <div className="bg-white p-5 rounded-2xl border shadow-sm">
+                                        <p className="text-xs font-bold text-slate-400 uppercase">Total Dispatch Orders</p>
+                                        <h3 className="text-3xl font-black text-slate-900 mt-2">{requests.length}</h3>
+                                    </div>
+                                    <div className="bg-white p-5 rounded-2xl border shadow-sm">
+                                        <p className="text-xs font-bold text-slate-400 uppercase">Field Staff On Duty</p>
+                                        <h3 className="text-3xl font-black text-slate-900 mt-2">{staff.length}</h3>
+                                    </div>
+                                    <div className="bg-white p-5 rounded-2xl border shadow-sm">
+                                        <p className="text-xs font-bold text-slate-400 uppercase">Pending Surveys</p>
+                                        <h3 className="text-3xl font-black text-slate-900 mt-2">{requests.filter(r => r.status === 'Pending Survey').length}</h3>
+                                    </div>
+                                </div>
+                            )}
+
+                            {activeTab === 'map' && (
+                                <div className="bg-white p-2 rounded-2xl border shadow-sm h-[520px]">
+                                    <div id="leaflet-map"></div>
+                                </div>
+                            )}
+
+                            {activeTab === 'team' && (
+                                <div className="space-y-4">
+                                    <div className="flex justify-between items-center">
+                                        <h3 className="font-bold text-slate-900">Field Crew Members</h3>
+                                        {currentRole === 'Admin' && <button onClick={() => setIsStaffModalOpen(true)} className="bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-bold">Add Staff</button>}
+                                    </div>
+                                    <div className="grid grid-cols-3 gap-5">
+                                        {staff.map(s => (
+                                            <div key={s.id} className="bg-white p-5 rounded-2xl border shadow-sm space-y-2">
+                                                <h4 className="font-bold text-slate-900">{s.name}</h4>
+                                                <p className="text-xs text-slate-500">{s.role}</p>
+                                                <p className="text-xs text-emerald-600 font-bold">📞 {s.phone}</p>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {activeTab === 'users' && (
+                                <div className="bg-white rounded-2xl border shadow-sm overflow-hidden">
+                                    <div className="p-4 flex justify-between border-b">
+                                        <h3 className="font-bold text-slate-900">Dashboard Users</h3>
+                                        {currentRole === 'Admin' && <button onClick={() => setIsUserModalOpen(true)} className="bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-bold">Add User</button>}
+                                    </div>
+                                    <table className="w-full text-left text-sm">
+                                        <thead className="bg-slate-50 text-slate-400 text-xs uppercase">
+                                            <tr><th className="p-4">Name</th><th className="p-4">Email</th><th className="p-4">Role</th></tr>
+                                        </thead>
+                                        <tbody className="divide-y">
+                                            {users.map(u => (
+                                                <tr key={u.id}><td className="p-4 font-semibold">{u.name}</td><td className="p-4 text-slate-500">{u.email}</td><td className="p-4"><span className="bg-emerald-50 text-emerald-700 px-2 py-1 rounded-full text-xs font-bold">{u.role}</span></td></tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                        </main>
+                    </div>
+
+                    {isOrderModalOpen && (
+                        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                            <div className="bg-white rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-2xl">
+                                <h3 className="text-base font-bold text-slate-900">{editingId ? 'Edit Order' : 'Create Dispatch Order'}</h3>
+                                <form onSubmit={handleSaveOrder} className="space-y-4">
+                                    <input type="text" required placeholder="Move Title" value={formTitle} onChange={e => setFormTitle(e.target.value)} className="w-full p-2.5 border rounded-xl text-sm"/>
+                                    <input type="text" required placeholder="Client Name" value={formClient} onChange={e => setFormClient(e.target.value)} className="w-full p-2.5 border rounded-xl text-sm"/>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <input type="date" value={formDate} onChange={e => setFormDate(e.target.value)} className="w-full p-2.5 border rounded-xl text-sm"/>
+                                        <select value={formStatus} onChange={e => setFormStatus(e.target.value)} className="w-full p-2.5 border rounded-xl text-sm">
+                                            <option value="Pending Survey">Pending Survey</option>
+                                            <option value="In Progress">In Progress</option>
+                                            <option value="Completed">Completed</option>
+                                        </select>
+                                    </div>
+                                    <select value={formAssigned} onChange={e => setFormAssigned(e.target.value)} className="w-full p-2.5 border rounded-xl text-sm">
+                                        {staff.map(s => <option key={s.id} value={s.name}>{s.name} ({s.role})</option>)}
+                                    </select>
+                                    <div className="flex justify-end space-x-2 pt-2 border-t">
+                                        <button type="button" onClick={() => setIsOrderModalOpen(false)} className="px-4 py-2 border rounded-xl text-xs font-bold">Cancel</button>
+                                        <button type="submit" className="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold">Save Order</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+
+                    {isStaffModalOpen && (
+                        <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50">
+                            <div className="bg-white rounded-2xl w-full max-w-md p-6 space-y-4">
+                                <h3 className="font-bold text-slate-900">Add Field Staff</h3>
+                                <form onSubmit={handleAddStaff} className="space-y-4">
+                                    <input type="text" required placeholder="Staff Name" value={staffName} onChange={e => setStaffName(e.target.value)} className="w-full p-2.5 border rounded-xl text-sm"/>
+                                    <input type="text" required placeholder="Phone Number" value={staffPhone} onChange={e => setStaffPhone(e.target.value)} className="w-full p-2.5 border rounded-xl text-sm"/>
+                                    <div className="flex justify-end space-x-2">
+                                        <button type="button" onClick={() => setIsStaffModalOpen(false)} className="px-4 py-2 border rounded-xl text-xs">Cancel</button>
+                                        <button type="submit" className="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs">Save Staff</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+
+                    {isUserModalOpen && (
+                        <div className="fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50">
+                            <div className="bg-white rounded-2xl w-full max-w-md p-6 space-y-4">
+                                <h3 className="font-bold text-slate-900">Add Dashboard User</h3>
+                                <form onSubmit={handleAddUser} className="space-y-4">
+                                    <input type="text" required placeholder="User Name" value={userName} onChange={e => setUserName(e.target.value)} className="w-full p-2.5 border rounded-xl text-sm"/>
+                                    <input type="email" required placeholder="Email Address" value={userEmail} onChange={e => setUserEmail(e.target.value)} className="w-full p-2.5 border rounded-xl text-sm"/>
+                                    <div className="flex justify-end space-x-2">
+                                        <button type="button" onClick={() => setIsUserModalOpen(false)} className="px-4 py-2 border rounded-xl text-xs">Cancel</button>
+                                        <button type="submit" className="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs">Save User</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
