@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovePro Enterprise - RBAC Edition v3.6</title>
+    <title>MovePro Enterprise - RBAC Edition v3.8</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -45,10 +45,10 @@
                     <i class="fa-solid fa-people-group w-5 text-center"></i>
                     <span>Field Staff</span>
                 </button>
-                <!-- Users & Roles tab wrapper controlled dynamically by RBAC -->
+                <!-- User Management Tab - Visible for Admin Only -->
                 <button onclick="switchTab('users')" id="nav-users" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
                     <i class="fa-solid fa-users-gear w-5 text-center"></i>
-                    <span>Users & Roles (Admin Only)</span>
+                    <span>Users & Roles</span>
                 </button>
             </nav>
         </div>
@@ -80,14 +80,14 @@
             </div>
 
             <div class="flex items-center space-x-4">
-                <!-- Role Switcher Simulator for Testing RBAC -->
+                <!-- Role Switcher Simulator -->
                 <div class="bg-slate-100 p-1 rounded-xl flex items-center text-xs font-semibold">
                     <span class="px-2 text-slate-500">Test Role:</span>
                     <button onclick="setRole('Admin')" id="roleBtnAdmin" class="px-3 py-1 rounded-lg bg-emerald-600 text-white shadow-sm transition">Admin</button>
                     <button onclick="setRole('Member')" id="roleBtnMember" class="px-3 py-1 rounded-lg text-slate-600 transition">Member</button>
                     <button onclick="setRole('Viewer')" id="roleBtnViewer" class="px-3 py-1 rounded-lg text-slate-600 transition">Viewer</button>
                 </div>
-                <!-- Create Button (Hidden for Viewer) -->
+                <!-- Create Button -->
                 <button onclick="openModalForAdd()" id="newReqBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow flex items-center space-x-2">
                     <i class="fa-solid fa-plus text-xs"></i>
                     <span>Create Dispatch Order</span>
@@ -222,7 +222,6 @@
             if(confirm('Reset all data?')) { localStorage.clear(); location.reload(); }
         }
 
-        // RBAC Role Switcher & Permission Enforcement
         function setRole(role) {
             currentRole = role;
             document.getElementById('roleBtnAdmin').className = role === 'Admin' ? 'px-3 py-1 rounded-lg bg-emerald-600 text-white shadow-sm transition' : 'px-3 py-1 rounded-lg text-slate-600 transition';
@@ -231,21 +230,19 @@
             
             document.getElementById('currentUserRoleBadge').innerText = role + ' Role';
 
-            // RBAC UI Enforcement:
-            // Viewer & Member cannot see User Management Tab
             const userTabBtn = document.getElementById('nav-users');
             if (role === 'Admin') {
                 userTabBtn.style.display = 'flex';
-                document.getElementById('newReqBtn.style.display') = 'flex';
+                document.getElementById('newReqBtn').style.display = 'flex';
             } else {
                 userTabBtn.style.display = 'none';
-                if (currentRole === 'Viewer') {
+                if (role === 'Viewer') {
                     document.getElementById('newReqBtn').style.display = 'none';
-                    if(document.getElementById('tab-users').classList.contains('hidden') === false) {
+                    if(!document.getElementById('tab-users').classList.contains('hidden')) {
                         switchTab('requests');
                     }
                 } else {
-                    document.getElementById('newReqBtn').style.display = 'flex'; // Member can add input
+                    document.getElementById('newReqBtn').style.display = 'flex';
                 }
             }
 
@@ -254,7 +251,6 @@
         }
 
         function switchTab(tab) {
-            // Block Viewer from accessing Users Tab
             if (tab === 'users' && currentRole !== 'Admin') {
                 alert('Access Denied: User Management is restricted to Administrators only.');
                 return;
@@ -290,10 +286,6 @@
             if(filtered.length === 0) { grid.innerHTML = `<p class="text-slate-400 col-span-full text-center py-12 text-sm">No orders found.</p>`; return; }
 
             filtered.forEach(req => {
-                // RBAC Actions Rule:
-                // Admin: Edit & Delete
-                // Member: Edit only (No Delete)
-                // Viewer: No Edit, No Delete
                 let actionBtns = '';
                 if (currentRole === 'Admin') {
                     actionBtns = `<button onclick="openModalForEdit('${req.id}')" class="text-blue-500 text-xs p-1">✏️</button><button onclick="deleteRequest('${req.id}')" class="text-red-400 text-xs p-1">🗑️</button>`;
