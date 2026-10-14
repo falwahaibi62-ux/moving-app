@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovePro Enterprise - RBAC Edition v4.6</title>
+    <title>MovePro Enterprise - RBAC Edition v4.7</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -45,7 +45,6 @@
                     <i class="fa-solid fa-people-group w-5 text-center"></i>
                     <span>Field Staff</span>
                 </button>
-                <!-- User Management Tab - Controlled via classList hidden -->
                 <button onclick="switchTab('users')" id="nav-users" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition hidden">
                     <i class="fa-solid fa-users-gear w-5 text-center"></i>
                     <span>Users & Roles</span>
@@ -80,14 +79,12 @@
             </div>
 
             <div class="flex items-center space-x-4">
-                <!-- Role Switcher Simulator -->
                 <div class="bg-slate-100 p-1 rounded-xl flex items-center text-xs font-semibold">
                     <span class="px-2 text-slate-500">Active Role:</span>
                     <button onclick="setRole('Admin')" id="roleBtnAdmin" class="px-3 py-1 rounded-lg bg-emerald-600 text-white shadow-sm transition">Admin</button>
                     <button onclick="setRole('Member')" id="roleBtnMember" class="px-3 py-1 rounded-lg text-slate-600 transition">Member</button>
                     <button onclick="setRole('Viewer')" id="roleBtnViewer" class="px-3 py-1 rounded-lg text-slate-600 transition">Viewer</button>
                 </div>
-                <!-- Create Button -->
                 <button onclick="openModalForAdd()" id="newReqBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow flex items-center space-x-2">
                     <i class="fa-solid fa-plus text-xs"></i>
                     <span>Create Dispatch Order</span>
@@ -232,20 +229,13 @@
 
             const userTabBtn = document.getElementById('nav-users');
             const newReqBtn = document.getElementById('newReqBtn');
+            const isAdmin = role === 'Admin';
 
-            if (role === 'Admin') {
-                userTabBtn.classList.remove('hidden');
-                newReqBtn.classList.remove('hidden');
-            } else {
-                userTabBtn.classList.add('hidden'); // إخفاء زر Users & Roles بآلية Tailwind المباشرة
-                if (role === 'Viewer') {
-                    newReqBtn.classList.add('hidden');
-                    if(!document.getElementById('tab-users').classList.contains('hidden')) {
-                        switchTab('requests');
-                    }
-                } else {
-                    newReqBtn.classList.remove('hidden'); // Member يمكنه إضافة السجلات
-                }
+            userTabBtn.classList.toggle('hidden', !isAdmin);
+            newReqBtn.classList.toggle('hidden', role === 'Viewer');
+
+            if (!isAdmin && !document.getElementById('tab-users').classList.contains('hidden')) {
+                switchTab('requests');
             }
 
             renderRequests();
@@ -393,7 +383,6 @@
             saveToStorage(); renderRequests();
         }
 
-        // Initialize default role
         setRole('Admin');
         renderRequests();
         renderUsers();
