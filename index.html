@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovePro Enterprise - RBAC Edition v5.1</title>
+    <title>MovePro Enterprise - Mobile Responsive v5.2</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -12,13 +12,16 @@
     <style>
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
-        #map { height: 100%; min-height: 480px; border-radius: 1rem; z-index: 10; }
+        #map { height: 100%; min-height: 400px; border-radius: 1rem; z-index: 10; }
     </style>
 </head>
-<body class="bg-slate-50 font-sans text-slate-800 antialiased h-screen flex overflow-hidden">
+<body class="bg-slate-50 font-sans text-slate-800 antialiased h-screen flex flex-col md:flex-row overflow-hidden">
+
+    <!-- Mobile Overlay Backdrop -->
+    <div id="sidebarOverlay" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-slate-900/50 z-30 hidden md:hidden"></div>
 
     <!-- ================= SIDEBAR ================= -->
-    <aside class="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between shrink-0 shadow-xl">
+    <aside id="appSidebar" class="fixed inset-y-0 left-0 z-40 w-64 bg-slate-900 text-slate-300 flex flex-col justify-between shrink-0 shadow-xl transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out md:static">
         <div>
             <div class="p-5 flex items-center justify-between border-b border-slate-800">
                 <div class="flex items-center space-x-3">
@@ -30,26 +33,29 @@
                         <span class="text-[10px] text-emerald-400 font-semibold tracking-wider uppercase">Branch: user-role</span>
                     </div>
                 </div>
+                <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 hover:text-white">
+                    <i class="fa-solid fa-xmark text-lg"></i>
+                </button>
             </div>
 
             <nav class="p-4 space-y-1.5 text-sm">
-                <button onclick="switchTab('requests')" id="nav-requests" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl bg-emerald-600 text-white font-medium shadow-md transition">
+                <button onclick="switchTab('requests'); toggleMobileSidebar();" id="nav-requests" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl bg-emerald-600 text-white font-medium shadow-md transition">
                     <i class="fa-solid fa-boxes-packing w-5 text-center"></i>
                     <span>Move Operations</span>
                 </button>
-                <button onclick="switchTab('map')" id="nav-map" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
+                <button onclick="switchTab('map'); toggleMobileSidebar();" id="nav-map" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
                     <i class="fa-solid fa-map-location-dot w-5 text-center"></i>
                     <span>Live GPS Map</span>
                 </button>
-                <button onclick="switchTab('team')" id="nav-team" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
+                <button onclick="switchTab('team'); toggleMobileSidebar();" id="nav-team" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
                     <i class="fa-solid fa-people-group w-5 text-center"></i>
                     <span>Field Staff</span>
                 </button>
-                <button onclick="switchTab('users')" id="nav-users" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition hidden">
+                <button onclick="switchTab('users'); toggleMobileSidebar();" id="nav-users" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition hidden">
                     <i class="fa-solid fa-users-gear w-5 text-center"></i>
                     <span>Users & Roles</span>
                 </button>
-                <button onclick="switchTab('reports')" id="nav-reports" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition hidden">
+                <button onclick="switchTab('reports'); toggleMobileSidebar();" id="nav-reports" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition hidden">
                     <i class="fa-solid fa-file-pdf w-5 text-center"></i>
                     <span>PDF Reports</span>
                 </button>
@@ -71,32 +77,41 @@
     </aside>
 
     <!-- ================= MAIN WRAPPER ================= -->
-    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden h-full">
 
-        <header class="bg-white border-b border-slate-200 h-16 px-8 flex items-center justify-between shrink-0 shadow-sm">
-            <div class="flex items-center space-x-4">
-                <h1 id="pageTitle" class="text-xl font-bold text-slate-900">Move Operations & Dispatch Management</h1>
-                <span class="bg-emerald-50 text-emerald-700 text-xs px-2.5 py-1 rounded-full font-medium border border-emerald-200 flex items-center space-x-1.5">
-                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span>RBAC Enforced</span>
-                </span>
+        <!-- HEADER -->
+        <header class="bg-white border-b border-slate-200 h-16 px-4 md:px-8 flex items-center justify-between shrink-0 shadow-sm gap-2">
+            <div class="flex items-center space-x-3 min-w-0">
+                <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-700 p-2 rounded-lg hover:bg-slate-100 shrink-0">
+                    <i class="fa-solid fa-bars text-lg"></i>
+                </button>
+                <div class="min-w-0">
+                    <h1 id="pageTitle" class="text-base md:text-xl font-bold text-slate-900 truncate">Move Operations</h1>
+                    <span class="hidden md:inline-flex bg-emerald-50 text-emerald-700 text-xs px-2.5 py-0.5 rounded-full font-medium border border-emerald-200 items-center space-x-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span>RBAC Enforced</span>
+                    </span>
+                </div>
             </div>
 
-            <div class="flex items-center space-x-4">
-                <div class="bg-slate-100 p-1 rounded-xl flex items-center text-xs font-semibold">
-                    <span class="px-2 text-slate-500">Active Role:</span>
-                    <button onclick="setRole('Admin')" id="roleBtnAdmin" class="px-3 py-1 rounded-lg bg-emerald-600 text-white shadow-sm transition">Admin</button>
-                    <button onclick="setRole('Member')" id="roleBtnMember" class="px-3 py-1 rounded-lg text-slate-600 transition">Member</button>
-                    <button onclick="setRole('Viewer')" id="roleBtnViewer" class="px-3 py-1 rounded-lg text-slate-600 transition">Viewer</button>
+            <div class="flex items-center space-x-2 shrink-0">
+                <!-- Role Switcher Simulator -->
+                <div class="bg-slate-100 p-1 rounded-xl flex items-center text-[11px] md:text-xs font-semibold">
+                    <span class="px-1.5 text-slate-500 hidden sm:inline">Role:</span>
+                    <button onclick="setRole('Admin')" id="roleBtnAdmin" class="px-2 md:px-3 py-1 rounded-lg bg-emerald-600 text-white shadow-sm transition">Admin</button>
+                    <button onclick="setRole('Member')" id="roleBtnMember" class="px-2 md:px-3 py-1 rounded-lg text-slate-600 transition">Member</button>
+                    <button onclick="setRole('Viewer')" id="roleBtnViewer" class="px-2 md:px-3 py-1 rounded-lg text-slate-600 transition">Viewer</button>
                 </div>
-                <button onclick="openModalForAdd()" id="newReqBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-sm font-semibold shadow flex items-center space-x-2">
-                    <i class="fa-solid fa-plus text-xs"></i>
-                    <span>Create Dispatch Order</span>
+                <!-- Create Button -->
+                <button onclick="openModalForAdd()" id="newReqBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white p-2 md:px-4 md:py-2 rounded-xl text-xs md:text-sm font-semibold shadow flex items-center space-x-1.5">
+                    <i class="fa-solid fa-plus"></i>
+                    <span class="hidden sm:inline">Create Dispatch</span>
                 </button>
             </div>
         </header>
 
-        <main class="flex-1 overflow-y-auto p-8 custom-scrollbar space-y-6">
+        <!-- CONTENT BODY -->
+        <main class="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar space-y-6">
 
             <!-- TAB 1: REQUESTS -->
             <div id="tab-requests" class="space-y-6">
@@ -110,7 +125,7 @@
             </div>
 
             <!-- TAB 2: LIVE MAP -->
-            <div id="tab-map" class="hidden space-y-4 h-[550px] flex flex-col">
+            <div id="tab-map" class="hidden space-y-4 h-[450px] md:h-[550px] flex flex-col">
                 <div class="bg-white p-4 rounded-2xl border shadow-sm flex justify-between items-center">
                     <div>
                         <h3 class="font-bold text-slate-900 text-base">Live Fleet Map & Tracking</h3>
@@ -133,15 +148,15 @@
 
             <!-- TAB 4: USERS & ROLES -->
             <div id="tab-users" class="hidden space-y-6">
-                <div class="flex justify-between items-center">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
                     <div>
-                        <h3 class="font-bold text-slate-900 text-lg">Dashboard Users & Access Management</h3>
+                        <h3 class="font-bold text-slate-900 text-lg">Dashboard Users & Access</h3>
                         <p class="text-xs text-slate-500">Restricted to System Administrator only.</p>
                     </div>
                     <button onclick="openUserModal()" class="bg-slate-900 text-white px-4 py-2 rounded-xl text-xs font-bold">Add User Account</button>
                 </div>
-                <div class="bg-white rounded-2xl border shadow-sm overflow-hidden">
-                    <table class="w-full text-left text-sm">
+                <div class="bg-white rounded-2xl border shadow-sm overflow-x-auto">
+                    <table class="w-full text-left text-sm min-w-[500px]">
                         <thead class="bg-slate-50 border-b text-slate-400 text-xs uppercase">
                             <tr><th class="py-3 px-6">Name</th><th class="py-3 px-6">Email</th><th class="py-3 px-6">Role</th><th class="py-3 px-6 text-right">Actions</th></tr>
                         </thead>
@@ -152,19 +167,19 @@
 
             <!-- TAB 5: PDF REPORTS -->
             <div id="tab-reports" class="hidden space-y-6">
-                <div class="flex justify-between items-center bg-white p-6 rounded-2xl border shadow-sm">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl border shadow-sm">
                     <div>
                         <h3 class="font-bold text-slate-900 text-lg">Executive Operations PDF Report</h3>
-                        <p class="text-xs text-slate-500 mt-1">Generate comprehensive analytics and dispatch summaries. Restricted to Admin.</p>
+                        <p class="text-xs text-slate-500 mt-1">Generate comprehensive analytics and dispatch summaries.</p>
                     </div>
-                    <button onclick="generatePDFReport()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow flex items-center space-x-2">
+                    <button onclick="generatePDFReport()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow flex items-center space-x-2 w-full sm:w-auto justify-center">
                         <i class="fa-solid fa-file-pdf"></i>
                         <span>Export Detailed PDF</span>
                     </button>
                 </div>
                 <div class="bg-white p-6 rounded-2xl border shadow-sm space-y-4">
                     <h4 class="font-bold text-slate-800 text-sm">Report Preview Summary</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div class="p-4 bg-slate-50 rounded-xl border">
                             <p class="text-xs text-slate-500">Total Dispatch Orders</p>
                             <p class="text-xl font-bold text-slate-900 mt-1" id="reportTotalReqs">0</p>
@@ -192,7 +207,7 @@
                 <input type="hidden" id="editingId">
                 <input type="text" id="modalTitle" required placeholder="Move Title" class="w-full p-2.5 border rounded-xl text-sm">
                 <input type="text" id="modalClient" required placeholder="Client Name" class="w-full p-2.5 border rounded-xl text-sm">
-                <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <input type="date" id="modalDate" class="w-full p-2.5 border rounded-xl text-sm">
                     <select id="modalStatus" class="w-full p-2.5 border rounded-xl text-sm bg-white">
                         <option value="Pending Survey">Pending Survey</option>
@@ -209,7 +224,7 @@
                     <button type="button" onclick="clearSignature()" class="text-xs text-red-500 font-semibold hover:underline">Clear Signature</button>
                 </div>
 
-                <!-- Image Upload (File / Camera) -->
+                <!-- Image Upload -->
                 <div class="space-y-1">
                     <label class="block text-xs font-bold text-slate-700">Attach Photos (Camera or Gallery)</label>
                     <input type="file" id="modalImagesInput" accept="image/*" capture="environment" multiple class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
@@ -257,6 +272,13 @@
         let users = JSON.parse(localStorage.getItem('movepro_users')) || [
             { id: 1, name: 'Fatma Al-Wahaibi', email: 'fatma@movepro.com', role: 'Admin' }
         ];
+
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('appSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
 
         // Signature Pad Logic
         let canvas, ctx;
@@ -330,9 +352,9 @@
 
         function setRole(role) {
             currentRole = role;
-            document.getElementById('roleBtnAdmin').className = role === 'Admin' ? 'px-3 py-1 rounded-lg bg-emerald-600 text-white shadow-sm transition' : 'px-3 py-1 rounded-lg text-slate-600 transition';
-            document.getElementById('roleBtnMember').className = role === 'Member' ? 'px-3 py-1 rounded-lg bg-emerald-600 text-white shadow-sm transition' : 'px-3 py-1 rounded-lg text-slate-600 transition';
-            document.getElementById('roleBtnViewer').className = role === 'Viewer' ? 'px-3 py-1 rounded-lg bg-emerald-600 text-white shadow-sm transition' : 'px-3 py-1 rounded-lg text-slate-600 transition';
+            document.getElementById('roleBtnAdmin').className = role === 'Admin' ? 'px-2 md:px-3 py-1 rounded-lg bg-emerald-600 text-white shadow-sm transition' : 'px-2 md:px-3 py-1 rounded-lg text-slate-600 transition';
+            document.getElementById('roleBtnMember').className = role === 'Member' ? 'px-2 md:px-3 py-1 rounded-lg bg-emerald-600 text-white shadow-sm transition' : 'px-2 md:px-3 py-1 rounded-lg text-slate-600 transition';
+            document.getElementById('roleBtnViewer').className = role === 'Viewer' ? 'px-2 md:px-3 py-1 rounded-lg bg-emerald-600 text-white shadow-sm transition' : 'px-2 md:px-3 py-1 rounded-lg text-slate-600 transition';
             
             document.getElementById('currentUserRoleBadge').innerText = role + ' Role';
 
@@ -381,7 +403,7 @@
                 activeNav.className = 'w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl bg-emerald-600 text-white font-medium shadow-md transition';
             }
 
-            const titles = { requests: 'Move Operations & Dispatch Management', map: 'Live Fleet GPS Map', team: 'Field Crew Roster', users: 'Dashboard Users & Access Control', reports: 'Executive PDF Reports' };
+            const titles = { requests: 'Move Operations', map: 'Live GPS Map', team: 'Field Crew Roster', users: 'Users & Access', reports: 'PDF Reports' };
             document.getElementById('pageTitle').innerText = titles[tab];
 
             if(tab === 'map') {
@@ -428,7 +450,7 @@
                 let imgCount = (req.images && req.images.length > 0) ? `<div class="mt-1 text-[10px] text-blue-600 font-semibold">📷 ${req.images.length} Image(s) Attached</div>` : '';
 
                 grid.innerHTML += `
-                    <div class="bg-white rounded-2xl border p-5 space-y-3 shadow-sm">
+                    <div class="bg-white rounded-2xl border p-4 md:p-5 space-y-3 shadow-sm">
                         <div class="flex justify-between items-start">
                             <span class="px-3 py-1 text-[11px] font-bold rounded-full border ${req.badge}">${req.status}</span>
                             <div class="flex items-center space-x-2"><span class="text-xs font-mono text-slate-400">${req.id}</span>${actionBtns}</div>
@@ -553,7 +575,6 @@
             
             let processedImages = [];
             if (imageInput && imageInput.files.length > 0) {
-                // Read files as base64
                 Array.from(imageInput.files).forEach(file => {
                     const reader = new FileReader();
                     reader.onload = function(event) {
