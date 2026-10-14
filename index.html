@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovePro Enterprise - RBAC Edition v4.8</title>
+    <title>MovePro Enterprise - RBAC Edition v4.9</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -229,10 +229,15 @@
 
             const userTabBtn = document.getElementById('nav-users');
             const newReqBtn = document.getElementById('newReqBtn');
+            const addStaffBtn = document.getElementById('addStaffBtn');
             const isAdmin = role === 'Admin';
+            const isViewer = role === 'Viewer';
 
             userTabBtn.classList.toggle('hidden', !isAdmin);
-            newReqBtn.classList.toggle('hidden', role === 'Viewer');
+            newReqBtn.classList.toggle('hidden', isViewer);
+            if (addStaffBtn) {
+                addStaffBtn.classList.toggle('hidden', isViewer);
+            }
 
             if (!isAdmin && !document.getElementById('tab-users').classList.contains('hidden')) {
                 switchTab('requests');
@@ -240,6 +245,7 @@
 
             renderRequests();
             renderUsers();
+            renderStaff();
         }
 
         function switchTab(tab) {
@@ -322,6 +328,32 @@
             }
         }
 
+        function renderStaff() {
+            const grid = document.getElementById('staffGrid');
+            if(grid) {
+                grid.innerHTML = '';
+                staff.forEach(s => {
+                    grid.innerHTML += `
+                        <div class="bg-white p-4 rounded-2xl border shadow-sm space-y-2">
+                            <div class="flex justify-between items-center">
+                                <h4 class="font-bold text-slate-900 text-sm">${s.name}</h4>
+                                <span class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded">${s.role}</span>
+                            </div>
+                            <p class="text-xs text-slate-500">📞 ${s.phone}</p>
+                            <p class="text-xs text-emerald-600 font-semibold">${s.status}</p>
+                        </div>`;
+                });
+            }
+        }
+
+        function openStaffModal() {
+            if (currentRole === 'Viewer') {
+                alert('Permission Denied: Viewer role cannot add staff.');
+                return;
+            }
+            alert('Add Staff modal placeholder.');
+        }
+
         function openUserModal() {
             if (currentRole !== 'Admin') return;
             document.getElementById('userModal').style.display = 'flex';
@@ -398,6 +430,7 @@
         setRole('Admin');
         renderRequests();
         renderUsers();
+        renderStaff();
     </script>
 </body>
 </html>
