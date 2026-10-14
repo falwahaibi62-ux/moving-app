@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovePro Enterprise - RBAC Edition v5.0</title>
+    <title>MovePro Enterprise - RBAC Edition v5.1</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -49,7 +49,6 @@
                     <i class="fa-solid fa-users-gear w-5 text-center"></i>
                     <span>Users & Roles</span>
                 </button>
-                <!-- PDF Reports Tab - Admin Only -->
                 <button onclick="switchTab('reports')" id="nav-reports" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition hidden">
                     <i class="fa-solid fa-file-pdf w-5 text-center"></i>
                     <span>PDF Reports</span>
@@ -132,7 +131,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-5" id="staffGrid"></div>
             </div>
 
-            <!-- TAB 4: USERS & ROLES (ADMIN ONLY) -->
+            <!-- TAB 4: USERS & ROLES -->
             <div id="tab-users" class="hidden space-y-6">
                 <div class="flex justify-between items-center">
                     <div>
@@ -151,7 +150,7 @@
                 </div>
             </div>
 
-            <!-- TAB 5: PDF REPORTS (ADMIN ONLY) -->
+            <!-- TAB 5: PDF REPORTS -->
             <div id="tab-reports" class="hidden space-y-6">
                 <div class="flex justify-between items-center bg-white p-6 rounded-2xl border shadow-sm">
                     <div>
@@ -187,7 +186,7 @@
 
     <!-- ================= MODALS ================= -->
     <div id="requestModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
-        <div class="bg-white rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-2xl">
+        <div class="bg-white rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
             <h3 id="modalTitleText" class="text-base font-bold text-slate-900">Create New Dispatch Order</h3>
             <form onsubmit="handleFormSubmit(event)" class="space-y-4">
                 <input type="hidden" id="editingId">
@@ -202,6 +201,20 @@
                     </select>
                 </div>
                 <select id="modalAssignedStaff" class="w-full p-2.5 border rounded-xl text-sm bg-white"></select>
+                
+                <!-- Customer Signature Canvas -->
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-slate-700">Customer Signature</label>
+                    <canvas id="signatureCanvas" width="400" height="140" class="border border-slate-300 rounded-xl bg-white w-full cursor-crosshair touch-none"></canvas>
+                    <button type="button" onclick="clearSignature()" class="text-xs text-red-500 font-semibold hover:underline">Clear Signature</button>
+                </div>
+
+                <!-- Image Upload (File / Camera) -->
+                <div class="space-y-1">
+                    <label class="block text-xs font-bold text-slate-700">Attach Photos (Camera or Gallery)</label>
+                    <input type="file" id="modalImagesInput" accept="image/*" capture="environment" multiple class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
+                </div>
+
                 <div class="flex justify-end space-x-2 pt-2 border-t">
                     <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-xl text-xs font-bold">Cancel</button>
                     <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold">Save Order</button>
@@ -236,7 +249,7 @@
         let map = null;
 
         let requests = JSON.parse(localStorage.getItem('movepro_requests')) || [
-            { id: 'REQ-2026-0142', title: 'Villa Relocation (Al Mouj to Qurum)', client: 'Ahmed Al-Balushi', date: '2026-10-18', status: 'In Progress', assigned: 'Salim Al-Harthy', badge: 'bg-blue-50 text-blue-700 border-blue-200' }
+            { id: 'REQ-2026-0142', title: 'Villa Relocation (Al Mouj to Qurum)', client: 'Ahmed Al-Balushi', date: '2026-10-18', status: 'In Progress', assigned: 'Salim Al-Harthy', badge: 'bg-blue-50 text-blue-700 border-blue-200', signature: '', images: [] }
         ];
         let staff = JSON.parse(localStorage.getItem('movepro_staff')) || [
             { id: 1, name: 'Salim Al-Harthy', role: 'Heavy Truck Driver', phone: '+968 9511 2233', status: 'In Transit' }
@@ -244,6 +257,66 @@
         let users = JSON.parse(localStorage.getItem('movepro_users')) || [
             { id: 1, name: 'Fatma Al-Wahaibi', email: 'fatma@movepro.com', role: 'Admin' }
         ];
+
+        // Signature Pad Logic
+        let canvas, ctx;
+        let isDrawing = false;
+
+        function initSignaturePad() {
+            canvas = document.getElementById('signatureCanvas');
+            if(!canvas) return;
+            ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            canvas.removeEventListener('mousedown', startDraw);
+            canvas.removeEventListener('touchstart', startDraw);
+            canvas.removeEventListener('mousemove', drawing);
+            canvas.removeEventListener('touchmove', drawing);
+
+            canvas.addEventListener('mousedown', startDraw);
+            canvas.addEventListener('touchstart', startDraw);
+            canvas.addEventListener('mousemove', drawing);
+            canvas.addEventListener('touchmove', drawing);
+            window.removeEventListener('mouseup', stopDraw);
+            window.removeEventListener('touchend', stopDraw);
+            window.addEventListener('mouseup', stopDraw);
+            window.addEventListener('touchend', stopDraw);
+        }
+
+        function getPosition(e) {
+            const rect = canvas.getBoundingClientRect();
+            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+            return { x: clientX - rect.left, y: clientY - rect.top };
+        }
+
+        function startDraw(e) {
+            e.preventDefault();
+            isDrawing = true;
+            const pos = getPosition(e);
+            ctx.beginPath();
+            ctx.moveTo(pos.x, pos.y);
+        }
+
+        function drawing(e) {
+            if (!isDrawing) return;
+            e.preventDefault();
+            const pos = getPosition(e);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.strokeStyle = '#0f172a';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        function stopDraw() {
+            isDrawing = false;
+        }
+
+        function clearSignature() {
+            if(ctx && canvas) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
 
         function saveToStorage() {
             localStorage.setItem('movepro_requests', JSON.stringify(requests));
@@ -297,9 +370,7 @@
                 const el = document.getElementById(`tab-${t}`);
                 const navEl = document.getElementById(`nav-${t}`);
                 if (el) el.classList.add('hidden');
-                if (navEl && t !== 'users' && t !== 'reports') {
-                    navEl.className = 'w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition';
-                } else if (navEl) {
+                if (navEl) {
                     navEl.className = 'w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition';
                 }
             });
@@ -353,6 +424,9 @@
                     actionBtns = `<button onclick="openModalForEdit('${req.id}')" class="text-blue-500 text-xs p-1">✏️</button>`;
                 }
 
+                let sigThumb = req.signature ? `<div class="mt-2 text-[10px] text-emerald-600 font-bold">✓ Signed</div>` : '';
+                let imgCount = (req.images && req.images.length > 0) ? `<div class="mt-1 text-[10px] text-blue-600 font-semibold">📷 ${req.images.length} Image(s) Attached</div>` : '';
+
                 grid.innerHTML += `
                     <div class="bg-white rounded-2xl border p-5 space-y-3 shadow-sm">
                         <div class="flex justify-between items-start">
@@ -363,6 +437,8 @@
                             <h3 class="font-bold text-slate-900 text-base">${req.title}</h3>
                             <p class="text-xs text-slate-500 mt-1">👤 Client: ${req.client}</p>
                             <p class="text-xs text-emerald-700 mt-0.5">🚚 Crew: ${req.assigned || 'Unassigned'}</p>
+                            ${sigThumb}
+                            ${imgCount}
                         </div>
                         <div class="border-t pt-3 flex justify-between text-xs text-slate-500">
                             <span>📅 ${req.date}</span>
@@ -377,117 +453,4 @@
             if(tbody) {
                 tbody.innerHTML = '';
                 users.forEach(u => {
-                    let deleteBtn = currentRole === 'Admin' ? `<button onclick="deleteUser(${u.id})" class="text-red-400 text-xs font-semibold">Remove</button>` : '';
-                    tbody.innerHTML += `<tr><td class="py-3 px-6 font-semibold">${u.name}</td><td class="py-3 px-6 text-slate-500">${u.email}</td><td class="py-3 px-6"><span class="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-bold">${u.role}</span></td><td class="py-3 px-6 text-right">${deleteBtn}</td></tr>`;
-                });
-            }
-        }
-
-        function renderStaff() {
-            const grid = document.getElementById('staffGrid');
-            if(grid) {
-                grid.innerHTML = '';
-                staff.forEach(s => {
-                    grid.innerHTML += `
-                        <div class="bg-white p-4 rounded-2xl border shadow-sm space-y-2">
-                            <div class="flex justify-between items-center">
-                                <h4 class="font-bold text-slate-900 text-sm">${s.name}</h4>
-                                <span class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded">${s.role}</span>
-                            </div>
-                            <p class="text-xs text-slate-500">📞 ${s.phone}</p>
-                            <p class="text-xs text-emerald-600 font-semibold">${s.status}</p>
-                        </div>`;
-                });
-            }
-        }
-
-        function openStaffModal() {
-            if (currentRole === 'Viewer') {
-                alert('Permission Denied: Viewer role cannot add staff.');
-                return;
-            }
-            alert('Add Staff modal placeholder.');
-        }
-
-        function openUserModal() {
-            if (currentRole !== 'Admin') return;
-            document.getElementById('userModal').style.display = 'flex';
-        }
-
-        function closeUserModal() { document.getElementById('userModal').style.display = 'none'; }
-
-        function handleUserSubmit(e) {
-            e.preventDefault();
-            if (currentRole !== 'Admin') return;
-            users.push({ id: Date.now(), name: document.getElementById('userNameInput').value, email: document.getElementById('userEmailInput').value, role: document.getElementById('userRoleInput').value });
-            saveToStorage(); closeUserModal(); renderUsers(); updateReportStats();
-        }
-
-        function deleteUser(id) {
-            if (currentRole !== 'Admin') return;
-            users = users.filter(u => u.id !== id);
-            saveToStorage();
-            renderUsers();
-            updateReportStats();
-        }
-
-        function populateStaffOptions() {
-            const select = document.getElementById('modalAssignedStaff');
-            select.innerHTML = '';
-            staff.forEach(s => { select.innerHTML += `<option value="${s.name}">${s.name} (${s.role})</option>`; });
-        }
-
-        function openModalForAdd() {
-            if (currentRole === 'Viewer') { alert('Permission Denied: Viewer role cannot create or input records.'); return; }
-            populateStaffOptions();
-            document.getElementById('editingId').value = '';
-            document.getElementById('modalTitleText').innerText = 'Create New Dispatch Order';
-            document.getElementById('modalTitle').value = ''; document.getElementById('modalClient').value = '';
-            document.getElementById('requestModal').style.display = 'flex';
-        }
-        function openModalForEdit(id) {
-            if (currentRole === 'Viewer') { alert('Permission Denied: Viewer role cannot edit records.'); return; }
-            const req = requests.find(r => r.id === id); if(!req) return;
-            populateStaffOptions();
-            document.getElementById('editingId').value = req.id;
-            document.getElementById('modalTitleText').innerText = 'Edit Order (' + req.id + ')';
-            document.getElementById('modalTitle').value = req.title; document.getElementById('modalClient').value = req.client;
-            document.getElementById('requestModal').style.display = 'flex';
-        }
-        function closeModal() { document.getElementById('requestModal').style.display = 'none'; }
-
-        function handleFormSubmit(e) {
-            e.preventDefault();
-            const editingId = document.getElementById('editingId').value;
-            const title = document.getElementById('modalTitle').value;
-            const client = document.getElementById('modalClient').value;
-            const date = document.getElementById('modalDate').value || '2026-10-20';
-            const status = document.getElementById('modalStatus').value;
-            const assigned = document.getElementById('modalAssignedStaff').value;
-            let badge = status === 'Completed' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-blue-50 text-blue-700 border-blue-200';
-
-            if (editingId) {
-                requests = requests.map(r => r.id === editingId ? { ...r, title, client, date, status, assigned, badge } : r);
-            } else {
-                requests.unshift({ id: 'REQ-2026-' + Math.floor(Math.random() * 9000 + 1000), title, client, date, status, assigned, badge });
-            }
-            saveToStorage(); closeModal(); renderRequests(); updateReportStats();
-        }
-
-        function deleteRequest(id) {
-            if (currentRole !== 'Admin') {
-                alert('Permission Denied: Only Admin can delete records.');
-                return;
-            }
-            requests = requests.filter(r => r.id !== id);
-            saveToStorage(); renderRequests(); updateReportStats();
-        }
-
-        setRole('Admin');
-        renderRequests();
-        renderUsers();
-        renderStaff();
-        updateReportStats();
-    </script>
-</body>
-</html>
+                    let delete
