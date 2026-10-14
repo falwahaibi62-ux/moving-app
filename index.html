@@ -453,4 +453,152 @@
             if(tbody) {
                 tbody.innerHTML = '';
                 users.forEach(u => {
-                    let delete
+                    let deleteBtn = currentRole === 'Admin' ? `<button onclick="deleteUser(${u.id})" class="text-red-400 text-xs font-semibold">Remove</button>` : '';
+                    tbody.innerHTML += `<tr><td class="py-3 px-6 font-semibold">${u.name}</td><td class="py-3 px-6 text-slate-500">${u.email}</td><td class="py-3 px-6"><span class="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-bold">${u.role}</span></td><td class="py-3 px-6 text-right">${deleteBtn}</td></tr>`;
+                });
+            }
+        }
+
+        function renderStaff() {
+            const grid = document.getElementById('staffGrid');
+            if(grid) {
+                grid.innerHTML = '';
+                staff.forEach(s => {
+                    grid.innerHTML += `
+                        <div class="bg-white p-4 rounded-2xl border shadow-sm space-y-2">
+                            <div class="flex justify-between items-center">
+                                <h4 class="font-bold text-slate-900 text-sm">${s.name}</h4>
+                                <span class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded">${s.role}</span>
+                            </div>
+                            <p class="text-xs text-slate-500">📞 ${s.phone}</p>
+                            <p class="text-xs text-emerald-600 font-semibold">${s.status}</p>
+                        </div>`;
+                });
+            }
+        }
+
+        function openStaffModal() {
+            if (currentRole === 'Viewer') {
+                alert('Permission Denied: Viewer role cannot add staff.');
+                return;
+            }
+            alert('Add Staff modal placeholder.');
+        }
+
+        function openUserModal() {
+            if (currentRole !== 'Admin') return;
+            document.getElementById('userModal').style.display = 'flex';
+        }
+
+        function closeUserModal() { document.getElementById('userModal').style.display = 'none'; }
+
+        function handleUserSubmit(e) {
+            e.preventDefault();
+            if (currentRole !== 'Admin') return;
+            users.push({ id: Date.now(), name: document.getElementById('userNameInput').value, email: document.getElementById('userEmailInput').value, role: document.getElementById('userRoleInput').value });
+            saveToStorage(); closeUserModal(); renderUsers(); updateReportStats();
+        }
+
+        function deleteUser(id) {
+            if (currentRole !== 'Admin') return;
+            users = users.filter(u => u.id !== id);
+            saveToStorage();
+            renderUsers();
+            updateReportStats();
+        }
+
+        function populateStaffOptions() {
+            const select = document.getElementById('modalAssignedStaff');
+            select.innerHTML = '';
+            staff.forEach(s => { select.innerHTML += `<option value="${s.name}">${s.name} (${s.role})</option>`; });
+        }
+
+        function openModalForAdd() {
+            if (currentRole === 'Viewer') { alert('Permission Denied: Viewer role cannot create or input records.'); return; }
+            populateStaffOptions();
+            document.getElementById('editingId').value = '';
+            document.getElementById('modalTitleText').innerText = 'Create New Dispatch Order';
+            document.getElementById('modalTitle').value = ''; 
+            document.getElementById('modalClient').value = '';
+            document.getElementById('requestModal').style.display = 'flex';
+            setTimeout(initSignaturePad, 100);
+        }
+
+        function openModalForEdit(id) {
+            if (currentRole === 'Viewer') { alert('Permission Denied: Viewer role cannot edit records.'); return; }
+            const req = requests.find(r => r.id === id); if(!req) return;
+            populateStaffOptions();
+            document.getElementById('editingId').value = req.id;
+            document.getElementById('modalTitleText').innerText = 'Edit Order (' + req.id + ')';
+            document.getElementById('modalTitle').value = req.title; 
+            document.getElementById('modalClient').value = req.client;
+            document.getElementById('requestModal').style.display = 'flex';
+            setTimeout(initSignaturePad, 100);
+        }
+
+        function closeModal() { document.getElementById('requestModal').style.display = 'none'; }
+
+        function handleFormSubmit(e) {
+            e.preventDefault();
+            const editingId = document.getElementById('editingId').value;
+            const title = document.getElementById('modalTitle').value;
+            const client = document.getElementById('modalClient').value;
+            const date = document.getElementById('modalDate').value || '2026-10-20';
+            const status = document.getElementById('modalStatus').value;
+            const assigned = document.getElementById('modalAssignedStaff').value;
+            let badge = status === 'Completed' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-blue-50 text-blue-700 border-blue-200';
+
+            const signatureData = canvas ? canvas.toDataURL('image/png') : '';
+            const imageInput = document.getElementById('modalImagesInput');
+            
+            let processedImages = [];
+            if (imageInput && imageInput.files.length > 0) {
+                // Read files as base64
+                Array.from(imageInput.files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        processedImages.push(event.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            setTimeout(() => {
+                if (editingId) {
+                    requests = requests.map(r => r.id === editingId ? { 
+                        ...r, title, client, date, status, assigned, badge, 
+                        signature: signatureData || r.signature,
+                        images: processedImages.length > 0 ? processedImages : r.images 
+                    } : r);
+                } else {
+                    requests.unshift({ 
+                        id: 'REQ-2026-' + Math.floor(Math.random() * 9000 + 1000), 
+                        title, client, date, status, assigned, badge,
+                        signature: signatureData,
+                        images: processedImages
+                    });
+                }
+                saveToStorage(); 
+                closeModal(); 
+                renderRequests(); 
+                updateReportStats();
+            }, 300);
+        }
+
+        function deleteRequest(id) {
+            if (currentRole !== 'Admin') {
+                alert('Permission Denied: Only Admin can delete records.');
+                return;
+            }
+            requests = requests.filter(r => r.id !== id);
+            saveToStorage(); renderRequests(); updateReportStats();
+        }
+
+        setRole('Admin');
+        renderRequests();
+        renderUsers();
+        renderStaff();
+        updateReportStats();
+    </script>
+</body>
+</html>
