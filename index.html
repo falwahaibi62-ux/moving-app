@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovePro Enterprise - RBAC Edition v4.7</title>
+    <title>MovePro Enterprise - RBAC Edition v4.8</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -322,14 +322,26 @@
             }
         }
 
-        function openUserModal() { document.getElementById('userModal').style.display = 'flex'; }
+        function openUserModal() {
+            if (currentRole !== 'Admin') return;
+            document.getElementById('userModal').style.display = 'flex';
+        }
+
         function closeUserModal() { document.getElementById('userModal').style.display = 'none'; }
+
         function handleUserSubmit(e) {
             e.preventDefault();
+            if (currentRole !== 'Admin') return;
             users.push({ id: Date.now(), name: document.getElementById('userNameInput').value, email: document.getElementById('userEmailInput').value, role: document.getElementById('userRoleInput').value });
             saveToStorage(); closeUserModal(); renderUsers();
         }
-        function deleteUser(id) { users = users.filter(u => u.id !== id); saveToStorage(); renderUsers(); }
+
+        function deleteUser(id) {
+            if (currentRole !== 'Admin') return;
+            users = users.filter(u => u.id !== id);
+            saveToStorage();
+            renderUsers();
+        }
 
         function populateStaffOptions() {
             const select = document.getElementById('modalAssignedStaff');
