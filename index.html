@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovePro Enterprise - Move Logistics v6.1</title>
+    <title>MovePro Enterprise - Modern Dashboard v6.5</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -15,6 +15,15 @@
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
         #map { height: 100%; min-height: 400px; border-radius: 1rem; z-index: 10; }
+        
+        /* Soft Modern Glass & Card Styles */
+        .modern-glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.04);
+        }
         
         /* Print Optimization */
         @media print {
@@ -28,7 +37,7 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 font-sans text-slate-800 antialiased h-screen flex flex-col md:flex-row overflow-hidden">
+<body class="bg-gradient-to-br from-slate-100 via-slate-50 to-emerald-50/40 font-sans text-slate-800 antialiased h-screen flex flex-col md:flex-row overflow-hidden">
 
     <!-- Mobile Overlay Backdrop -->
     <div id="sidebarOverlay" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-slate-900/50 z-30 hidden md:hidden"></div>
@@ -38,12 +47,12 @@
         <div>
             <div class="p-5 flex items-center justify-between border-b border-slate-800">
                 <div class="flex items-center space-x-3">
-                    <div class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 font-bold text-xl">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-400 font-bold text-xl border border-emerald-500/20">
                         <i class="fa-solid fa-shield-halved"></i>
                     </div>
                     <div>
                         <h2 class="text-lg font-bold text-white tracking-wide leading-none">MovePro</h2>
-                        <span class="text-[10px] text-emerald-400 font-semibold tracking-wider uppercase">Enterprise v6.1</span>
+                        <span class="text-[10px] text-emerald-400 font-semibold tracking-wider uppercase">Enterprise v6.5</span>
                     </div>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 hover:text-white">
@@ -53,23 +62,23 @@
 
             <nav class="p-4 space-y-1.5 text-sm">
                 <button onclick="switchTab('dashboard'); toggleMobileSidebar();" id="nav-dashboard" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
-                    <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+                    <i class="fa-solid fa-chart-pie w-5 text-center text-emerald-400"></i>
                     <span>Dashboard</span>
                 </button>
                 <button onclick="switchTab('requests'); toggleMobileSidebar();" id="nav-requests" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
-                    <i class="fa-solid fa-boxes-packing w-5 text-center"></i>
+                    <i class="fa-solid fa-boxes-packing w-5 text-center text-emerald-400"></i>
                     <span>Move Operations</span>
                 </button>
                 <button onclick="switchTab('map'); toggleMobileSidebar();" id="nav-map" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
-                    <i class="fa-solid fa-map-location-dot w-5 text-center"></i>
+                    <i class="fa-solid fa-map-location-dot w-5 text-center text-emerald-400"></i>
                     <span>Live GPS Map</span>
                 </button>
                 <button onclick="switchTab('team'); toggleMobileSidebar();" id="nav-team" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
-                    <i class="fa-solid fa-people-group w-5 text-center"></i>
+                    <i class="fa-solid fa-people-group w-5 text-center text-emerald-400"></i>
                     <span>Field Staff</span>
                 </button>
                 <button onclick="switchTab('users'); toggleMobileSidebar();" id="nav-users" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition hidden">
-                    <i class="fa-solid fa-users-gear w-5 text-center"></i>
+                    <i class="fa-solid fa-users-gear w-5 text-center text-emerald-400"></i>
                     <span>Users & Roles</span>
                 </button>
                 <button onclick="switchTab('reports'); toggleMobileSidebar();" id="nav-reports" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl bg-emerald-600 text-white font-medium shadow-md transition hidden">
@@ -81,7 +90,7 @@
 
         <div class="p-4 border-t border-slate-800 space-y-3 bg-slate-950/40">
             <div class="flex items-center space-x-3">
-                <div class="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center font-bold text-white text-xs">FA</div>
+                <div class="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center font-bold text-white text-xs shadow-sm">FA</div>
                 <div class="text-xs">
                     <p class="font-semibold text-white">Fatma Al-Wahaibi</p>
                     <p class="text-emerald-400 font-medium" id="currentUserRoleBadge">Admin Role</p>
@@ -96,7 +105,7 @@
     <!-- ================= MAIN WRAPPER ================= -->
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden h-full">
 
-        <header class="bg-white border-b border-slate-200 h-16 px-4 md:px-8 flex items-center justify-between shrink-0 shadow-sm gap-2">
+        <header class="bg-white/80 backdrop-blur-md border-b border-slate-200/80 h-16 px-4 md:px-8 flex items-center justify-between shrink-0 shadow-sm gap-2">
             <div class="flex items-center space-x-3 min-w-0">
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-700 p-2 rounded-lg hover:bg-slate-100 shrink-0">
                     <i class="fa-solid fa-bars text-lg"></i>
@@ -117,7 +126,7 @@
                     <button onclick="setRole('Member')" id="roleBtnMember" class="px-2 md:px-3 py-1 rounded-lg text-slate-600 transition">Member</button>
                     <button onclick="setRole('Viewer')" id="roleBtnViewer" class="px-2 md:px-3 py-1 rounded-lg text-slate-600 transition">Viewer</button>
                 </div>
-                <button onclick="openModalForAdd()" id="newReqBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white p-2 md:px-4 md:py-2 rounded-xl text-xs md:text-sm font-semibold shadow flex items-center space-x-1.5">
+                <button onclick="openModalForAdd()" id="newReqBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white p-2 md:px-4 md:py-2 rounded-xl text-xs md:text-sm font-semibold shadow flex items-center space-x-1.5 transition">
                     <i class="fa-solid fa-plus"></i>
                     <span class="hidden sm:inline">Create Dispatch</span>
                 </button>
@@ -128,46 +137,81 @@
 
             <!-- TAB 0: DASHBOARD -->
             <div id="tab-dashboard" class="space-y-6">
-                <div class="bg-gradient-to-r from-slate-900 to-emerald-900 text-white p-6 rounded-3xl shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                    <div class="space-y-1">
-                        <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">Welcome Back</span>
-                        <h2 class="text-xl md:text-2xl font-bold">Fatma Al-Wahaibi</h2>
-                        <p class="text-xs text-slate-300">Here is the real-time operational overview for MovePro Enterprise.</p>
+                <!-- Welcome Banner -->
+                <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-950 text-white p-6 md:p-8 rounded-3xl shadow-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden border border-slate-800">
+                    <div class="absolute -right-12 -bottom-12 w-56 h-56 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                    <div class="space-y-2 relative z-10">
+                        <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">Operational Hub</span>
+                        <h2 class="text-2xl md:text-3xl font-extrabold text-white">Welcome, Fatma Al-Wahaibi</h2>
+                        <p class="text-xs md:text-sm text-slate-300 max-w-xl">Real-time overview of fleet dispatches, field crew availability, and active relocation operations across Muscat.</p>
                     </div>
-                    <button onclick="switchTab('requests')" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-xs shadow-md transition flex items-center space-x-2">
-                        <span>Manage Operations</span>
+                    <button onclick="switchTab('requests')" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-6 py-3 rounded-xl text-xs md:text-sm shadow-lg transition flex items-center space-x-2 shrink-0 relative z-10">
+                        <span>Manage Dispatches</span>
                         <i class="fa-solid fa-arrow-right"></i>
                     </button>
                 </div>
 
+                <!-- KPI Cards Grid -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-                    <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-2 flex items-center justify-between">
+                    <div class="modern-glass-card p-5 rounded-2xl space-y-2 flex items-center justify-between">
                         <div>
-                            <p class="text-xs text-slate-500 font-medium">Total Operations</p>
-                            <h3 class="text-2xl font-bold text-slate-900 mt-1" id="kpiTotalReqs">0</h3>
+                            <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Total Dispatches</p>
+                            <h3 class="text-3xl font-bold text-slate-900 mt-1" id="kpiTotalReqs">0</h3>
+                            <span class="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full inline-block mt-1">✓ Active Systems</span>
                         </div>
-                        <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg font-bold">📦</div>
+                        <div class="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center text-lg font-bold shadow-md">📦</div>
                     </div>
-                    <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-2 flex items-center justify-between">
+                    <div class="modern-glass-card p-5 rounded-2xl space-y-2 flex items-center justify-between">
                         <div>
-                            <p class="text-xs text-slate-500 font-medium">In Progress</p>
-                            <h3 class="text-2xl font-bold text-emerald-600 mt-1" id="kpiInProgress">0</h3>
+                            <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider">In Progress</p>
+                            <h3 class="text-3xl font-bold text-emerald-600 mt-1" id="kpiInProgress">0</h3>
+                            <span class="text-[10px] text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded-full inline-block mt-1">🚚 Fleet En Route</span>
                         </div>
-                        <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg font-bold">🚚</div>
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center text-lg font-bold shadow-md">🚛</div>
                     </div>
-                    <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-2 flex items-center justify-between">
+                    <div class="modern-glass-card p-5 rounded-2xl space-y-2 flex items-center justify-between">
                         <div>
-                            <p class="text-xs text-slate-500 font-medium">Field Staff Ready</p>
-                            <h3 class="text-2xl font-bold text-slate-900 mt-1" id="kpiStaffCount">0</h3>
+                            <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Field Crew Ready</p>
+                            <h3 class="text-3xl font-bold text-slate-900 mt-1" id="kpiStaffCount">0</h3>
+                            <span class="text-[10px] text-purple-600 font-bold bg-purple-50 px-2 py-0.5 rounded-full inline-block mt-1">👥 Assigned Staff</span>
                         </div>
-                        <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-lg font-bold">👥</div>
+                        <div class="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center text-lg font-bold shadow-md">👷</div>
                     </div>
-                    <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-2 flex items-center justify-between">
+                    <div class="modern-glass-card p-5 rounded-2xl space-y-2 flex items-center justify-between">
                         <div>
-                            <p class="text-xs text-slate-500 font-medium">System Users</p>
-                            <h3 class="text-2xl font-bold text-slate-900 mt-1" id="kpiUsersCount">0</h3>
+                            <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider">System Users</p>
+                            <h3 class="text-3xl font-bold text-slate-900 mt-1" id="kpiUsersCount">0</h3>
+                            <span class="text-[10px] text-amber-600 font-bold bg-amber-50 px-2 py-0.5 rounded-full inline-block mt-1">🛡️ Admin Control</span>
                         </div>
-                        <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg font-bold">🛡️</div>
+                        <div class="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center text-lg font-bold shadow-md">🛡️</div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity & Quick Overview -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Recent Dispatches List -->
+                    <div class="lg:col-span-2 modern-glass-card p-6 rounded-3xl space-y-4">
+                        <div class="flex justify-between items-center border-b pb-3 border-slate-200">
+                            <div>
+                                <h3 class="font-bold text-slate-900 text-base">Recent Active Operations</h3>
+                                <p class="text-xs text-slate-500">Live feed of registered dispatch orders.</p>
+                            </div>
+                            <button onclick="switchTab('requests')" class="text-xs text-emerald-700 font-bold hover:underline">View All →</button>
+                        </div>
+                        <div id="dashRecentRequests" class="space-y-3">
+                            <!-- Injected dynamically -->
+                        </div>
+                    </div>
+
+                    <!-- Crew Status Summary -->
+                    <div class="modern-glass-card p-6 rounded-3xl space-y-4">
+                        <div class="border-b pb-3 border-slate-200">
+                            <h3 class="font-bold text-slate-900 text-base">Field Crew Workload</h3>
+                            <p class="text-xs text-slate-500">Real-time driver availability status.</p>
+                        </div>
+                        <div id="dashStaffSummary" class="space-y-3">
+                            <!-- Injected dynamically -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -224,26 +268,21 @@
                 </div>
             </div>
 
-            <!-- TAB 5: MOVEPRO LOGISTICS PDF REPORTS WITH DATE FILTER -->
+            <!-- TAB 5: MOVEPRO LOGISTICS PDF REPORTS -->
             <div id="tab-reports" class="hidden space-y-6">
-                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white p-6 rounded-2xl border shadow-sm no-print">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl border shadow-sm no-print">
                     <div>
                         <h3 class="font-bold text-slate-900 text-lg">MovePro Move Schedule & Operations Report</h3>
-                        <p class="text-xs text-slate-500 mt-1">Filter dispatches by date range and export professional PDF reports.</p>
+                        <p class="text-xs text-slate-500 mt-1">Exportable logistics report formatted specifically for MovePro dispatches.</p>
                     </div>
-                    <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
-                        <div class="flex items-center space-x-2 text-xs">
-                            <span class="text-slate-500 font-medium">From:</span>
-                            <input type="date" id="filterStartDate" onchange="renderReportsTable()" class="p-2 border rounded-xl text-xs bg-slate-50">
-                        </div>
-                        <div class="flex items-center space-x-2 text-xs">
-                            <span class="text-slate-500 font-medium">To:</span>
-                            <input type="date" id="filterEndDate" onchange="renderReportsTable()" class="p-2 border rounded-xl text-xs bg-slate-50">
-                        </div>
-                        <button onclick="resetDateFilter()" class="text-xs text-slate-500 hover:text-slate-900 underline font-medium">Reset</button>
-                        <button onclick="downloadPDFReport()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow flex items-center space-x-1.5">
+                    <div class="flex space-x-2 w-full sm:w-auto">
+                        <button onclick="downloadPDFReport()" class="flex-1 sm:flex-none bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow flex items-center justify-center space-x-2">
                             <i class="fa-solid fa-download"></i>
                             <span>Download PDF</span>
+                        </button>
+                        <button onclick="generatePDFReport()" class="flex-1 sm:flex-none bg-slate-800 hover:bg-slate-900 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow flex items-center justify-center space-x-2">
+                            <i class="fa-solid fa-print"></i>
+                            <span>Print</span>
                         </button>
                     </div>
                 </div>
@@ -255,7 +294,7 @@
                             <h3 class="text-xl font-bold text-slate-900">MovePro Operations Schedule</h3>
                             <p class="text-xs text-slate-500">Branch: Muscat & Regional Fleet Dispatches</p>
                         </div>
-                        <span id="reportDateBadge" class="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">October 2026</span>
+                        <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">October 2026</span>
                     </div>
 
                     <div class="overflow-x-auto border border-slate-200 rounded-xl">
@@ -559,6 +598,50 @@
             document.getElementById('kpiInProgress').innerText = inProgressCount;
             document.getElementById('kpiStaffCount').innerText = staff.length;
             document.getElementById('kpiUsersCount').innerText = users.length;
+
+            // Render Dashboard Activity Feed
+            const dashRecent = document.getElementById('dashRecentRequests');
+            if (dashRecent) {
+                dashRecent.innerHTML = '';
+                const recentList = requests.slice(0, 3);
+                if (recentList.length === 0) {
+                    dashRecent.innerHTML = `<p class="text-xs text-slate-400">No active dispatches available.</p>`;
+                } else {
+                    recentList.forEach(r => {
+                        let stBadge = r.status === 'Completed' ? 'bg-emerald-50 text-emerald-700' : 'bg-blue-50 text-blue-700';
+                        dashRecent.innerHTML += `
+                            <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100">
+                                <div>
+                                    <h4 class="font-bold text-slate-800 text-xs">${r.title}</h4>
+                                    <p class="text-[11px] text-slate-500">Client: ${r.client} | Crew: ${r.assigned || 'Unassigned'}</p>
+                                </div>
+                                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full ${stBadge}">${r.status}</span>
+                            </div>`;
+                    });
+                }
+            }
+
+            // Render Dashboard Staff Workload Feed
+            const dashStaff = document.getElementById('dashStaffSummary');
+            if (dashStaff) {
+                dashStaff.innerHTML = '';
+                staff.forEach(s => {
+                    let jCount = s.activeJobs || 0;
+                    dashStaff.innerHTML += `
+                        <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs">
+                            <div class="flex items-center space-x-2">
+                                <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-700 text-[10px]">
+                                    ${s.name.charAt(0)}
+                                </div>
+                                <div>
+                                    <p class="font-bold text-slate-800">${s.name}</p>
+                                    <p class="text-[10px] text-slate-500">${s.role}</p>
+                                </div>
+                            </div>
+                            <span class="font-bold text-slate-700 bg-white px-2 py-1 rounded-lg border text-[11px]">${jCount} Active</span>
+                        </div>`;
+                });
+            }
         }
 
         function renderReportsTable() {
@@ -566,33 +649,9 @@
             if(!tbody) return;
             tbody.innerHTML = '';
 
-            const startDate = document.getElementById('filterStartDate').value;
-            const endDate = document.getElementById('filterEndDate').value;
-            const dateBadge = document.getElementById('reportDateBadge');
+            let sortedRequests = [...requests].sort((a, b) => new Date(a.date) - new Date(b.date));
 
-            // Sort chronologically by scheduled date (Ascending)
-            let filteredRequests = [...requests].sort((a, b) => new Date(a.date) - new Date(b.date));
-
-            // Apply Date Filter if set
-            if (startDate) {
-                filteredRequests = filteredRequests.filter(r => r.date >= startDate);
-            }
-            if (endDate) {
-                filteredRequests = filteredRequests.filter(r => r.date <= endDate);
-            }
-
-            if (startDate || endDate) {
-                dateBadge.innerText = `${startDate || 'Start'} to ${endDate || 'Present'}`;
-            } else {
-                dateBadge.innerText = 'All Dates (October 2026)';
-            }
-
-            if (filteredRequests.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-slate-400">No dispatches found in the selected date range.</td></tr>`;
-                return;
-            }
-
-            filteredRequests.forEach((req, index) => {
+            sortedRequests.forEach((req, index) => {
                 let statusBadge = req.status === 'Completed' 
                     ? `<span class="text-emerald-800 font-bold bg-emerald-100 px-2.5 py-1 rounded-md border border-emerald-300">Completed</span>`
                     : `<span class="text-amber-800 font-bold bg-amber-100 px-2.5 py-1 rounded-md border border-amber-300">In Progress</span>`;
@@ -611,12 +670,6 @@
                         <td class="py-3.5 px-4 border border-slate-200 text-slate-700">${req.notes || 'Standard move protocol.'} <span class="text-blue-700 font-bold">${assetCount}${sigTag}</span></td>
                     </tr>`;
             });
-        }
-
-        function resetDateFilter() {
-            document.getElementById('filterStartDate').value = '';
-            document.getElementById('filterEndDate').value = '';
-            renderReportsTable();
         }
 
         function updateReportStats() {
@@ -638,6 +691,14 @@
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
             };
             html2pdf().from(element).set(opt).save();
+        }
+
+        function generatePDFReport() {
+            if (currentRole !== 'Admin') {
+                alert('Access Denied');
+                return;
+            }
+            window.print();
         }
 
         function renderRequests() {
