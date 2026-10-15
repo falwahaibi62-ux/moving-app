@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovePro Enterprise - Pro Dashboard v5.6</title>
+    <title>MovePro Enterprise - Move Logistics v5.8</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -13,6 +13,11 @@
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
         #map { height: 100%; min-height: 400px; border-radius: 1rem; z-index: 10; }
+        @media print {
+            aside, header, button, .no-print { display: none !important; }
+            body, main { background: white !important; overflow: visible !important; }
+            #tab-reports { display: block !important; padding: 0 !important; }
+        }
     </style>
 </head>
 <body class="bg-slate-50 font-sans text-slate-800 antialiased h-screen flex flex-col md:flex-row overflow-hidden">
@@ -30,7 +35,7 @@
                     </div>
                     <div>
                         <h2 class="text-lg font-bold text-white tracking-wide leading-none">MovePro</h2>
-                        <span class="text-[10px] text-emerald-400 font-semibold tracking-wider uppercase">Enterprise v5.6</span>
+                        <span class="text-[10px] text-emerald-400 font-semibold tracking-wider uppercase">Enterprise v5.8</span>
                     </div>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 hover:text-white">
@@ -39,7 +44,7 @@
             </div>
 
             <nav class="p-4 space-y-1.5 text-sm">
-                <button onclick="switchTab('dashboard'); toggleMobileSidebar();" id="nav-dashboard" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl bg-emerald-600 text-white font-medium shadow-md transition">
+                <button onclick="switchTab('dashboard'); toggleMobileSidebar();" id="nav-dashboard" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
                     <i class="fa-solid fa-chart-pie w-5 text-center"></i>
                     <span>Dashboard</span>
                 </button>
@@ -59,7 +64,7 @@
                     <i class="fa-solid fa-users-gear w-5 text-center"></i>
                     <span>Users & Roles</span>
                 </button>
-                <button onclick="switchTab('reports'); toggleMobileSidebar();" id="nav-reports" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition hidden">
+                <button onclick="switchTab('reports'); toggleMobileSidebar();" id="nav-reports" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl bg-emerald-600 text-white font-medium shadow-md transition hidden">
                     <i class="fa-solid fa-file-pdf w-5 text-center"></i>
                     <span>PDF Reports</span>
                 </button>
@@ -113,9 +118,8 @@
 
         <main class="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar space-y-6">
 
-            <!-- TAB 0: DASHBOARD (Default Landing) -->
+            <!-- TAB 0: DASHBOARD -->
             <div id="tab-dashboard" class="space-y-6">
-                <!-- Welcome Banner -->
                 <div class="bg-gradient-to-r from-slate-900 to-emerald-900 text-white p-6 rounded-3xl shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div class="space-y-1">
                         <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">Welcome Back</span>
@@ -128,7 +132,6 @@
                     </button>
                 </div>
 
-                <!-- KPI Cards Grid -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                     <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-2 flex items-center justify-between">
                         <div>
@@ -157,44 +160,6 @@
                             <h3 class="text-2xl font-bold text-slate-900 mt-1" id="kpiUsersCount">0</h3>
                         </div>
                         <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg font-bold">🛡️</div>
-                    </div>
-                </div>
-
-                <!-- Recent Activities & Quick Actions -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div class="lg:col-span-2 bg-white p-6 rounded-2xl border shadow-sm space-y-4">
-                        <div class="flex justify-between items-center">
-                            <h3 class="font-bold text-slate-900 text-base">Recent Dispatches Overview</h3>
-                            <button onclick="switchTab('requests')" class="text-xs text-emerald-600 font-bold hover:underline">View All</button>
-                        </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-xs min-w-[400px]">
-                                <thead class="bg-slate-50 border-b text-slate-400 uppercase">
-                                    <tr><th class="py-2.5 px-4">ID</th><th class="py-2.5 px-4">Title</th><th class="py-2.5 px-4">Client</th><th class="py-2.5 px-4">Status</th></tr>
-                                </thead>
-                                <tbody id="dashboardRecentTable" class="divide-y text-slate-700"></tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="bg-white p-6 rounded-2xl border shadow-sm space-y-4">
-                        <h3 class="font-bold text-slate-900 text-base">Smart AI Dispatcher Status</h3>
-                        <div class="space-y-3">
-                            <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center space-x-3">
-                                <i class="fa-solid fa-robot text-emerald-600 text-lg"></i>
-                                <div>
-                                    <p class="text-xs font-bold text-emerald-900">Workload Balancer</p>
-                                    <p class="text-[11px] text-emerald-700">Active and optimizing driver assignments.</p>
-                                </div>
-                            </div>
-                            <div class="p-3 bg-slate-50 border rounded-xl flex items-center space-x-3">
-                                <i class="fa-solid fa-shield-halved text-slate-700 text-lg"></i>
-                                <div>
-                                    <p class="text-xs font-bold text-slate-800">RBAC Security</p>
-                                    <p class="text-[11px] text-slate-500">Enforced for Admin, Member & Viewer.</p>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -251,33 +216,46 @@
                 </div>
             </div>
 
-            <!-- TAB 5: PDF REPORTS -->
+            <!-- TAB 5: MOVEPRO LOGISTICS PDF REPORTS -->
             <div id="tab-reports" class="hidden space-y-6">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl border shadow-sm">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl border shadow-sm no-print">
                     <div>
-                        <h3 class="font-bold text-slate-900 text-lg">Executive Operations PDF Report</h3>
-                        <p class="text-xs text-slate-500 mt-1">Generate comprehensive analytics and dispatch summaries.</p>
+                        <h3 class="font-bold text-slate-900 text-lg">MovePro Move Schedule & Operations Report</h3>
+                        <p class="text-xs text-slate-500 mt-1">Exportable logistics report formatted specifically for MovePro dispatches.</p>
                     </div>
                     <button onclick="generatePDFReport()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow flex items-center space-x-2 w-full sm:w-auto justify-center">
                         <i class="fa-solid fa-file-pdf"></i>
-                        <span>Export Detailed PDF</span>
+                        <span>Export / Print Report</span>
                     </button>
                 </div>
+
+                <!-- MovePro Dedicated Table Structure -->
                 <div class="bg-white p-6 rounded-2xl border shadow-sm space-y-4">
-                    <h4 class="font-bold text-slate-800 text-sm">Report Preview Summary</h4>
-                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div class="p-4 bg-slate-50 rounded-xl border">
-                            <p class="text-xs text-slate-500">Total Dispatch Orders</p>
-                            <p class="text-xl font-bold text-slate-900 mt-1" id="reportTotalReqs">0</p>
+                    <div class="flex justify-between items-center border-b pb-4">
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-900">MovePro Operations Schedule</h3>
+                            <p class="text-xs text-slate-500">Branch: Muscat & Regional Fleet Dispatches</p>
                         </div>
-                        <div class="p-4 bg-slate-50 rounded-xl border">
-                            <p class="text-xs text-slate-500">Active Field Staff</p>
-                            <p class="text-xl font-bold text-emerald-600 mt-1" id="reportTotalStaff">0</p>
-                        </div>
-                        <div class="p-4 bg-slate-50 rounded-xl border">
-                            <p class="text-xs text-slate-500">System Users</p>
-                            <p class="text-xl font-bold text-blue-600 mt-1" id="reportTotalUsers">0</p>
-                        </div>
+                        <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">October 2026</span>
+                    </div>
+
+                    <div class="overflow-x-auto border border-slate-200 rounded-xl">
+                        <table class="w-full text-left text-xs min-w-[850px] border-collapse">
+                            <thead>
+                                <tr class="bg-[#1e4620] text-white uppercase text-[11px]">
+                                    <th class="py-3 px-3 border border-emerald-900 text-center w-12">#</th>
+                                    <th class="py-3 px-4 border border-emerald-900">Dispatch Operation & Route</th>
+                                    <th class="py-3 px-4 border border-emerald-900 w-28">Scheduled Date</th>
+                                    <th class="py-3 px-4 border border-emerald-900 w-28">Est. Completion</th>
+                                    <th class="py-3 px-4 border border-emerald-900">Assigned Driver / Crew</th>
+                                    <th class="py-3 px-4 border border-emerald-900 w-28 text-center">Status</th>
+                                    <th class="py-3 px-4 border border-emerald-900">Logistics Notes & Assets</th>
+                                </tr>
+                            </thead>
+                            <tbody id="reportsTableBody" class="divide-y divide-slate-200 text-slate-700">
+                                <!-- Dynamic rows inserted via JS -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -299,12 +277,11 @@
 
             <form onsubmit="handleFormSubmit(event)" class="space-y-4">
                 <input type="hidden" id="editingId">
-                <input type="text" id="modalTitle" required placeholder="Move Title (e.g. Al Mouj to Qurum)" class="w-full p-2.5 border rounded-xl text-sm">
+                <input type="text" id="modalTitle" required placeholder="Move Title (e.g. Villa Relocation - Al Mouj to Qurum)" class="w-full p-2.5 border rounded-xl text-sm">
                 <input type="text" id="modalClient" required placeholder="Client Name" class="w-full p-2.5 border rounded-xl text-sm">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <input type="date" id="modalDate" class="w-full p-2.5 border rounded-xl text-sm">
                     <select id="modalStatus" class="w-full p-2.5 border rounded-xl text-sm bg-white">
-                        <option value="Pending Survey">Pending Survey</option>
                         <option value="In Progress">In Progress</option>
                         <option value="Completed">Completed</option>
                     </select>
@@ -378,8 +355,11 @@
         let currentRole = 'Admin';
         let map = null;
 
+        // MovePro Specific Operations Data
         let requests = JSON.parse(localStorage.getItem('movepro_requests')) || [
-            { id: 'REQ-2026-0142', title: 'Villa Relocation (Al Mouj to Qurum)', client: 'Ahmed Al-Balushi', date: '2026-10-18', status: 'In Progress', assigned: 'Salim Al-Harthy', badge: 'bg-blue-50 text-blue-700 border-blue-200', signature: '', images: [] }
+            { id: 'REQ-2026-0142', title: 'Villa Relocation (Al Mouj to Qurum)', client: 'Ahmed Al-Balushi', date: '2026-10-18', endDate: '2026-10-19', status: 'In Progress', assigned: 'Salim Al-Harthy', badge: 'bg-blue-50 text-blue-700 border-blue-200', signature: '', images: [], notes: 'Heavy furniture items & glass packaging required.' },
+            { id: 'REQ-2026-0143', title: 'Corporate Office Transfer (Ruwi to Seeb)', client: 'Oman Tech Solutions', date: '2026-10-20', endDate: '2026-10-21', status: 'In Progress', assigned: 'Tariq Mahmood', badge: 'bg-blue-50 text-blue-700 border-blue-200', signature: '', images: [], notes: 'IT server racks dismantling and bubble wrap needed.' },
+            { id: 'REQ-2026-0140', title: 'Residential Apartment Move (Bawshar)', client: 'Sarra Al-Lawati', date: '2026-10-10', endDate: '2026-10-11', status: 'Completed', assigned: 'Rashid Amur', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200', signature: '', images: [], notes: 'Fully completed with customer signature.' }
         ];
         
         let staff = JSON.parse(localStorage.getItem('movepro_staff')) || [
@@ -540,6 +520,10 @@
                 updateDashboardKPIs();
             }
 
+            if(tab === 'reports') {
+                renderReportsTable();
+            }
+
             if(tab === 'map') {
                 setTimeout(() => {
                     if(!map) {
@@ -556,26 +540,35 @@
             document.getElementById('kpiInProgress').innerText = inProgressCount;
             document.getElementById('kpiStaffCount').innerText = staff.length;
             document.getElementById('kpiUsersCount').innerText = users.length;
+        }
 
-            const tbody = document.getElementById('dashboardRecentTable');
-            if(tbody) {
-                tbody.innerHTML = '';
-                requests.slice(0, 5).forEach(req => {
-                    tbody.innerHTML += `
-                        <tr>
-                            <td class="py-2.5 px-4 font-mono text-slate-500">${req.id}</td>
-                            <td class="py-2.5 px-4 font-semibold text-slate-900">${req.title}</td>
-                            <td class="py-2.5 px-4 text-slate-600">${req.client}</td>
-                            <td class="py-2.5 px-4"><span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full border ${req.badge}">${req.status}</span></td>
-                        </tr>`;
-                });
-            }
+        function renderReportsTable() {
+            const tbody = document.getElementById('reportsTableBody');
+            if(!tbody) return;
+            tbody.innerHTML = '';
+
+            requests.forEach((req, index) => {
+                let statusBadge = req.status === 'Completed' 
+                    ? `<span class="text-emerald-700 font-bold bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">Completed</span>`
+                    : `<span class="text-amber-700 font-bold bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200">In Progress</span>`;
+
+                let assetCount = (req.images && req.images.length > 0) ? `📷 ${req.images.length} Image(s)` : '';
+                let sigTag = req.signature ? ` | ✓ Signed` : '';
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition">
+                        <td class="py-3 px-3 border border-slate-200 text-center font-bold text-slate-500">${index + 1}</td>
+                        <td class="py-3 px-4 border border-slate-200 font-semibold text-slate-900">${req.title}</td>
+                        <td class="py-3 px-4 border border-slate-200 text-slate-600 font-mono text-[11px]">${req.date || '2026-10-18'}</td>
+                        <td class="py-3 px-4 border border-slate-200 text-slate-600 font-mono text-[11px]">${req.endDate || '2026-10-19'}</td>
+                        <td class="py-3 px-4 border border-slate-200 text-slate-700">${req.assigned || 'Unassigned'}</td>
+                        <td class="py-3 px-4 border border-slate-200 text-center">${statusBadge}</td>
+                        <td class="py-3 px-4 border border-slate-200 text-slate-600">${req.notes || 'Standard move protocol.'} <span class="text-blue-600 font-bold">${assetCount}${sigTag}</span></td>
+                    </tr>`;
+            });
         }
 
         function updateReportStats() {
-            document.getElementById('reportTotalReqs').innerText = requests.length;
-            document.getElementById('reportTotalStaff').innerText = staff.length;
-            document.getElementById('reportTotalUsers').innerText = users.length;
             updateDashboardKPIs();
         }
 
@@ -776,42 +769,4 @@
                         images: processedImages.length > 0 ? processedImages : r.images 
                     } : r);
                 } else {
-                    requests.unshift({ 
-                        id: 'REQ-2026-' + Math.floor(Math.random() * 9000 + 1000), 
-                        title, client, date, status, assigned, badge,
-                        signature: signatureData && signatureData.length > 50 ? signatureData : '',
-                        images: processedImages
-                    });
-
-                    let assignedStaffObj = staff.find(s => s.name === assigned);
-                    if(assignedStaffObj) {
-                        assignedStaffObj.activeJobs = (Number(assignedStaffObj.activeJobs) || 0) + 1;
-                    }
-                }
-                saveToStorage(); 
-                closeModal(); 
-                renderRequests(); 
-                renderStaff();
-                updateReportStats();
-            }, 300);
-        }
-
-        function deleteRequest(id) {
-            if (currentRole !== 'Admin') {
-                alert('Permission Denied: Only Admin can delete records.');
-                return;
-            }
-            requests = requests.filter(r => r.id !== id);
-            saveToStorage(); renderRequests(); updateReportStats();
-        }
-
-        // Initialize App on Dashboard Tab
-        setRole('Admin');
-        switchTab('dashboard');
-        renderRequests();
-        renderUsers();
-        renderStaff();
-        updateReportStats();
-    </script>
-</body>
-</html>
+                    requests.unshift({
