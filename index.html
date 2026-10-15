@@ -859,6 +859,31 @@
                 requests.unshift({ id: 'REQ-2026-' + Math.floor(Math.random() * 9000 + 1000), title, client, date, endDate: date, status, assigned: staff[0]?.name || 'Unassigned', badge, signature: sig, images: [], notes: 'New order' });
             }
             saveToStorage(); closeModal(); renderRequests(); updateDashboardKPIs();
+            
+        }
+        function setRole(role) {
+            currentRole = role;
+            document.getElementById('currentUserRoleBadge').innerText = role + ' Role';
+            const userTabBtn = document.getElementById('nav-users');
+            const trashTabBtn = document.getElementById('nav-trash');
+            const reportsTabBtn = document.getElementById('nav-reports');
+            const newReqBtn = document.getElementById('newReqBtn');
+            const addStaffBtn = document.getElementById('addStaffBtn');
+            const isAdmin = role === 'Admin';
+            const isViewer = role === 'Viewer';
+
+            // إظهار أو إخفاء الأزرار والتبويبات بناءً على الصلاحية
+            userTabBtn.classList.toggle('hidden', !isAdmin);
+            trashTabBtn.classList.toggle('hidden', !isAdmin);
+            reportsTabBtn.classList.toggle('hidden', !isAdmin);
+            newReqBtn.classList.toggle('hidden', isViewer);
+            if (addStaffBtn) addStaffBtn.classList.toggle('hidden', isViewer);
+
+            if (!isAdmin && (!document.getElementById('tab-users').classList.contains('hidden') || !document.getElementById('tab-reports').classList.contains('hidden') || !document.getElementById('tab-trash').classList.contains('hidden'))) {
+                switchTab('dashboard');
+            }
+
+            renderRequests(); renderUsers(); renderStaff(); renderTrash(); updateDashboardKPIs();
         }
     </script>
 </body>
