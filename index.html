@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovePro Enterprise - Warm Beige Glass v6.3</title>
+    <title>MovePro Enterprise - Beige Glass v6.4</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -18,22 +18,22 @@
         
         /* Warm Beige & Brown Glassmorphism Styles */
         .glass-panel {
-            background: rgba(253, 250, 246, 0.75);
+            background: rgba(253, 250, 246, 0.85);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(180, 145, 115, 0.2);
+            border: 1px solid rgba(180, 145, 115, 0.25);
             box-shadow: 0 10px 30px 0 rgba(110, 85, 60, 0.08);
         }
         .glass-card {
-            background: rgba(255, 255, 255, 0.65);
+            background: rgba(255, 255, 255, 0.75);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(180, 145, 115, 0.15);
+            border: 1px solid rgba(180, 145, 115, 0.2);
             box-shadow: 0 4px 20px rgba(110, 85, 60, 0.05);
         }
         .glass-input {
-            background: rgba(255, 255, 255, 0.85);
-            border: 1px solid rgba(180, 145, 115, 0.3);
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(180, 145, 115, 0.35);
             color: #4a3b32;
         }
         .glass-input:focus {
@@ -69,7 +69,7 @@
                     </div>
                     <div>
                         <h2 class="text-lg font-bold text-[#33251c] tracking-wide leading-none">MovePro</h2>
-                        <span class="text-[10px] text-[#8c6e55] font-semibold tracking-wider uppercase">Beige Edition v6.3</span>
+                        <span class="text-[10px] text-[#8c6e55] font-semibold tracking-wider uppercase">Beige Edition v6.4</span>
                     </div>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-[#6b5344] hover:text-[#33251c]">
@@ -94,11 +94,11 @@
                     <i class="fa-solid fa-people-group w-5 text-center text-[#8c6e55]"></i>
                     <span>Field Staff</span>
                 </button>
-                <button onclick="switchTab('users'); toggleMobileSidebar();" id="nav-users" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-[#8c6e55]/10 text-[#5c4a3d] hover:text-[#33251c] transition hidden">
+                <button onclick="switchTab('users'); toggleMobileSidebar();" id="nav-users" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-[#8c6e55]/10 text-[#5c4a3d] hover:text-[#33251c] transition">
                     <i class="fa-solid fa-users-gear w-5 text-center text-[#8c6e55]"></i>
                     <span>Users & Roles</span>
                 </button>
-                <button onclick="switchTab('reports'); toggleMobileSidebar();" id="nav-reports" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl bg-[#6b5344] text-white font-semibold shadow-md transition hidden border border-[#8c6e55]">
+                <button onclick="switchTab('reports'); toggleMobileSidebar();" id="nav-reports" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl bg-[#6b5344] text-white font-semibold shadow-md transition border border-[#8c6e55]">
                     <i class="fa-solid fa-file-pdf w-5 text-center"></i>
                     <span>PDF Reports</span>
                 </button>
@@ -114,7 +114,7 @@
                 </div>
             </div>
             <button onclick="resetData()" class="w-full text-center text-[11px] text-[#7a6555] hover:text-red-600 transition font-medium">
-                <i class="fa-solid fa-rotate-right mr-1"></i> Reset Local Data
+                <i class="fa-solid fa-rotate-right mr-1"></i> Reset & Reload Data
             </button>
         </div>
     </aside>
@@ -402,10 +402,10 @@
         let map = null;
 
         let requests = JSON.parse(localStorage.getItem('movepro_requests')) || [
-            { id: 'REQ-2026-0140', title: 'Residential Apartment Move (Bawshar)', client: 'Sarra Al-Lawati', date: '2026-10-10', endDate: '2026-10-11', status: 'Completed', assigned: 'Rashid Amur', badge: 'bg-[#6b5344]/15 text-[#523e32] border-[#6b5344]/30', signature: '', images: [], notes: 'Fully completed with customer signature.' },
-            { id: 'REQ-2026-0141', title: 'Corporate HQ Move (CBD Ghubrah)', client: 'Oman Financial Corp', date: '2026-10-15', endDate: '2026-10-19', status: 'Completed', assigned: 'Tariq Mahmood', badge: 'bg-[#6b5344]/15 text-[#523e32] border-[#6b5344]/30', signature: '', images: [], notes: 'Standard move protocol.' },
-            { id: 'REQ-2026-0142', title: 'Villa Relocation (Al Mouj to Qurum)', client: 'Ahmed Al-Balushi', date: '2026-10-18', endDate: '2026-10-19', status: 'In Progress', assigned: 'Salim Al-Harthy', badge: 'bg-[#8c6e55]/15 text-[#5c4a3d] border-[#8c6e55]/30', signature: '', images: [], notes: 'Heavy furniture items & glass packaging required.' },
-            { id: 'REQ-2026-0143', title: 'Corporate Office Transfer (Ruwi to Seeb)', client: 'Oman Tech Solutions', date: '2026-10-20', endDate: '2026-10-21', status: 'In Progress', assigned: 'Rashid Amur', badge: 'bg-[#8c6e55]/15 text-[#5c4a3d] border-[#8c6e55]/30', signature: '', images: [], notes: 'IT server racks dismantling and bubble wrap needed.' }
+            { id: 'REQ-2026-0140', title: 'Residential Apartment Move (Bawshar)', client: 'Sarra Al-Lawati', date: '2026-10-10', endDate: '2026-10-11', status: 'Completed', assigned: 'Rashid Amur', badge: 'bg-[#608252]/15 text-[#3b5332] border-[#608252]/30', signature: '', images: [], notes: 'Fully completed with customer signature.' },
+            { id: 'REQ-2026-0141', title: 'Corporate HQ Move (CBD Ghubrah)', client: 'Oman Financial Corp', date: '2026-10-15', endDate: '2026-10-19', status: 'Completed', assigned: 'Tariq Mahmood', badge: 'bg-[#608252]/15 text-[#3b5332] border-[#608252]/30', signature: '', images: [], notes: 'Standard move protocol.' },
+            { id: 'REQ-2026-0142', title: 'Villa Relocation (Al Mouj to Qurum)', client: 'Ahmed Al-Balushi', date: '2026-10-18', endDate: '2026-10-19', status: 'In Progress', assigned: 'Salim Al-Harthy', badge: 'bg-[#c68b35]/15 text-[#755122] border-[#c68b35]/30', signature: '', images: [], notes: 'Heavy furniture items & glass packaging required.' },
+            { id: 'REQ-2026-0143', title: 'Corporate Office Transfer (Ruwi to Seeb)', client: 'Oman Tech Solutions', date: '2026-10-20', endDate: '2026-10-21', status: 'In Progress', assigned: 'Rashid Amur', badge: 'bg-[#c68b35]/15 text-[#755122] border-[#c68b35]/30', signature: '', images: [], notes: 'IT server racks dismantling and bubble wrap needed.' }
         ];
         
         let staff = JSON.parse(localStorage.getItem('movepro_staff')) || [
@@ -503,7 +503,10 @@
         }
 
         function resetData() {
-            if(confirm('Reset all data?')) { localStorage.clear(); location.reload(); }
+            if(confirm('Reset all data to default samples?')) { 
+                localStorage.clear(); 
+                location.reload(); 
+            }
         }
 
         function setRole(role) {
@@ -632,43 +635,4 @@
                         <td class="py-3.5 px-4 border border-[#b49173]/20 text-[#5c4a3d] font-mono text-[12px]">${req.date || '2026-10-18'}</td>
                         <td class="py-3.5 px-4 border border-[#b49173]/20 text-[#5c4a3d] font-mono text-[12px]">${req.endDate || '2026-10-19'}</td>
                         <td class="py-3.5 px-4 border border-[#b49173]/20 text-[#33251c] font-semibold">${req.assigned || 'Unassigned'}</td>
-                        <td class="py-3.5 px-4 border border-[#b49173]/20 text-center">${statusBadge}</td>
-                        <td class="py-3.5 px-4 border border-[#b49173]/20 text-[#5c4a3d]">${req.notes || 'Standard move protocol.'} <span class="text-[#6b5344] font-bold">${assetCount}${sigTag}</span></td>
-                    </tr>`;
-            });
-        }
-
-        function resetDateFilter() {
-            document.getElementById('filterStartDate').value = '';
-            document.getElementById('filterEndDate').value = '';
-            renderReportsTable();
-        }
-
-        function updateReportStats() {
-            updateDashboardKPIs();
-        }
-
-        // Direct Download PDF Function
-        function downloadPDFReport() {
-            if (currentRole !== 'Admin') {
-                alert('Access Denied');
-                return;
-            }
-            const element = document.getElementById('pdfReportContent');
-            const opt = {
-                margin:       10,
-                filename:     'MovePro_Operations_Schedule.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
-            };
-            html2pdf().from(element).set(opt).save();
-        }
-
-        function renderRequests() {
-            const grid = document.getElementById('requestsGrid');
-            const search = document.getElementById('searchInput').value.toLowerCase();
-            grid.innerHTML = '';
-            const filtered = requests.filter(r => r.title.toLowerCase().includes(search) || r.client.toLowerCase().includes(search));
-
-            if(filtered.length === 0) { grid.innerHTML = `<p class="text-[#7a6555] col-span-full text-center py-12 text-sm">
+                        <td class="py-3.
