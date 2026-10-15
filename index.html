@@ -3,20 +3,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovePro Enterprise - Move Logistics v5.8</title>
+    <title>MovePro Enterprise - Move Logistics v6.1</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2pdf Library for Direct PDF Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <style>
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
         #map { height: 100%; min-height: 400px; border-radius: 1rem; z-index: 10; }
+        
+        /* Print Optimization */
         @media print {
             aside, header, button, .no-print { display: none !important; }
-            body, main { background: white !important; overflow: visible !important; }
-            #tab-reports { display: block !important; padding: 0 !important; }
+            body, main { background: white !important; color: black !important; overflow: visible !important; height: auto !important; }
+            #tab-reports { display: block !important; padding: 0 !important; width: 100% !important; margin: 0 !important; }
+            .print-card { border: none !important; box-shadow: none !important; padding: 0 !important; }
+            table { width: 100% !important; border-collapse: collapse !important; font-size: 13px !important; }
+            th { background-color: #1e4620 !important; color: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            td, th { border: 1px solid #64748b !important; padding: 10px !important; }
         }
     </style>
 </head>
@@ -35,7 +43,7 @@
                     </div>
                     <div>
                         <h2 class="text-lg font-bold text-white tracking-wide leading-none">MovePro</h2>
-                        <span class="text-[10px] text-emerald-400 font-semibold tracking-wider uppercase">Enterprise v5.8</span>
+                        <span class="text-[10px] text-emerald-400 font-semibold tracking-wider uppercase">Enterprise v6.1</span>
                     </div>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 hover:text-white">
@@ -216,27 +224,38 @@
                 </div>
             </div>
 
-            <!-- TAB 5: MOVEPRO LOGISTICS PDF REPORTS -->
+            <!-- TAB 5: MOVEPRO LOGISTICS PDF REPORTS WITH DATE FILTER -->
             <div id="tab-reports" class="hidden space-y-6">
-                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl border shadow-sm no-print">
+                <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white p-6 rounded-2xl border shadow-sm no-print">
                     <div>
                         <h3 class="font-bold text-slate-900 text-lg">MovePro Move Schedule & Operations Report</h3>
-                        <p class="text-xs text-slate-500 mt-1">Exportable logistics report formatted specifically for MovePro dispatches.</p>
+                        <p class="text-xs text-slate-500 mt-1">Filter dispatches by date range and export professional PDF reports.</p>
                     </div>
-                    <button onclick="generatePDFReport()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow flex items-center space-x-2 w-full sm:w-auto justify-center">
-                        <i class="fa-solid fa-file-pdf"></i>
-                        <span>Export / Print Report</span>
-                    </button>
+                    <div class="flex flex-wrap items-center gap-3 w-full lg:w-auto">
+                        <div class="flex items-center space-x-2 text-xs">
+                            <span class="text-slate-500 font-medium">From:</span>
+                            <input type="date" id="filterStartDate" onchange="renderReportsTable()" class="p-2 border rounded-xl text-xs bg-slate-50">
+                        </div>
+                        <div class="flex items-center space-x-2 text-xs">
+                            <span class="text-slate-500 font-medium">To:</span>
+                            <input type="date" id="filterEndDate" onchange="renderReportsTable()" class="p-2 border rounded-xl text-xs bg-slate-50">
+                        </div>
+                        <button onclick="resetDateFilter()" class="text-xs text-slate-500 hover:text-slate-900 underline font-medium">Reset</button>
+                        <button onclick="downloadPDFReport()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-xl text-xs font-bold shadow flex items-center space-x-1.5">
+                            <i class="fa-solid fa-download"></i>
+                            <span>Download PDF</span>
+                        </button>
+                    </div>
                 </div>
 
-                <!-- MovePro Dedicated Table Structure -->
-                <div class="bg-white p-6 rounded-2xl border shadow-sm space-y-4">
+                <!-- Printable Card Container -->
+                <div id="pdfReportContent" class="bg-white p-6 rounded-2xl border shadow-sm space-y-4 print-card">
                     <div class="flex justify-between items-center border-b pb-4">
                         <div>
-                            <h3 class="text-lg font-bold text-slate-900">MovePro Operations Schedule</h3>
+                            <h3 class="text-xl font-bold text-slate-900">MovePro Operations Schedule</h3>
                             <p class="text-xs text-slate-500">Branch: Muscat & Regional Fleet Dispatches</p>
                         </div>
-                        <span class="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">October 2026</span>
+                        <span id="reportDateBadge" class="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">October 2026</span>
                     </div>
 
                     <div class="overflow-x-auto border border-slate-200 rounded-xl">
@@ -252,7 +271,7 @@
                                     <th class="py-3 px-4 border border-emerald-900">Logistics Notes & Assets</th>
                                 </tr>
                             </thead>
-                            <tbody id="reportsTableBody" class="divide-y divide-slate-200 text-slate-700">
+                            <tbody id="reportsTableBody" class="divide-y divide-slate-200 text-slate-800">
                                 <!-- Dynamic rows inserted via JS -->
                             </tbody>
                         </table>
@@ -355,11 +374,11 @@
         let currentRole = 'Admin';
         let map = null;
 
-        // MovePro Specific Operations Data
         let requests = JSON.parse(localStorage.getItem('movepro_requests')) || [
+            { id: 'REQ-2026-0140', title: 'Residential Apartment Move (Bawshar)', client: 'Sarra Al-Lawati', date: '2026-10-10', endDate: '2026-10-11', status: 'Completed', assigned: 'Rashid Amur', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200', signature: '', images: [], notes: 'Fully completed with customer signature.' },
+            { id: 'REQ-2026-0141', title: 'Corporate HQ Move (CBD Ghubrah)', client: 'Oman Financial Corp', date: '2026-10-15', endDate: '2026-10-19', status: 'Completed', assigned: 'Tariq Mahmood', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200', signature: '', images: [], notes: 'Standard move protocol.' },
             { id: 'REQ-2026-0142', title: 'Villa Relocation (Al Mouj to Qurum)', client: 'Ahmed Al-Balushi', date: '2026-10-18', endDate: '2026-10-19', status: 'In Progress', assigned: 'Salim Al-Harthy', badge: 'bg-blue-50 text-blue-700 border-blue-200', signature: '', images: [], notes: 'Heavy furniture items & glass packaging required.' },
-            { id: 'REQ-2026-0143', title: 'Corporate Office Transfer (Ruwi to Seeb)', client: 'Oman Tech Solutions', date: '2026-10-20', endDate: '2026-10-21', status: 'In Progress', assigned: 'Tariq Mahmood', badge: 'bg-blue-50 text-blue-700 border-blue-200', signature: '', images: [], notes: 'IT server racks dismantling and bubble wrap needed.' },
-            { id: 'REQ-2026-0140', title: 'Residential Apartment Move (Bawshar)', client: 'Sarra Al-Lawati', date: '2026-10-10', endDate: '2026-10-11', status: 'Completed', assigned: 'Rashid Amur', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200', signature: '', images: [], notes: 'Fully completed with customer signature.' }
+            { id: 'REQ-2026-0143', title: 'Corporate Office Transfer (Ruwi to Seeb)', client: 'Oman Tech Solutions', date: '2026-10-20', endDate: '2026-10-21', status: 'In Progress', assigned: 'Rashid Amur', badge: 'bg-blue-50 text-blue-700 border-blue-200', signature: '', images: [], notes: 'IT server racks dismantling and bubble wrap needed.' }
         ];
         
         let staff = JSON.parse(localStorage.getItem('movepro_staff')) || [
@@ -547,37 +566,78 @@
             if(!tbody) return;
             tbody.innerHTML = '';
 
-            requests.forEach((req, index) => {
+            const startDate = document.getElementById('filterStartDate').value;
+            const endDate = document.getElementById('filterEndDate').value;
+            const dateBadge = document.getElementById('reportDateBadge');
+
+            // Sort chronologically by scheduled date (Ascending)
+            let filteredRequests = [...requests].sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            // Apply Date Filter if set
+            if (startDate) {
+                filteredRequests = filteredRequests.filter(r => r.date >= startDate);
+            }
+            if (endDate) {
+                filteredRequests = filteredRequests.filter(r => r.date <= endDate);
+            }
+
+            if (startDate || endDate) {
+                dateBadge.innerText = `${startDate || 'Start'} to ${endDate || 'Present'}`;
+            } else {
+                dateBadge.innerText = 'All Dates (October 2026)';
+            }
+
+            if (filteredRequests.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" class="py-6 text-center text-slate-400">No dispatches found in the selected date range.</td></tr>`;
+                return;
+            }
+
+            filteredRequests.forEach((req, index) => {
                 let statusBadge = req.status === 'Completed' 
-                    ? `<span class="text-emerald-700 font-bold bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">Completed</span>`
-                    : `<span class="text-amber-700 font-bold bg-amber-50 px-2.5 py-1 rounded-md border border-amber-200">In Progress</span>`;
+                    ? `<span class="text-emerald-800 font-bold bg-emerald-100 px-2.5 py-1 rounded-md border border-emerald-300">Completed</span>`
+                    : `<span class="text-amber-800 font-bold bg-amber-100 px-2.5 py-1 rounded-md border border-amber-300">In Progress</span>`;
 
                 let assetCount = (req.images && req.images.length > 0) ? `📷 ${req.images.length} Image(s)` : '';
                 let sigTag = req.signature ? ` | ✓ Signed` : '';
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition">
-                        <td class="py-3 px-3 border border-slate-200 text-center font-bold text-slate-500">${index + 1}</td>
-                        <td class="py-3 px-4 border border-slate-200 font-semibold text-slate-900">${req.title}</td>
-                        <td class="py-3 px-4 border border-slate-200 text-slate-600 font-mono text-[11px]">${req.date || '2026-10-18'}</td>
-                        <td class="py-3 px-4 border border-slate-200 text-slate-600 font-mono text-[11px]">${req.endDate || '2026-10-19'}</td>
-                        <td class="py-3 px-4 border border-slate-200 text-slate-700">${req.assigned || 'Unassigned'}</td>
-                        <td class="py-3 px-4 border border-slate-200 text-center">${statusBadge}</td>
-                        <td class="py-3 px-4 border border-slate-200 text-slate-600">${req.notes || 'Standard move protocol.'} <span class="text-blue-600 font-bold">${assetCount}${sigTag}</span></td>
+                        <td class="py-3.5 px-3 border border-slate-200 text-center font-bold text-slate-600">${index + 1}</td>
+                        <td class="py-3.5 px-4 border border-slate-200 font-bold text-slate-900">${req.title}</td>
+                        <td class="py-3.5 px-4 border border-slate-200 text-slate-700 font-mono text-[12px]">${req.date || '2026-10-18'}</td>
+                        <td class="py-3.5 px-4 border border-slate-200 text-slate-700 font-mono text-[12px]">${req.endDate || '2026-10-19'}</td>
+                        <td class="py-3.5 px-4 border border-slate-200 text-slate-900 font-semibold">${req.assigned || 'Unassigned'}</td>
+                        <td class="py-3.5 px-4 border border-slate-200 text-center">${statusBadge}</td>
+                        <td class="py-3.5 px-4 border border-slate-200 text-slate-700">${req.notes || 'Standard move protocol.'} <span class="text-blue-700 font-bold">${assetCount}${sigTag}</span></td>
                     </tr>`;
             });
+        }
+
+        function resetDateFilter() {
+            document.getElementById('filterStartDate').value = '';
+            document.getElementById('filterEndDate').value = '';
+            renderReportsTable();
         }
 
         function updateReportStats() {
             updateDashboardKPIs();
         }
 
-        function generatePDFReport() {
+        // Direct Download PDF Function
+        function downloadPDFReport() {
             if (currentRole !== 'Admin') {
                 alert('Access Denied');
                 return;
             }
-            window.print();
+            const element = document.getElementById('pdfReportContent');
+            const opt = {
+                margin:       10,
+                filename:     'MovePro_Operations_Schedule.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
+            };
+            html2pdf().from(element).set(opt).save();
         }
 
         function renderRequests() {
