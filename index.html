@@ -143,7 +143,7 @@
     <!-- ================= MAIN WRAPPER ================= -->
     <div class="flex-1 flex flex-col min-w-0 overflow-hidden h-full">
 
-        <header class="bg-white/80 backdrop-blur-md border-b border-slate-200/80 h-16 px-4 md:px-8 flex items-center justify-between shrink-0 shadow-sm gap-2">
+        <header class="bg-white/80 backdrop-blur-md border-b border-slate-200/80 h-16 px-4 md:px-8 flex items-center justify-between shrink-0 shadow-sm gap-2 relative z-40">
             <div class="flex items-center space-x-3 min-w-0">
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-700 p-2 rounded-lg hover:bg-slate-100 shrink-0">
                     <i class="fa-solid fa-bars text-lg"></i>
@@ -158,7 +158,7 @@
             </div>
 
             <!-- Profile Menu Dropdown -->
-            <div class="flex items-center space-x-3 shrink-0 relative">
+            <div class="flex items-center space-x-3 shrink-0">
                 <button onclick="openModalForAdd()" id="newReqBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white p-2 md:px-4 md:py-2 rounded-xl text-xs md:text-sm font-semibold shadow flex items-center space-x-1.5 transition">
                     <i class="fa-solid fa-plus"></i>
                     <span class="hidden sm:inline">Create Dispatch</span>
@@ -170,28 +170,28 @@
                         FA
                     </button>
 
-                    <!-- Dropdown Menu Box -->
-                    <div id="profileDropdown" class="hidden absolute left-0 sm:left-auto sm:right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 text-xs text-slate-700">
-                        <div class="px-4 py-2 border-b border-slate-100">
+                    <!-- Dropdown Menu Box (Fully English & High Z-Index) -->
+                    <div id="profileDropdown" class="hidden absolute right-0 mt-3 w-60 bg-white rounded-2xl shadow-2xl border border-slate-200 py-2 z-[9999] text-xs text-slate-700">
+                        <div class="px-4 py-3 border-b border-slate-100">
                             <p class="font-bold text-slate-900" id="dropUserName">Fatma Al-Wahaibi</p>
                             <p class="text-slate-400 truncate" id="dropUserEmail">fatma@movepro.com</p>
                         </div>
-                        <button onclick="switchTab('users'); toggleProfileMenu();" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center space-x-2">
-                            <i class="fa-solid fa-user-gear w-4 text-emerald-600"></i><span>حسابي / المستخدمون</span>
+                        <button onclick="switchTab('users'); toggleProfileMenu();" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center space-x-2.5">
+                            <i class="fa-solid fa-user-gear w-4 text-emerald-600"></i><span>Users & Access</span>
                         </button>
-                        <button onclick="exportBackup(); toggleProfileMenu();" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center space-x-2">
-                            <i class="fa-solid fa-download w-4 text-emerald-600"></i><span>نسخة احتياطية (Backup)</span>
+                        <button onclick="exportBackup(); toggleProfileMenu();" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center space-x-2.5">
+                            <i class="fa-solid fa-download w-4 text-emerald-600"></i><span>Export Backup</span>
                         </button>
-                        <label class="w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center space-x-2 cursor-pointer">
-                            <i class="fa-solid fa-upload w-4 text-emerald-600"></i><span>استعادة بيانات</span>
+                        <label class="w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center space-x-2.5 cursor-pointer">
+                            <i class="fa-solid fa-upload w-4 text-emerald-600"></i><span>Restore Backup</span>
                             <input type="file" id="importFile" accept=".json" onchange="importBackup(event)" class="hidden">
                         </label>
-                        <button onclick="switchTab('trash'); toggleProfileMenu();" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center space-x-2">
-                            <i class="fa-solid fa-trash w-4 text-amber-600"></i><span>سلة المهملات</span>
+                        <button onclick="switchTab('trash'); toggleProfileMenu();" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center space-x-2.5">
+                            <i class="fa-solid fa-trash w-4 text-amber-600"></i><span>Trash Bin</span>
                         </button>
                         <div class="border-t border-slate-100 my-1"></div>
-                        <button onclick="logout()" class="w-full text-left px-4 py-2.5 hover:bg-red-50 text-red-600 flex items-center space-x-2 font-bold">
-                            <i class="fa-solid fa-right-from-bracket w-4"></i><span>تسجيل الخروج</span>
+                        <button onclick="logout()" class="w-full text-left px-4 py-2.5 hover:bg-red-50 text-red-600 flex items-center space-x-2.5 font-bold">
+                            <i class="fa-solid fa-right-from-bracket w-4"></i><span>Sign Out</span>
                         </button>
                     </div>
                 </div>
@@ -326,10 +326,10 @@
             <div id="tab-trash" class="hidden space-y-6">
                 <div class="flex justify-between items-center bg-white p-6 rounded-2xl border shadow-sm">
                     <div>
-                        <h3 class="font-bold text-slate-900 text-lg">سلة المهملات (Trash Bin)</h3>
-                        <p class="text-xs text-slate-500 mt-1">الطلبات المحذوفة مؤقتاً مع إمكانية استرجاعها أو حذفها نهائياً.</p>
+                        <h3 class="font-bold text-slate-900 text-lg">Trash Bin</h3>
+                        <p class="text-xs text-slate-500 mt-1">Temporarily deleted dispatch orders with restore or permanent delete options.</p>
                     </div>
-                    <button onclick="emptyTrash()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl text-xs font-bold transition">إفراغ السلة نهائياً</button>
+                    <button onclick="emptyTrash()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl text-xs font-bold transition">Empty Trash Bin</button>
                 </div>
                 <div id="trashGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
             </div>
@@ -576,9 +576,8 @@
             localStorage.setItem('movepro_users', JSON.stringify(users));
         }
 
-        // --- النسخة الاحتياطية والاستعادة ---
         function exportBackup() {
-            if (currentRole !== 'Admin') { alert('صلاحية المدير مطلوبة لتصدير النسخ الاحتياطية.'); return; }
+            if (currentRole !== 'Admin') { alert('Administrator role required for backup export.'); return; }
             const backupData = {
                 requests: requests,
                 trashBin: trashBin,
@@ -597,7 +596,7 @@
         }
 
         function importBackup(e) {
-            if (currentRole !== 'Admin') { alert('صلاحية المدير مطلوبة لاستعادة النسخ الاحتياطية.'); return; }
+            if (currentRole !== 'Admin') { alert('Administrator role required for backup import.'); return; }
             const file = e.target.files[0];
             if (!file) return;
             const reader = new FileReader();
@@ -610,13 +609,13 @@
                         staff = parsed.staff;
                         users = parsed.users || allowedUsers;
                         saveToStorage();
-                        alert('تم استعادة النسخة الاحتياطية بنجاح!');
+                        alert('Backup successfully restored!');
                         location.reload();
                     } else {
-                        alert('ملف النسخة الاحتياطية غير صالح.');
+                        alert('Invalid backup file format.');
                     }
                 } catch(err) {
-                    alert('حدث خطأ أثناء قراءة ملف النسخة الاحتياطية.');
+                    alert('Error reading backup file.');
                 }
             };
             reader.readAsText(file);
@@ -726,7 +725,7 @@
             const grid = document.getElementById('requestsGrid');
             const search = document.getElementById('searchInput').value.toLowerCase();
             grid.innerHTML = requests.filter(r => r.title.toLowerCase().includes(search) || r.client.toLowerCase().includes(search)).map(req => {
-                let actionBtns = currentRole === 'Admin' ? `<button onclick="openModalForEdit('${req.id}')" class="text-blue-500 text-xs p-1">✏️</button><button onclick="deleteRequest('${req.id}')" class="text-red-400 text-xs p-1" title="نقل إلى سلة المهملات">🗑️</button>` : (currentRole === 'Member' ? `<button onclick="openModalForEdit('${req.id}')" class="text-blue-500 text-xs p-1">✏️</button>` : '');
+                let actionBtns = currentRole === 'Admin' ? `<button onclick="openModalForEdit('${req.id}')" class="text-blue-500 text-xs p-1">✏️</button><button onclick="deleteRequest('${req.id}')" class="text-red-400 text-xs p-1" title="Move to Trash">🗑️</button>` : (currentRole === 'Member' ? `<button onclick="openModalForEdit('${req.id}')" class="text-blue-500 text-xs p-1">✏️</button>` : '');
                 return `
                     <div class="bg-white rounded-2xl border p-4 space-y-3 shadow-sm">
                         <div class="flex justify-between items-start"><span class="px-3 py-1 text-[11px] font-bold rounded-full border ${req.badge}">${req.status}</span><div class="flex items-center space-x-2"><span class="text-xs font-mono text-slate-400">${req.id}</span>${actionBtns}</div></div>
@@ -736,7 +735,6 @@
             }).join('') || '<p class="text-slate-400 col-span-full text-center py-12 text-sm">No orders found.</p>';
         }
 
-        // --- إدارة سلة المهملات ---
         function deleteRequest(id) {
             if (currentRole !== 'Admin') return;
             const reqIndex = requests.findIndex(r => r.id === id);
@@ -753,17 +751,17 @@
         function renderTrash() {
             const grid = document.getElementById('trashGrid');
             if (!grid) return;
-            if (trashBin.length === { length: 0 }.length === 0 && trashBin.length === 0) {
-                grid.innerHTML = `<p class="text-slate-400 col-span-full text-center py-12 text-sm">سلة المهملات فارغة.</p>`;
+            if (trashBin.length === 0) {
+                grid.innerHTML = `<p class="text-slate-400 col-span-full text-center py-12 text-sm">Trash bin is empty.</p>`;
                 return;
             }
             grid.innerHTML = trashBin.map(req => `
                 <div class="bg-white rounded-2xl border border-red-100 p-4 space-y-3 shadow-sm">
-                    <div class="flex justify-between items-start"><span class="px-3 py-1 text-[11px] font-bold rounded-full bg-red-50 text-red-600 border border-red-200">محذوف</span><span class="text-xs font-mono text-slate-400">${req.id}</span></div>
+                    <div class="flex justify-between items-start"><span class="px-3 py-1 text-[11px] font-bold rounded-full bg-red-50 text-red-600 border border-red-200">Deleted</span><span class="text-xs font-mono text-slate-400">${req.id}</span></div>
                     <div><h3 class="font-bold text-slate-900 text-base">${req.title}</h3><p class="text-xs text-slate-500 mt-1">👤 Client: ${req.client}</p></div>
                     <div class="border-t pt-3 flex justify-between text-xs">
-                        <button onclick="restoreRequest('${req.id}')" class="text-emerald-600 font-bold hover:underline">♻️ استرجاع</button>
-                        <button onclick="permanentDelete('${req.id}')" class="text-red-500 font-bold hover:underline">❌ حذف نهائي</button>
+                        <button onclick="restoreRequest('${req.id}')" class="text-emerald-600 font-bold hover:underline">♻️ Restore</button>
+                        <button onclick="permanentDelete('${req.id}')" class="text-red-500 font-bold hover:underline">❌ Delete Permanently</button>
                     </div>
                 </div>`).join('');
         }
@@ -781,7 +779,7 @@
         }
 
         function permanentDelete(id) {
-            if (confirm('هل أنت متأكد من الحذف النهائي؟ لا يمكن استرجاع البيانات بعد ذلك.')) {
+            if (confirm('Are you sure you want to permanently delete this item?')) {
                 trashBin = trashBin.filter(r => r.id !== id);
                 saveToStorage();
                 renderTrash();
@@ -789,7 +787,7 @@
         }
 
         function emptyTrash() {
-            if (confirm('هل تريد إفراغ سلة المهملات نهائياً؟')) {
+            if (confirm('Are you sure you want to empty the trash bin?')) {
                 trashBin = [];
                 saveToStorage();
                 renderTrash();
