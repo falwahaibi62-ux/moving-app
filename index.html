@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovePro Enterprise - Modern Dashboard v6.5</title>
+    <title>MovePro Enterprise - Secure Login v6.6</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -15,8 +15,6 @@
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 4px; }
         #map { height: 100%; min-height: 400px; border-radius: 1rem; z-index: 10; }
-        
-        /* Soft Modern Glass & Card Styles */
         .modern-glass-card {
             background: rgba(255, 255, 255, 0.85);
             backdrop-filter: blur(12px);
@@ -24,8 +22,6 @@
             border: 1px solid rgba(226, 232, 240, 0.8);
             box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.04);
         }
-        
-        /* Print Optimization */
         @media print {
             aside, header, button, .no-print { display: none !important; }
             body, main { background: white !important; color: black !important; overflow: visible !important; height: auto !important; }
@@ -38,6 +34,44 @@
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-100 via-slate-50 to-emerald-50/40 font-sans text-slate-800 antialiased h-screen flex flex-col md:flex-row overflow-hidden">
+
+    <!-- ================= SECURE LOGIN SCREEN ================= -->
+    <div id="loginScreen" class="fixed inset-0 bg-slate-900/85 backdrop-blur-md flex items-center justify-center z-50 p-4">
+        <div class="bg-white p-8 rounded-3xl w-full max-w-md shadow-2xl space-y-6 border border-slate-100 transform transition-all">
+            <div class="text-center space-y-2">
+                <div class="w-14 h-14 bg-emerald-600 text-white rounded-2xl flex items-center justify-center text-2xl mx-auto shadow-md">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h2 class="text-xl font-bold text-slate-900">MovePro Enterprise</h2>
+                <p class="text-xs text-slate-500">Authorized Personnel Only - Restricted Access</p>
+            </div>
+
+            <div id="loginErrorMsg" class="hidden bg-red-50 border border-red-200 text-red-700 text-xs p-3 rounded-xl text-center font-medium">
+                Access Denied: Unrecognized email address or unauthorized role.
+            </div>
+
+            <form onsubmit="handleSecureLogin(event)" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Authorized Email Address</label>
+                    <input type="email" id="loginEmail" required placeholder="fatma@movepro.com" class="w-full p-3 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Assigned Role</label>
+                    <select id="loginRole" class="w-full p-3 border rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500 font-medium">
+                        <option value="Admin">Admin (Full Control)</option>
+                        <option value="Member">Member (Input Only)</option>
+                        <option value="Viewer">Viewer (Read Only)</option>
+                    </select>
+                </div>
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white p-3 rounded-xl font-bold text-sm shadow-md transition">
+                    Authenticate & Enter
+                </button>
+            </form>
+            <div class="text-[11px] text-center text-slate-400">
+                Protected by MovePro Security Protocol v6.6
+            </div>
+        </div>
+    </div>
 
     <!-- Mobile Overlay Backdrop -->
     <div id="sidebarOverlay" onclick="toggleMobileSidebar()" class="fixed inset-0 bg-slate-900/50 z-30 hidden md:hidden"></div>
@@ -52,7 +86,7 @@
                     </div>
                     <div>
                         <h2 class="text-lg font-bold text-white tracking-wide leading-none">MovePro</h2>
-                        <span class="text-[10px] text-emerald-400 font-semibold tracking-wider uppercase">Enterprise v6.5</span>
+                        <span class="text-[10px] text-emerald-400 font-semibold tracking-wider uppercase">Enterprise v6.6</span>
                     </div>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 hover:text-white">
@@ -90,14 +124,14 @@
 
         <div class="p-4 border-t border-slate-800 space-y-3 bg-slate-950/40">
             <div class="flex items-center space-x-3">
-                <div class="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center font-bold text-white text-xs shadow-sm">FA</div>
-                <div class="text-xs">
-                    <p class="font-semibold text-white">Fatma Al-Wahaibi</p>
+                <div class="w-9 h-9 rounded-full bg-emerald-600 flex items-center justify-center font-bold text-white text-xs shadow-sm" id="userAvatarInitials">FA</div>
+                <div class="text-xs truncate">
+                    <p class="font-semibold text-white truncate" id="currentUserNameLabel">Fatma Al-Wahaibi</p>
                     <p class="text-emerald-400 font-medium" id="currentUserRoleBadge">Admin Role</p>
                 </div>
             </div>
-            <button onclick="resetData()" class="w-full text-center text-[11px] text-slate-500 hover:text-red-400 transition">
-                <i class="fa-solid fa-rotate-right mr-1"></i> Reset Local Data
+            <button onclick="logout()" class="w-full text-center text-[11px] text-red-400 hover:text-red-300 transition font-bold py-1 bg-red-500/10 rounded-lg border border-red-500/20">
+                <i class="fa-solid fa-right-from-bracket mr-1"></i> Sign Out
             </button>
         </div>
     </aside>
@@ -120,12 +154,6 @@
             </div>
 
             <div class="flex items-center space-x-2 shrink-0">
-                <div class="bg-slate-100 p-1 rounded-xl flex items-center text-[11px] md:text-xs font-semibold">
-                    <span class="px-1.5 text-slate-500 hidden sm:inline">Role:</span>
-                    <button onclick="setRole('Admin')" id="roleBtnAdmin" class="px-2 md:px-3 py-1 rounded-lg bg-emerald-600 text-white shadow-sm transition">Admin</button>
-                    <button onclick="setRole('Member')" id="roleBtnMember" class="px-2 md:px-3 py-1 rounded-lg text-slate-600 transition">Member</button>
-                    <button onclick="setRole('Viewer')" id="roleBtnViewer" class="px-2 md:px-3 py-1 rounded-lg text-slate-600 transition">Viewer</button>
-                </div>
                 <button onclick="openModalForAdd()" id="newReqBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white p-2 md:px-4 md:py-2 rounded-xl text-xs md:text-sm font-semibold shadow flex items-center space-x-1.5 transition">
                     <i class="fa-solid fa-plus"></i>
                     <span class="hidden sm:inline">Create Dispatch</span>
@@ -142,7 +170,7 @@
                     <div class="absolute -right-12 -bottom-12 w-56 h-56 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
                     <div class="space-y-2 relative z-10">
                         <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">Operational Hub</span>
-                        <h2 class="text-2xl md:text-3xl font-extrabold text-white">Welcome, Fatma Al-Wahaibi</h2>
+                        <h2 class="text-2xl md:text-3xl font-extrabold text-white" id="welcomeUserHeading">Welcome, Fatma Al-Wahaibi</h2>
                         <p class="text-xs md:text-sm text-slate-300 max-w-xl">Real-time overview of fleet dispatches, field crew availability, and active relocation operations across Muscat.</p>
                     </div>
                     <button onclick="switchTab('requests')" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-6 py-3 rounded-xl text-xs md:text-sm shadow-lg transition flex items-center space-x-2 shrink-0 relative z-10">
@@ -157,7 +185,6 @@
                         <div>
                             <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Total Dispatches</p>
                             <h3 class="text-3xl font-bold text-slate-900 mt-1" id="kpiTotalReqs">0</h3>
-                            <span class="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full inline-block mt-1">✓ Active Systems</span>
                         </div>
                         <div class="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center text-lg font-bold shadow-md">📦</div>
                     </div>
@@ -165,7 +192,6 @@
                         <div>
                             <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider">In Progress</p>
                             <h3 class="text-3xl font-bold text-emerald-600 mt-1" id="kpiInProgress">0</h3>
-                            <span class="text-[10px] text-blue-600 font-bold bg-blue-50 px-2 py-0.5 rounded-full inline-block mt-1">🚚 Fleet En Route</span>
                         </div>
                         <div class="w-12 h-12 rounded-2xl bg-emerald-500 text-white flex items-center justify-center text-lg font-bold shadow-md">🚛</div>
                     </div>
@@ -173,7 +199,6 @@
                         <div>
                             <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider">Field Crew Ready</p>
                             <h3 class="text-3xl font-bold text-slate-900 mt-1" id="kpiStaffCount">0</h3>
-                            <span class="text-[10px] text-purple-600 font-bold bg-purple-50 px-2 py-0.5 rounded-full inline-block mt-1">👥 Assigned Staff</span>
                         </div>
                         <div class="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center text-lg font-bold shadow-md">👷</div>
                     </div>
@@ -181,7 +206,6 @@
                         <div>
                             <p class="text-xs text-slate-500 font-semibold uppercase tracking-wider">System Users</p>
                             <h3 class="text-3xl font-bold text-slate-900 mt-1" id="kpiUsersCount">0</h3>
-                            <span class="text-[10px] text-amber-600 font-bold bg-amber-50 px-2 py-0.5 rounded-full inline-block mt-1">🛡️ Admin Control</span>
                         </div>
                         <div class="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center text-lg font-bold shadow-md">🛡️</div>
                     </div>
@@ -189,7 +213,6 @@
 
                 <!-- Recent Activity & Quick Overview -->
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <!-- Recent Dispatches List -->
                     <div class="lg:col-span-2 modern-glass-card p-6 rounded-3xl space-y-4">
                         <div class="flex justify-between items-center border-b pb-3 border-slate-200">
                             <div>
@@ -198,20 +221,14 @@
                             </div>
                             <button onclick="switchTab('requests')" class="text-xs text-emerald-700 font-bold hover:underline">View All →</button>
                         </div>
-                        <div id="dashRecentRequests" class="space-y-3">
-                            <!-- Injected dynamically -->
-                        </div>
+                        <div id="dashRecentRequests" class="space-y-3"></div>
                     </div>
-
-                    <!-- Crew Status Summary -->
                     <div class="modern-glass-card p-6 rounded-3xl space-y-4">
                         <div class="border-b pb-3 border-slate-200">
                             <h3 class="font-bold text-slate-900 text-base">Field Crew Workload</h3>
                             <p class="text-xs text-slate-500">Real-time driver availability status.</p>
                         </div>
-                        <div id="dashStaffSummary" class="space-y-3">
-                            <!-- Injected dynamically -->
-                        </div>
+                        <div id="dashStaffSummary" class="space-y-3"></div>
                     </div>
                 </div>
             </div>
@@ -268,7 +285,7 @@
                 </div>
             </div>
 
-            <!-- TAB 5: MOVEPRO LOGISTICS PDF REPORTS -->
+            <!-- TAB 5: REPORTS -->
             <div id="tab-reports" class="hidden space-y-6">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl border shadow-sm no-print">
                     <div>
@@ -280,14 +297,9 @@
                             <i class="fa-solid fa-download"></i>
                             <span>Download PDF</span>
                         </button>
-                        <button onclick="generatePDFReport()" class="flex-1 sm:flex-none bg-slate-800 hover:bg-slate-900 text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow flex items-center justify-center space-x-2">
-                            <i class="fa-solid fa-print"></i>
-                            <span>Print</span>
-                        </button>
                     </div>
                 </div>
 
-                <!-- Printable Card Container -->
                 <div id="pdfReportContent" class="bg-white p-6 rounded-2xl border shadow-sm space-y-4 print-card">
                     <div class="flex justify-between items-center border-b pb-4">
                         <div>
@@ -310,9 +322,7 @@
                                     <th class="py-3 px-4 border border-emerald-900">Logistics Notes & Assets</th>
                                 </tr>
                             </thead>
-                            <tbody id="reportsTableBody" class="divide-y divide-slate-200 text-slate-800">
-                                <!-- Dynamic rows inserted via JS -->
-                            </tbody>
+                            <tbody id="reportsTableBody" class="divide-y divide-slate-200 text-slate-800"></tbody>
                         </table>
                     </div>
                 </div>
@@ -325,17 +335,9 @@
     <div id="requestModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
             <h3 id="modalTitleText" class="text-base font-bold text-slate-900">Create New Dispatch Order</h3>
-            
-            <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-xs text-emerald-800 flex items-start space-x-2">
-                <i class="fa-solid fa-robot text-emerald-600 text-sm mt-0.5"></i>
-                <div>
-                    <strong>Smart Dispatcher:</strong> AI has analyzed staff workloads and suggested the optimal driver automatically.
-                </div>
-            </div>
-
             <form onsubmit="handleFormSubmit(event)" class="space-y-4">
                 <input type="hidden" id="editingId">
-                <input type="text" id="modalTitle" required placeholder="Move Title (e.g. Villa Relocation - Al Mouj to Qurum)" class="w-full p-2.5 border rounded-xl text-sm">
+                <input type="text" id="modalTitle" required placeholder="Move Title" class="w-full p-2.5 border rounded-xl text-sm">
                 <input type="text" id="modalClient" required placeholder="Client Name" class="w-full p-2.5 border rounded-xl text-sm">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <input type="date" id="modalDate" class="w-full p-2.5 border rounded-xl text-sm">
@@ -345,44 +347,36 @@
                     </select>
                 </div>
                 <select id="modalAssignedStaff" class="w-full p-2.5 border rounded-xl text-sm bg-white font-medium"></select>
-                
                 <div class="space-y-1">
                     <label class="block text-xs font-bold text-slate-700">Customer Signature</label>
                     <div class="border border-slate-300 rounded-xl bg-white overflow-hidden">
                         <canvas id="signatureCanvas" width="400" height="140" class="w-full cursor-crosshair touch-none block"></canvas>
                     </div>
-                    <button type="button" onclick="clearSignature()" class="text-xs text-red-500 font-semibold hover:underline">Clear Signature</button>
+                    <button type="button" onclick="clearSignature()" class="text-xs text-red-500 font-semibold hover:underline">Clear</button>
                 </div>
-
-                <div class="space-y-1">
-                    <label class="block text-xs font-bold text-slate-700">Attach Photos (Camera or Gallery)</label>
-                    <input type="file" id="modalImagesInput" accept="image/*" capture="environment" multiple class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
-                </div>
-
                 <div class="flex justify-end space-x-2 pt-2 border-t">
                     <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-xl text-xs font-bold">Cancel</button>
-                    <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold">Save Order</button>
+                    <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold">Save</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Staff Modal -->
+    <!-- Staff & User Modals -->
     <div id="staffModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
             <h3 class="font-bold text-slate-900 text-base">Add Field Staff</h3>
             <form onsubmit="handleStaffSubmit(event)" class="space-y-4">
                 <input type="text" id="staffNameInput" required placeholder="Staff Name" class="w-full p-2.5 border rounded-xl text-sm">
-                <input type="text" id="staffRoleInput" required placeholder="Role (e.g. Heavy Truck Driver)" class="w-full p-2.5 border rounded-xl text-sm">
-                <input type="text" id="staffPhoneInput" required placeholder="Phone (+968 ...)" class="w-full p-2.5 border rounded-xl text-sm">
+                <input type="text" id="staffRoleInput" required placeholder="Role" class="w-full p-2.5 border rounded-xl text-sm">
+                <input type="text" id="staffPhoneInput" required placeholder="Phone" class="w-full p-2.5 border rounded-xl text-sm">
                 <select id="staffStatusInput" class="w-full p-2.5 border rounded-xl text-sm bg-white">
                     <option value="Available">Available</option>
-                    <option value="In Transit">In Transit</option>
                     <option value="On Duty">On Duty</option>
                 </select>
                 <div class="flex justify-end space-x-2 pt-2 border-t">
                     <button type="button" onclick="closeStaffModal()" class="px-4 py-2 border rounded-xl text-xs">Cancel</button>
-                    <button type="submit" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs">Save Staff</button>
+                    <button type="submit" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs">Save</button>
                 </div>
             </form>
         </div>
@@ -390,18 +384,18 @@
 
     <div id="userModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
-            <h3 class="font-bold text-slate-900 text-base">Add System User</h3>
+            <h3 class="font-bold text-slate-900 text-base">Add Authorized User</h3>
             <form onsubmit="handleUserSubmit(event)" class="space-y-4">
                 <input type="text" id="userNameInput" required placeholder="User Name" class="w-full p-2.5 border rounded-xl text-sm">
                 <input type="email" id="userEmailInput" required placeholder="Email Address" class="w-full p-2.5 border rounded-xl text-sm">
                 <select id="userRoleInput" class="w-full p-2.5 border rounded-xl text-sm bg-white">
-                    <option value="Admin">Admin (Full Control)</option>
-                    <option value="Member">Member (Input Only - No Delete)</option>
-                    <option value="Viewer">Viewer (Read Only)</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Member">Member</option>
+                    <option value="Viewer">Viewer</option>
                 </select>
                 <div class="flex justify-end space-x-2 pt-2 border-t">
                     <button type="button" onclick="closeUserModal()" class="px-4 py-2 border rounded-xl text-xs">Cancel</button>
-                    <button type="submit" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs">Save User</button>
+                    <button type="submit" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs">Save</button>
                 </div>
             </form>
         </div>
@@ -410,14 +404,21 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
+        // قائمة المستخدمين المصرح لهم بالدخول فقط
+        const allowedUsers = [
+            { email: 'fatma@movepro.com', role: 'Admin', name: 'Fatma Al-Wahaibi' },
+            { email: 'member@movepro.com', role: 'Member', name: 'Field Member' },
+            { email: 'viewer@movepro.com', role: 'Viewer', name: 'Operations Viewer' }
+        ];
+
         let currentRole = 'Admin';
+        let currentUser = null;
         let map = null;
 
         let requests = JSON.parse(localStorage.getItem('movepro_requests')) || [
             { id: 'REQ-2026-0140', title: 'Residential Apartment Move (Bawshar)', client: 'Sarra Al-Lawati', date: '2026-10-10', endDate: '2026-10-11', status: 'Completed', assigned: 'Rashid Amur', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200', signature: '', images: [], notes: 'Fully completed with customer signature.' },
             { id: 'REQ-2026-0141', title: 'Corporate HQ Move (CBD Ghubrah)', client: 'Oman Financial Corp', date: '2026-10-15', endDate: '2026-10-19', status: 'Completed', assigned: 'Tariq Mahmood', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200', signature: '', images: [], notes: 'Standard move protocol.' },
-            { id: 'REQ-2026-0142', title: 'Villa Relocation (Al Mouj to Qurum)', client: 'Ahmed Al-Balushi', date: '2026-10-18', endDate: '2026-10-19', status: 'In Progress', assigned: 'Salim Al-Harthy', badge: 'bg-blue-50 text-blue-700 border-blue-200', signature: '', images: [], notes: 'Heavy furniture items & glass packaging required.' },
-            { id: 'REQ-2026-0143', title: 'Corporate Office Transfer (Ruwi to Seeb)', client: 'Oman Tech Solutions', date: '2026-10-20', endDate: '2026-10-21', status: 'In Progress', assigned: 'Rashid Amur', badge: 'bg-blue-50 text-blue-700 border-blue-200', signature: '', images: [], notes: 'IT server racks dismantling and bubble wrap needed.' }
+            { id: 'REQ-2026-0142', title: 'Villa Relocation (Al Mouj to Qurum)', client: 'Ahmed Al-Balushi', date: '2026-10-18', endDate: '2026-10-19', status: 'In Progress', assigned: 'Salim Al-Harthy', badge: 'bg-blue-50 text-blue-700 border-blue-200', signature: '', images: [], notes: 'Heavy furniture items required.' }
         ];
         
         let staff = JSON.parse(localStorage.getItem('movepro_staff')) || [
@@ -426,9 +427,51 @@
             { id: 3, name: 'Rashid Amur', role: 'Field Inspector', phone: '+968 9133 4455', status: 'On Duty', activeJobs: 2 }
         ];
 
-        let users = JSON.parse(localStorage.getItem('movepro_users')) || [
-            { id: 1, name: 'Fatma Al-Wahaibi', email: 'fatma@movepro.com', role: 'Admin' }
-        ];
+        let users = JSON.parse(localStorage.getItem('movepro_users')) || allowedUsers;
+
+        // التحقق من حالة المصادقة عند التحميل
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedUser = localStorage.getItem('movepro_logged_user');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                document.getElementById('loginScreen').style.display = 'none';
+                applyUserSession(currentUser);
+            } else {
+                document.getElementById('loginScreen').style.display = 'flex';
+            }
+        });
+
+        function handleSecureLogin(e) {
+            e.preventDefault();
+            const emailInput = document.getElementById('loginEmail').value.trim().toLowerCase();
+            const roleInput = document.getElementById('loginRole').value;
+            const errorBox = document.getElementById('loginErrorMsg');
+
+            // البحث عما إذا كان البريد موجوداً في قائمة المصرح لهم أو في جدول المستخدمين
+            let foundUser = users.find(u => u.email.toLowerCase() === emailInput && u.role === roleInput);
+
+            if (foundUser) {
+                errorBox.classList.add('hidden');
+                currentUser = foundUser;
+                localStorage.setItem('movepro_logged_user', JSON.stringify(currentUser));
+                document.getElementById('loginScreen').style.display = 'none';
+                applyUserSession(currentUser);
+            } else {
+                errorBox.classList.remove('hidden');
+            }
+        }
+
+        function applyUserSession(user) {
+            setRole(user.role);
+            document.getElementById('currentUserNameLabel').innerText = user.name;
+            document.getElementById('welcomeUserHeading').innerText = `Welcome, ${user.name}`;
+            document.getElementById('userAvatarInitials').innerText = user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+        }
+
+        function logout() {
+            localStorage.removeItem('movepro_logged_user');
+            location.reload();
+        }
 
         function toggleMobileSidebar() {
             const sidebar = document.getElementById('appSidebar');
@@ -437,76 +480,29 @@
             overlay.classList.toggle('hidden');
         }
 
-        function getSmartRecommendedStaff() {
-            if (!staff || staff.length === 0) return null;
-            let bestStaff = staff.reduce((prev, curr) => {
-                let pJobs = Number(prev.activeJobs) || 0;
-                let cJobs = Number(curr.activeJobs) || 0;
-                return (pJobs < cJobs) ? prev : curr;
-            });
-            return bestStaff;
-        }
-
-        // Signature Pad Logic
         let canvas, ctx;
         let isDrawing = false;
-
         function initSignaturePad() {
             canvas = document.getElementById('signatureCanvas');
             if(!canvas) return;
             ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            canvas.onmousedown = null;
-            canvas.onmousemove = null;
-
+            canvas.onmousedown = null; canvas.onmousemove = null;
             canvas.addEventListener('mousedown', startDraw);
             canvas.addEventListener('touchstart', startDraw, { passive: false });
             canvas.addEventListener('mousemove', drawing);
             canvas.addEventListener('touchmove', drawing, { passive: false });
-            
             window.addEventListener('mouseup', stopDraw);
             window.addEventListener('touchend', stopDraw);
         }
-
         function getPosition(e) {
             const rect = canvas.getBoundingClientRect();
-            const clientX = e.clientX || (e.touches && e.touches[0].clientX);
-            const clientY = e.clientY || (e.touches && e.touches[0].clientY);
-            return { 
-                x: clientX - rect.left, 
-                y: clientY - rect.top 
-            };
+            return { x: (e.clientX || e.touches[0].clientX) - rect.left, y: (e.clientY || e.touches[0].clientY) - rect.top };
         }
-
-        function startDraw(e) {
-            e.preventDefault();
-            isDrawing = true;
-            const pos = getPosition(e);
-            ctx.beginPath();
-            ctx.moveTo(pos.x, pos.y);
-        }
-
-        function drawing(e) {
-            if (!isDrawing) return;
-            e.preventDefault();
-            const pos = getPosition(e);
-            ctx.lineTo(pos.x, pos.y);
-            ctx.strokeStyle = '#0f172a';
-            ctx.lineWidth = 2.5;
-            ctx.lineCap = 'round';
-            ctx.stroke();
-        }
-
-        function stopDraw() {
-            isDrawing = false;
-        }
-
-        function clearSignature() {
-            if(ctx && canvas) {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-            }
-        }
+        function startDraw(e) { e.preventDefault(); isDrawing = true; const p = getPosition(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }
+        function drawing(e) { if (!isDrawing) return; e.preventDefault(); const p = getPosition(e); ctx.lineTo(p.x, p.y); ctx.strokeStyle = '#0f172a'; ctx.lineWidth = 2.5; ctx.stroke(); }
+        function stopDraw() { isDrawing = false; }
+        function clearSignature() { if(ctx && canvas) ctx.clearRect(0, 0, canvas.width, canvas.height); }
 
         function saveToStorage() {
             localStorage.setItem('movepro_requests', JSON.stringify(requests));
@@ -515,17 +511,12 @@
         }
 
         function resetData() {
-            if(confirm('Reset all data?')) { localStorage.clear(); location.reload(); }
+            if(confirm('Reset local cache and sign out?')) { localStorage.clear(); location.reload(); }
         }
 
         function setRole(role) {
             currentRole = role;
-            document.getElementById('roleBtnAdmin').className = role === 'Admin' ? 'px-2 md:px-3 py-1 rounded-lg bg-emerald-600 text-white shadow-sm transition' : 'px-2 md:px-3 py-1 rounded-lg text-slate-600 transition';
-            document.getElementById('roleBtnMember').className = role === 'Member' ? 'px-2 md:px-3 py-1 rounded-lg bg-emerald-600 text-white shadow-sm transition' : 'px-2 md:px-3 py-1 rounded-lg text-slate-600 transition';
-            document.getElementById('roleBtnViewer').className = role === 'Viewer' ? 'px-2 md:px-3 py-1 rounded-lg bg-emerald-600 text-white shadow-sm transition' : 'px-2 md:px-3 py-1 rounded-lg text-slate-600 transition';
-            
             document.getElementById('currentUserRoleBadge').innerText = role + ' Role';
-
             const userTabBtn = document.getElementById('nav-users');
             const reportsTabBtn = document.getElementById('nav-reports');
             const newReqBtn = document.getElementById('newReqBtn');
@@ -536,52 +527,35 @@
             userTabBtn.classList.toggle('hidden', !isAdmin);
             reportsTabBtn.classList.toggle('hidden', !isAdmin);
             newReqBtn.classList.toggle('hidden', isViewer);
-            if (addStaffBtn) {
-                addStaffBtn.classList.toggle('hidden', isViewer);
-            }
+            if (addStaffBtn) addStaffBtn.classList.toggle('hidden', isViewer);
 
             if (!isAdmin && (!document.getElementById('tab-users').classList.contains('hidden') || !document.getElementById('tab-reports').classList.contains('hidden'))) {
                 switchTab('dashboard');
             }
 
-            renderRequests();
-            renderUsers();
-            renderStaff();
-            updateReportStats();
+            renderRequests(); renderUsers(); renderStaff(); updateDashboardKPIs();
         }
 
         function switchTab(tab) {
             if ((tab === 'users' || tab === 'reports') && currentRole !== 'Admin') {
-                alert('Access Denied: Restricted to Administrators only.');
+                alert('Access Denied: Administrator role required.');
                 return;
             }
-
             ['dashboard', 'requests', 'map', 'team', 'users', 'reports'].forEach(t => {
                 const el = document.getElementById(`tab-${t}`);
                 const navEl = document.getElementById(`nav-${t}`);
                 if (el) el.classList.add('hidden');
-                if (navEl) {
-                    navEl.className = 'w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition';
-                }
+                if (navEl) navEl.className = 'w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition';
             });
-            
             document.getElementById(`tab-${tab}`).classList.remove('hidden');
             const activeNav = document.getElementById(`nav-${tab}`);
-            if(activeNav) {
-                activeNav.className = 'w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl bg-emerald-600 text-white font-medium shadow-md transition';
-            }
+            if(activeNav) activeNav.className = 'w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl bg-emerald-600 text-white font-medium shadow-md transition';
 
             const titles = { dashboard: 'Executive Dashboard', requests: 'Move Operations', map: 'Live GPS Map', team: 'Field Crew Roster', users: 'Users & Access', reports: 'PDF Reports' };
             document.getElementById('pageTitle').innerText = titles[tab];
 
-            if(tab === 'dashboard') {
-                updateDashboardKPIs();
-            }
-
-            if(tab === 'reports') {
-                renderReportsTable();
-            }
-
+            if(tab === 'dashboard') updateDashboardKPIs();
+            if(tab === 'reports') renderReportsTable();
             if(tab === 'map') {
                 setTimeout(() => {
                     if(!map) {
@@ -594,268 +568,110 @@
 
         function updateDashboardKPIs() {
             document.getElementById('kpiTotalReqs').innerText = requests.length;
-            let inProgressCount = requests.filter(r => r.status === 'In Progress' || r.status === 'Pending Survey').length;
-            document.getElementById('kpiInProgress').innerText = inProgressCount;
+            document.getElementById('kpiInProgress').innerText = requests.filter(r => r.status === 'In Progress').length;
             document.getElementById('kpiStaffCount').innerText = staff.length;
             document.getElementById('kpiUsersCount').innerText = users.length;
 
-            // Render Dashboard Activity Feed
             const dashRecent = document.getElementById('dashRecentRequests');
             if (dashRecent) {
-                dashRecent.innerHTML = '';
-                const recentList = requests.slice(0, 3);
-                if (recentList.length === 0) {
-                    dashRecent.innerHTML = `<p class="text-xs text-slate-400">No active dispatches available.</p>`;
-                } else {
-                    recentList.forEach(r => {
-                        let stBadge = r.status === 'Completed' ? 'bg-emerald-50 text-emerald-700' : 'bg-blue-50 text-blue-700';
-                        dashRecent.innerHTML += `
-                            <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100">
-                                <div>
-                                    <h4 class="font-bold text-slate-800 text-xs">${r.title}</h4>
-                                    <p class="text-[11px] text-slate-500">Client: ${r.client} | Crew: ${r.assigned || 'Unassigned'}</p>
-                                </div>
-                                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full ${stBadge}">${r.status}</span>
-                            </div>`;
-                    });
-                }
+                dashRecent.innerHTML = requests.slice(0, 3).map(r => `
+                    <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100">
+                        <div><h4 class="font-bold text-slate-800 text-xs">${r.title}</h4><p class="text-[11px] text-slate-500">Client: ${r.client}</p></div>
+                        <span class="text-[10px] font-bold px-2.5 py-1 rounded-full ${r.status === 'Completed' ? 'bg-emerald-50 text-emerald-700' : 'bg-blue-50 text-blue-700'}">${r.status}</span>
+                    </div>`).join('') || '<p class="text-xs text-slate-400">No dispatches.</p>';
             }
 
-            // Render Dashboard Staff Workload Feed
             const dashStaff = document.getElementById('dashStaffSummary');
             if (dashStaff) {
-                dashStaff.innerHTML = '';
-                staff.forEach(s => {
-                    let jCount = s.activeJobs || 0;
-                    dashStaff.innerHTML += `
-                        <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs">
-                            <div class="flex items-center space-x-2">
-                                <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-700 text-[10px]">
-                                    ${s.name.charAt(0)}
-                                </div>
-                                <div>
-                                    <p class="font-bold text-slate-800">${s.name}</p>
-                                    <p class="text-[10px] text-slate-500">${s.role}</p>
-                                </div>
-                            </div>
-                            <span class="font-bold text-slate-700 bg-white px-2 py-1 rounded-lg border text-[11px]">${jCount} Active</span>
-                        </div>`;
-                });
+                dashStaff.innerHTML = staff.map(s => `
+                    <div class="flex items-center justify-between p-3 rounded-2xl bg-slate-50 border border-slate-100 text-xs">
+                        <div><p class="font-bold text-slate-800">${s.name}</p><p class="text-[10px] text-slate-500">${s.role}</p></div>
+                        <span class="font-bold text-slate-700 bg-white px-2 py-1 rounded-lg border text-[11px]">${s.activeJobs || 0} Active</span>
+                    </div>`).join('');
             }
         }
 
         function renderReportsTable() {
             const tbody = document.getElementById('reportsTableBody');
             if(!tbody) return;
-            tbody.innerHTML = '';
-
-            let sortedRequests = [...requests].sort((a, b) => new Date(a.date) - new Date(b.date));
-
-            sortedRequests.forEach((req, index) => {
-                let statusBadge = req.status === 'Completed' 
-                    ? `<span class="text-emerald-800 font-bold bg-emerald-100 px-2.5 py-1 rounded-md border border-emerald-300">Completed</span>`
-                    : `<span class="text-amber-800 font-bold bg-amber-100 px-2.5 py-1 rounded-md border border-amber-300">In Progress</span>`;
-
-                let assetCount = (req.images && req.images.length > 0) ? `📷 ${req.images.length} Image(s)` : '';
-                let sigTag = req.signature ? ` | ✓ Signed` : '';
-
-                tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition">
-                        <td class="py-3.5 px-3 border border-slate-200 text-center font-bold text-slate-600">${index + 1}</td>
-                        <td class="py-3.5 px-4 border border-slate-200 font-bold text-slate-900">${req.title}</td>
-                        <td class="py-3.5 px-4 border border-slate-200 text-slate-700 font-mono text-[12px]">${req.date || '2026-10-18'}</td>
-                        <td class="py-3.5 px-4 border border-slate-200 text-slate-700 font-mono text-[12px]">${req.endDate || '2026-10-19'}</td>
-                        <td class="py-3.5 px-4 border border-slate-200 text-slate-900 font-semibold">${req.assigned || 'Unassigned'}</td>
-                        <td class="py-3.5 px-4 border border-slate-200 text-center">${statusBadge}</td>
-                        <td class="py-3.5 px-4 border border-slate-200 text-slate-700">${req.notes || 'Standard move protocol.'} <span class="text-blue-700 font-bold">${assetCount}${sigTag}</span></td>
-                    </tr>`;
-            });
+            tbody.innerHTML = [...requests].sort((a, b) => new Date(a.date) - new Date(b.date)).map((req, i) => `
+                <tr class="hover:bg-slate-50 transition">
+                    <td class="py-3.5 px-3 border text-center font-bold text-slate-600">${i + 1}</td>
+                    <td class="py-3.5 px-4 border font-bold text-slate-900">${req.title}</td>
+                    <td class="py-3.5 px-4 border text-slate-700 font-mono text-[12px]">${req.date}</td>
+                    <td class="py-3.5 px-4 border text-slate-700 font-mono text-[12px]">${req.endDate || req.date}</td>
+                    <td class="py-3.5 px-4 border text-slate-900 font-semibold">${req.assigned || 'Unassigned'}</td>
+                    <td class="py-3.5 px-4 border text-center"><span class="font-bold px-2.5 py-1 rounded-md text-xs ${req.status === 'Completed' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${req.status}</span></td>
+                    <td class="py-3.5 px-4 border text-slate-700">${req.notes || 'Standard protocol.'}</td>
+                </tr>`).join('');
         }
 
-        function updateReportStats() {
-            updateDashboardKPIs();
-        }
-
-        // Direct Download PDF Function
         function downloadPDFReport() {
-            if (currentRole !== 'Admin') {
-                alert('Access Denied');
-                return;
-            }
-            const element = document.getElementById('pdfReportContent');
-            const opt = {
-                margin:       10,
-                filename:     'MovePro_Operations_Schedule.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'landscape' }
-            };
-            html2pdf().from(element).set(opt).save();
-        }
-
-        function generatePDFReport() {
-            if (currentRole !== 'Admin') {
-                alert('Access Denied');
-                return;
-            }
-            window.print();
+            if (currentRole !== 'Admin') return;
+            html2pdf().from(document.getElementById('pdfReportContent')).set({ margin: 10, filename: 'MovePro_Report.pdf', jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' } }).save();
         }
 
         function renderRequests() {
             const grid = document.getElementById('requestsGrid');
             const search = document.getElementById('searchInput').value.toLowerCase();
-            grid.innerHTML = '';
-            const filtered = requests.filter(r => r.title.toLowerCase().includes(search) || r.client.toLowerCase().includes(search));
-
-            if(filtered.length === 0) { grid.innerHTML = `<p class="text-slate-400 col-span-full text-center py-12 text-sm">No orders found.</p>`; return; }
-
-            filtered.forEach(req => {
-                let actionBtns = '';
-                if (currentRole === 'Admin') {
-                    actionBtns = `<button onclick="openModalForEdit('${req.id}')" class="text-blue-500 text-xs p-1">✏️</button><button onclick="deleteRequest('${req.id}')" class="text-red-400 text-xs p-1">🗑️</button>`;
-                } else if (currentRole === 'Member') {
-                    actionBtns = `<button onclick="openModalForEdit('${req.id}')" class="text-blue-500 text-xs p-1">✏️</button>`;
-                }
-
-                let sigThumb = req.signature ? `<div class="mt-2"><span class="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">✓ Signed</span><div class="mt-1"><img src="${req.signature}" class="h-10 border rounded bg-white p-1"></div></div>` : '';
-                let imgCount = (req.images && req.images.length > 0) ? `<div class="mt-1 text-[10px] text-blue-600 font-semibold">📷 ${req.images.length} Image(s) Attached</div>` : '';
-
-                grid.innerHTML += `
-                    <div class="bg-white rounded-2xl border p-4 md:p-5 space-y-3 shadow-sm">
-                        <div class="flex justify-between items-start">
-                            <span class="px-3 py-1 text-[11px] font-bold rounded-full border ${req.badge}">${req.status}</span>
-                            <div class="flex items-center space-x-2"><span class="text-xs font-mono text-slate-400">${req.id}</span>${actionBtns}</div>
-                        </div>
-                        <div>
-                            <h3 class="font-bold text-slate-900 text-base">${req.title}</h3>
-                            <p class="text-xs text-slate-500 mt-1">👤 Client: ${req.client}</p>
-                            <p class="text-xs text-emerald-700 mt-0.5">🚚 Crew: ${req.assigned || 'Unassigned'}</p>
-                            ${sigThumb}
-                            ${imgCount}
-                        </div>
-                        <div class="border-t pt-3 flex justify-between text-xs text-slate-500">
-                            <span>📅 ${req.date}</span>
-                            <span class="text-emerald-600 font-bold cursor-pointer" onclick="switchTab('map')">View Map 📍</span>
-                        </div>
+            grid.innerHTML = requests.filter(r => r.title.toLowerCase().includes(search) || r.client.toLowerCase().includes(search)).map(req => {
+                let actionBtns = currentRole === 'Admin' ? `<button onclick="openModalForEdit('${req.id}')" class="text-blue-500 text-xs p-1">✏️</button><button onclick="deleteRequest('${req.id}')" class="text-red-400 text-xs p-1">🗑️</button>` : (currentRole === 'Member' ? `<button onclick="openModalForEdit('${req.id}')" class="text-blue-500 text-xs p-1">✏️</button>` : '');
+                return `
+                    <div class="bg-white rounded-2xl border p-4 space-y-3 shadow-sm">
+                        <div class="flex justify-between items-start"><span class="px-3 py-1 text-[11px] font-bold rounded-full border ${req.badge}">${req.status}</span><div class="flex items-center space-x-2"><span class="text-xs font-mono text-slate-400">${req.id}</span>${actionBtns}</div></div>
+                        <div><h3 class="font-bold text-slate-900 text-base">${req.title}</h3><p class="text-xs text-slate-500 mt-1">👤 Client: ${req.client}</p><p class="text-xs text-emerald-700 mt-0.5">🚚 Crew: ${req.assigned || 'Unassigned'}</p></div>
+                        <div class="border-t pt-3 flex justify-between text-xs text-slate-500"><span>📅 ${req.date}</span><span class="text-emerald-600 font-bold cursor-pointer" onclick="switchTab('map')">View Map 📍</span></div>
                     </div>`;
-            });
+            }).join('') || '<p class="text-slate-400 col-span-full text-center py-12 text-sm">No orders found.</p>';
         }
 
         function renderUsers() {
             const tbody = document.getElementById('usersTableBody');
             if(tbody) {
-                tbody.innerHTML = '';
-                users.forEach(u => {
-                    let deleteBtn = currentRole === 'Admin' ? `<button onclick="deleteUser(${u.id})" class="text-red-400 text-xs font-semibold">Remove</button>` : '';
-                    tbody.innerHTML += `<tr><td class="py-3 px-6 font-semibold">${u.name}</td><td class="py-3 px-6 text-slate-500">${u.email}</td><td class="py-3 px-6"><span class="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-bold">${u.role}</span></td><td class="py-3 px-6 text-right">${deleteBtn}</td></tr>`;
-                });
+                tbody.innerHTML = users.map(u => `<tr><td class="py-3 px-6 font-semibold">${u.name}</td><td class="py-3 px-6 text-slate-500">${u.email}</td><td class="py-3 px-6"><span class="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-bold">${u.role}</span></td><td class="py-3 px-6 text-right">${currentRole === 'Admin' ? `<button onclick="deleteUser(${u.email})" class="text-red-400 text-xs font-semibold">Remove</button>` : ''}</td></tr>`).join('');
             }
         }
 
         function renderStaff() {
             const grid = document.getElementById('staffGrid');
             if(grid) {
-                grid.innerHTML = '';
-                staff.forEach(s => {
-                    let jobsCount = (s.activeJobs !== undefined && !isNaN(s.activeJobs)) ? s.activeJobs : 0;
-                    grid.innerHTML += `
-                        <div class="bg-white p-4 rounded-2xl border shadow-sm space-y-2">
-                            <div class="flex justify-between items-center">
-                                <h4 class="font-bold text-slate-900 text-sm">${s.name}</h4>
-                                <span class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded">${s.role}</span>
-                            </div>
-                            <p class="text-xs text-slate-500">📞 ${s.phone}</p>
-                            <p class="text-xs text-emerald-600 font-semibold">Active Jobs: ${jobsCount} | Status: ${s.status || 'Available'}</p>
-                        </div>`;
-                });
+                grid.innerHTML = staff.map(s => `<div class="bg-white p-4 rounded-2xl border shadow-sm space-y-2"><div class="flex justify-between items-center"><h4 class="font-bold text-slate-900 text-sm">${s.name}</h4><span class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded">${s.role}</span></div><p class="text-xs text-slate-500">📞 ${s.phone}</p><p class="text-xs text-emerald-600 font-semibold">Active Jobs: ${s.activeJobs || 0}</p></div>`).join('');
             }
         }
 
-        function openStaffModal() {
-            if (currentRole === 'Viewer') {
-                alert('Permission Denied: Viewer role cannot add staff.');
-                return;
-            }
-            document.getElementById('staffModal').style.display = 'flex';
-        }
-
-        function closeStaffModal() {
-            document.getElementById('staffModal').style.display = 'none';
-        }
-
+        function openStaffModal() { if (currentRole !== 'Viewer') document.getElementById('staffModal').style.display = 'flex'; }
+        function closeStaffModal() { document.getElementById('staffModal').style.display = 'none'; }
         function handleStaffSubmit(e) {
             e.preventDefault();
-            if (currentRole === 'Viewer') return;
-            const name = document.getElementById('staffNameInput').value;
-            const role = document.getElementById('staffRoleInput').value;
-            const phone = document.getElementById('staffPhoneInput').value;
-            const status = document.getElementById('staffStatusInput').value;
-
-            staff.push({ id: Date.now(), name, role, phone, status, activeJobs: 0 });
-            saveToStorage();
-            closeStaffModal();
-            renderStaff();
-            updateReportStats();
+            staff.push({ id: Date.now(), name: document.getElementById('staffNameInput').value, role: document.getElementById('staffRoleInput').value, phone: document.getElementById('staffPhoneInput').value, status: document.getElementById('staffStatusInput').value, activeJobs: 0 });
+            saveToStorage(); closeStaffModal(); renderStaff(); updateDashboardKPIs();
         }
 
-        function openUserModal() {
-            if (currentRole !== 'Admin') return;
-            document.getElementById('userModal').style.display = 'flex';
-        }
-
+        function openUserModal() { if (currentRole === 'Admin') document.getElementById('userModal').style.display = 'flex'; }
         function closeUserModal() { document.getElementById('userModal').style.display = 'none'; }
-
         function handleUserSubmit(e) {
             e.preventDefault();
-            if (currentRole !== 'Admin') return;
-            users.push({ id: Date.now(), name: document.getElementById('userNameInput').value, email: document.getElementById('userEmailInput').value, role: document.getElementById('userRoleInput').value });
-            saveToStorage(); closeUserModal(); renderUsers(); updateReportStats();
-        }
-
-        function deleteUser(id) {
-            if (currentRole !== 'Admin') return;
-            users = users.filter(u => u.id !== id);
-            saveToStorage();
-            renderUsers();
-            updateReportStats();
-        }
-
-        function populateStaffOptions(recommendedName = '') {
-            const select = document.getElementById('modalAssignedStaff');
-            select.innerHTML = '';
-            staff.forEach(s => {
-                let isSelected = (s.name === recommendedName) ? 'selected' : '';
-                let label = s.name === recommendedName ? `⭐ [AI Recommended] ${s.name} (${s.role})` : `${s.name} (${s.role})`;
-                select.innerHTML += `<option value="${s.name}" ${isSelected}>${label}</option>`;
-            });
+            users.push({ name: document.getElementById('userNameInput').value, email: document.getElementById('userEmailInput').value, role: document.getElementById('userRoleInput').value });
+            saveToStorage(); closeUserModal(); renderUsers();
         }
 
         function openModalForAdd() {
-            if (currentRole === 'Viewer') { alert('Permission Denied: Viewer role cannot create or input records.'); return; }
-            
-            const smartRecommendation = getSmartRecommendedStaff();
-            populateStaffOptions(smartRecommendation ? smartRecommendation.name : '');
-
+            if (currentRole === 'Viewer') return;
             document.getElementById('editingId').value = '';
-            document.getElementById('modalTitleText').innerText = '🤖 Smart Dispatcher: New Order';
-            document.getElementById('modalTitle').value = ''; 
-            document.getElementById('modalClient').value = '';
+            document.getElementById('modalTitleText').innerText = 'New Dispatch Order';
+            document.getElementById('modalTitle').value = ''; document.getElementById('modalClient').value = '';
             document.getElementById('requestModal').style.display = 'flex';
             setTimeout(initSignaturePad, 150);
         }
-
         function openModalForEdit(id) {
-            if (currentRole === 'Viewer') { alert('Permission Denied: Viewer role cannot edit records.'); return; }
+            if (currentRole === 'Viewer') return;
             const req = requests.find(r => r.id === id); if(!req) return;
-            populateStaffOptions(req.assigned);
             document.getElementById('editingId').value = req.id;
             document.getElementById('modalTitleText').innerText = 'Edit Order (' + req.id + ')';
-            document.getElementById('modalTitle').value = req.title; 
-            document.getElementById('modalClient').value = req.client;
+            document.getElementById('modalTitle').value = req.title; document.getElementById('modalClient').value = req.client;
             document.getElementById('requestModal').style.display = 'flex';
             setTimeout(initSignaturePad, 150);
         }
-
         function closeModal() { document.getElementById('requestModal').style.display = 'none'; }
 
         function handleFormSubmit(e) {
@@ -865,68 +681,22 @@
             const client = document.getElementById('modalClient').value;
             const date = document.getElementById('modalDate').value || '2026-10-20';
             const status = document.getElementById('modalStatus').value;
-            const assigned = document.getElementById('modalAssignedStaff').value;
-            let badge = status === 'Completed' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-blue-50 text-blue-700 border-blue-200';
+            const badge = status === 'Completed' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-blue-50 text-blue-700 border-blue-200';
+            const sig = canvas ? canvas.toDataURL('image/png') : '';
 
-            const signatureData = canvas ? canvas.toDataURL('image/png') : '';
-            const imageInput = document.getElementById('modalImagesInput');
-            
-            let processedImages = [];
-            if (imageInput && imageInput.files.length > 0) {
-                Array.from(imageInput.files).forEach(file => {
-                    const reader = new FileReader();
-                    reader.onload = function(event) {
-                        processedImages.push(event.target.result);
-                    };
-                    reader.readAsDataURL(file);
-                });
+            if (editingId) {
+                requests = requests.map(r => r.id === editingId ? { ...r, title, client, date, status, badge, signature: sig || r.signature } : r);
+            } else {
+                requests.unshift({ id: 'REQ-2026-' + Math.floor(Math.random() * 9000 + 1000), title, client, date, endDate: date, status, assigned: staff[0]?.name || 'Unassigned', badge, signature: sig, images: [], notes: 'New order' });
             }
-
-            setTimeout(() => {
-                if (editingId) {
-                    requests = requests.map(r => r.id === editingId ? { 
-                        ...r, title, client, date, status, assigned, badge, 
-                        signature: signatureData && signatureData.length > 50 ? signatureData : r.signature,
-                        images: processedImages.length > 0 ? processedImages : r.images 
-                    } : r);
-                } else {
-                    requests.unshift({ 
-                        id: 'REQ-2026-' + Math.floor(Math.random() * 9000 + 1000), 
-                        title, client, date, endDate: date, status, assigned, badge,
-                        signature: signatureData && signatureData.length > 50 ? signatureData : '',
-                        images: processedImages,
-                        notes: 'Newly dispatched move operation.'
-                    });
-
-                    let assignedStaffObj = staff.find(s => s.name === assigned);
-                    if(assignedStaffObj) {
-                        assignedStaffObj.activeJobs = (Number(assignedStaffObj.activeJobs) || 0) + 1;
-                    }
-                }
-                saveToStorage(); 
-                closeModal(); 
-                renderRequests(); 
-                renderStaff();
-                updateReportStats();
-            }, 300);
+            saveToStorage(); closeModal(); renderRequests(); updateDashboardKPIs();
         }
 
         function deleteRequest(id) {
-            if (currentRole !== 'Admin') {
-                alert('Permission Denied: Only Admin can delete records.');
-                return;
-            }
+            if (currentRole !== 'Admin') return;
             requests = requests.filter(r => r.id !== id);
-            saveToStorage(); renderRequests(); updateReportStats();
+            saveToStorage(); renderRequests(); updateDashboardKPIs();
         }
-
-        // Initialize App on Dashboard Tab
-        setRole('Admin');
-        switchTab('dashboard');
-        renderRequests();
-        renderUsers();
-        renderStaff();
-        updateReportStats();
     </script>
 </body>
 </html>
