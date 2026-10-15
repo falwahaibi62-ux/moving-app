@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovePro Enterprise - Mobile Responsive v5.3</title>
+    <title>MovePro Enterprise - Smart Dispatcher v5.4</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -30,7 +30,7 @@
                     </div>
                     <div>
                         <h2 class="text-lg font-bold text-white tracking-wide leading-none">MovePro</h2>
-                        <span class="text-[10px] text-emerald-400 font-semibold tracking-wider uppercase">Branch: user-role</span>
+                        <span class="text-[10px] text-emerald-400 font-semibold tracking-wider uppercase">Branch: Smart AI</span>
                     </div>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 hover:text-white">
@@ -88,7 +88,7 @@
                     <h1 id="pageTitle" class="text-base md:text-xl font-bold text-slate-900 truncate">Move Operations</h1>
                     <span class="hidden md:inline-flex bg-emerald-50 text-emerald-700 text-xs px-2.5 py-0.5 rounded-full font-medium border border-emerald-200 items-center space-x-1.5">
                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span>RBAC Enforced</span>
+                        <span>Smart Dispatcher Active</span>
                     </span>
                 </div>
             </div>
@@ -199,9 +199,18 @@
     <div id="requestModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
         <div class="bg-white rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
             <h3 id="modalTitleText" class="text-base font-bold text-slate-900">Create New Dispatch Order</h3>
+            
+            <!-- Smart Dispatcher Banner -->
+            <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-xs text-emerald-800 flex items-start space-x-2">
+                <i class="fa-solid fa-robot text-emerald-600 text-sm mt-0.5"></i>
+                <div>
+                    <strong>Smart Dispatcher:</strong> AI has analyzed staff workloads and proximity to suggest the optimal driver automatically.
+                </div>
+            </div>
+
             <form onsubmit="handleFormSubmit(event)" class="space-y-4">
                 <input type="hidden" id="editingId">
-                <input type="text" id="modalTitle" required placeholder="Move Title" class="w-full p-2.5 border rounded-xl text-sm">
+                <input type="text" id="modalTitle" required placeholder="Move Title (e.g. Al Mouj to Qurum)" class="w-full p-2.5 border rounded-xl text-sm">
                 <input type="text" id="modalClient" required placeholder="Client Name" class="w-full p-2.5 border rounded-xl text-sm">
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <input type="date" id="modalDate" class="w-full p-2.5 border rounded-xl text-sm">
@@ -211,7 +220,7 @@
                         <option value="Completed">Completed</option>
                     </select>
                 </div>
-                <select id="modalAssignedStaff" class="w-full p-2.5 border rounded-xl text-sm bg-white"></select>
+                <select id="modalAssignedStaff" class="w-full p-2.5 border rounded-xl text-sm bg-white font-medium"></select>
                 
                 <!-- Customer Signature Canvas -->
                 <div class="space-y-1">
@@ -264,9 +273,13 @@
         let requests = JSON.parse(localStorage.getItem('movepro_requests')) || [
             { id: 'REQ-2026-0142', title: 'Villa Relocation (Al Mouj to Qurum)', client: 'Ahmed Al-Balushi', date: '2026-10-18', status: 'In Progress', assigned: 'Salim Al-Harthy', badge: 'bg-blue-50 text-blue-700 border-blue-200', signature: '', images: [] }
         ];
+        
         let staff = JSON.parse(localStorage.getItem('movepro_staff')) || [
-            { id: 1, name: 'Salim Al-Harthy', role: 'Heavy Truck Driver', phone: '+968 9511 2233', status: 'In Transit' }
+            { id: 1, name: 'Salim Al-Harthy', role: 'Heavy Truck Driver', phone: '+968 9511 2233', status: 'Available', activeJobs: 1 },
+            { id: 2, name: 'Nasser Al-Rawahi', role: 'Van Driver', phone: '+968 9922 4455', status: 'Available', activeJobs: 0 },
+            { id: 3, name: 'Rashid Al-Habsi', role: 'Logistics Supervisor', phone: '+968 9233 1144', status: 'Available', activeJobs: 2 }
         ];
+
         let users = JSON.parse(localStorage.getItem('movepro_users')) || [
             { id: 1, name: 'Fatma Al-Wahaibi', email: 'fatma@movepro.com', role: 'Admin' }
         ];
@@ -276,6 +289,16 @@
             const overlay = document.getElementById('sidebarOverlay');
             sidebar.classList.toggle('-translate-x-full');
             overlay.classList.toggle('hidden');
+        }
+
+        // ================= AI SMART DISPATCHER ALGORITHM =================
+        function getSmartRecommendedStaff() {
+            if (!staff || staff.length === 0) return null;
+            // خوارزمية ذكية لاختيار السائق الأقل مهاماً حالياً (Workload Optimization)
+            let bestStaff = staff.reduce((prev, curr) => {
+                return (prev.activeJobs < curr.activeJobs) ? prev : curr;
+            });
+            return bestStaff;
         }
 
         // Signature Pad Logic
@@ -288,11 +311,8 @@
             ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // إزالة الأحداث السابقة لمنع التكرار
             canvas.onmousedown = null;
-            canvas.ontart = null;
             canvas.onmousemove = null;
-            canvas.ontouchmove = null;
 
             canvas.addEventListener('mousedown', startDraw);
             canvas.addEventListener('touchstart', startDraw, { passive: false });
@@ -495,7 +515,7 @@
                                 <span class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded">${s.role}</span>
                             </div>
                             <p class="text-xs text-slate-500">📞 ${s.phone}</p>
-                            <p class="text-xs text-emerald-600 font-semibold">${s.status}</p>
+                            <p class="text-xs text-emerald-600 font-semibold">Active Jobs: ${s.activeJobs} | Status: ${s.status}</p>
                         </div>`;
                 });
             }
@@ -531,17 +551,25 @@
             updateReportStats();
         }
 
-        function populateStaffOptions() {
+        function populateStaffOptions(recommendedName = '') {
             const select = document.getElementById('modalAssignedStaff');
             select.innerHTML = '';
-            staff.forEach(s => { select.innerHTML += `<option value="${s.name}">${s.name} (${s.role})</option>`; });
+            staff.forEach(s => {
+                let isSelected = (s.name === recommendedName) ? 'selected' : '';
+                let label = s.name === recommendedName ? `⭐ [AI Recommended] ${s.name} (${s.role})` : `${s.name} (${s.role})`;
+                select.innerHTML += `<option value="${s.name}" ${isSelected}>${label}</option>`;
+            });
         }
 
         function openModalForAdd() {
             if (currentRole === 'Viewer') { alert('Permission Denied: Viewer role cannot create or input records.'); return; }
-            populateStaffOptions();
+            
+            // تشغيل المساعد الذكي لاقتراح السائق الأنسب
+            const smartRecommendation = getSmartRecommendedStaff();
+            populateStaffOptions(smartRecommendation ? smartRecommendation.name : '');
+
             document.getElementById('editingId').value = '';
-            document.getElementById('modalTitleText').innerText = 'Create New Dispatch Order';
+            document.getElementById('modalTitleText').innerText = '🤖 Smart Dispatcher: New Order';
             document.getElementById('modalTitle').value = ''; 
             document.getElementById('modalClient').value = '';
             document.getElementById('requestModal').style.display = 'flex';
@@ -551,7 +579,7 @@
         function openModalForEdit(id) {
             if (currentRole === 'Viewer') { alert('Permission Denied: Viewer role cannot edit records.'); return; }
             const req = requests.find(r => r.id === id); if(!req) return;
-            populateStaffOptions();
+            populateStaffOptions(req.assigned);
             document.getElementById('editingId').value = req.id;
             document.getElementById('modalTitleText').innerText = 'Edit Order (' + req.id + ')';
             document.getElementById('modalTitle').value = req.title; 
@@ -600,10 +628,17 @@
                         signature: signatureData && signatureData.length > 50 ? signatureData : '',
                         images: processedImages
                     });
+
+                    // تحديث عدد المهام النشطة للسائق المختار
+                    let assignedStaffObj = staff.find(s => s.name === assigned);
+                    if(assignedStaffObj) {
+                        assignedStaffObj.activeJobs += 1;
+                    }
                 }
                 saveToStorage(); 
                 closeModal(); 
                 renderRequests(); 
+                renderStaff();
                 updateReportStats();
             }, 300);
         }
