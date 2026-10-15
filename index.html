@@ -769,4 +769,43 @@
                         images: processedImages.length > 0 ? processedImages : r.images 
                     } : r);
                 } else {
-                    requests.unshift({
+                    requests.unshift({ 
+                        id: 'REQ-2026-' + Math.floor(Math.random() * 9000 + 1000), 
+                        title, client, date, endDate: date, status, assigned, badge,
+                        signature: signatureData && signatureData.length > 50 ? signatureData : '',
+                        images: processedImages,
+                        notes: 'Newly dispatched move operation.'
+                    });
+
+                    let assignedStaffObj = staff.find(s => s.name === assigned);
+                    if(assignedStaffObj) {
+                        assignedStaffObj.activeJobs = (Number(assignedStaffObj.activeJobs) || 0) + 1;
+                    }
+                }
+                saveToStorage(); 
+                closeModal(); 
+                renderRequests(); 
+                renderStaff();
+                updateReportStats();
+            }, 300);
+        }
+
+        function deleteRequest(id) {
+            if (currentRole !== 'Admin') {
+                alert('Permission Denied: Only Admin can delete records.');
+                return;
+            }
+            requests = requests.filter(r => r.id !== id);
+            saveToStorage(); renderRequests(); updateReportStats();
+        }
+
+        // Initialize App on Dashboard Tab
+        setRole('Admin');
+        switchTab('dashboard');
+        renderRequests();
+        renderUsers();
+        renderStaff();
+        updateReportStats();
+    </script>
+</body>
+</html>
