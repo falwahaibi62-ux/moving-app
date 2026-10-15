@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovePro Enterprise - Smart Dispatcher v5.5</title>
+    <title>MovePro Enterprise - Pro Dashboard v5.6</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -30,7 +30,7 @@
                     </div>
                     <div>
                         <h2 class="text-lg font-bold text-white tracking-wide leading-none">MovePro</h2>
-                        <span class="text-[10px] text-emerald-400 font-semibold tracking-wider uppercase">Branch: Smart AI</span>
+                        <span class="text-[10px] text-emerald-400 font-semibold tracking-wider uppercase">Enterprise v5.6</span>
                     </div>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 hover:text-white">
@@ -39,7 +39,11 @@
             </div>
 
             <nav class="p-4 space-y-1.5 text-sm">
-                <button onclick="switchTab('requests'); toggleMobileSidebar();" id="nav-requests" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl bg-emerald-600 text-white font-medium shadow-md transition">
+                <button onclick="switchTab('dashboard'); toggleMobileSidebar();" id="nav-dashboard" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl bg-emerald-600 text-white font-medium shadow-md transition">
+                    <i class="fa-solid fa-chart-pie w-5 text-center"></i>
+                    <span>Dashboard</span>
+                </button>
+                <button onclick="switchTab('requests'); toggleMobileSidebar();" id="nav-requests" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition">
                     <i class="fa-solid fa-boxes-packing w-5 text-center"></i>
                     <span>Move Operations</span>
                 </button>
@@ -85,7 +89,7 @@
                     <i class="fa-solid fa-bars text-lg"></i>
                 </button>
                 <div class="min-w-0">
-                    <h1 id="pageTitle" class="text-base md:text-xl font-bold text-slate-900 truncate">Move Operations</h1>
+                    <h1 id="pageTitle" class="text-base md:text-xl font-bold text-slate-900 truncate">Executive Dashboard</h1>
                     <span class="hidden md:inline-flex bg-emerald-50 text-emerald-700 text-xs px-2.5 py-0.5 rounded-full font-medium border border-emerald-200 items-center space-x-1.5">
                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                         <span>Smart Dispatcher Active</span>
@@ -109,8 +113,94 @@
 
         <main class="flex-1 overflow-y-auto p-4 md:p-8 custom-scrollbar space-y-6">
 
+            <!-- TAB 0: DASHBOARD (Default Landing) -->
+            <div id="tab-dashboard" class="space-y-6">
+                <!-- Welcome Banner -->
+                <div class="bg-gradient-to-r from-slate-900 to-emerald-900 text-white p-6 rounded-3xl shadow-lg flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div class="space-y-1">
+                        <span class="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[11px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">Welcome Back</span>
+                        <h2 class="text-xl md:text-2xl font-bold">Fatma Al-Wahaibi</h2>
+                        <p class="text-xs text-slate-300">Here is the real-time operational overview for MovePro Enterprise.</p>
+                    </div>
+                    <button onclick="switchTab('requests')" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-xs shadow-md transition flex items-center space-x-2">
+                        <span>Manage Operations</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+
+                <!-- KPI Cards Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                    <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-2 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-slate-500 font-medium">Total Operations</p>
+                            <h3 class="text-2xl font-bold text-slate-900 mt-1" id="kpiTotalReqs">0</h3>
+                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center text-lg font-bold">📦</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-2 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-slate-500 font-medium">In Progress</p>
+                            <h3 class="text-2xl font-bold text-emerald-600 mt-1" id="kpiInProgress">0</h3>
+                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg font-bold">🚚</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-2 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-slate-500 font-medium">Field Staff Ready</p>
+                            <h3 class="text-2xl font-bold text-slate-900 mt-1" id="kpiStaffCount">0</h3>
+                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-purple-50 text-purple-600 flex items-center justify-center text-lg font-bold">👥</div>
+                    </div>
+                    <div class="bg-white p-5 rounded-2xl border shadow-sm space-y-2 flex items-center justify-between">
+                        <div>
+                            <p class="text-xs text-slate-500 font-medium">System Users</p>
+                            <h3 class="text-2xl font-bold text-slate-900 mt-1" id="kpiUsersCount">0</h3>
+                        </div>
+                        <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg font-bold">🛡️</div>
+                    </div>
+                </div>
+
+                <!-- Recent Activities & Quick Actions -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="lg:col-span-2 bg-white p-6 rounded-2xl border shadow-sm space-y-4">
+                        <div class="flex justify-between items-center">
+                            <h3 class="font-bold text-slate-900 text-base">Recent Dispatches Overview</h3>
+                            <button onclick="switchTab('requests')" class="text-xs text-emerald-600 font-bold hover:underline">View All</button>
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs min-w-[400px]">
+                                <thead class="bg-slate-50 border-b text-slate-400 uppercase">
+                                    <tr><th class="py-2.5 px-4">ID</th><th class="py-2.5 px-4">Title</th><th class="py-2.5 px-4">Client</th><th class="py-2.5 px-4">Status</th></tr>
+                                </thead>
+                                <tbody id="dashboardRecentTable" class="divide-y text-slate-700"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl border shadow-sm space-y-4">
+                        <h3 class="font-bold text-slate-900 text-base">Smart AI Dispatcher Status</h3>
+                        <div class="space-y-3">
+                            <div class="p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-center space-x-3">
+                                <i class="fa-solid fa-robot text-emerald-600 text-lg"></i>
+                                <div>
+                                    <p class="text-xs font-bold text-emerald-900">Workload Balancer</p>
+                                    <p class="text-[11px] text-emerald-700">Active and optimizing driver assignments.</p>
+                                </div>
+                            </div>
+                            <div class="p-3 bg-slate-50 border rounded-xl flex items-center space-x-3">
+                                <i class="fa-solid fa-shield-halved text-slate-700 text-lg"></i>
+                                <div>
+                                    <p class="text-xs font-bold text-slate-800">RBAC Security</p>
+                                    <p class="text-[11px] text-slate-500">Enforced for Admin, Member & Viewer.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- TAB 1: REQUESTS -->
-            <div id="tab-requests" class="space-y-6">
+            <div id="tab-requests" class="hidden space-y-6">
                 <div class="bg-white p-4 rounded-2xl border shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
                     <div class="relative w-full md:w-96">
                         <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3.5 text-slate-400 text-sm"></i>
@@ -413,7 +503,7 @@
             }
 
             if (!isAdmin && (!document.getElementById('tab-users').classList.contains('hidden') || !document.getElementById('tab-reports').classList.contains('hidden'))) {
-                switchTab('requests');
+                switchTab('dashboard');
             }
 
             renderRequests();
@@ -428,7 +518,7 @@
                 return;
             }
 
-            ['requests', 'map', 'team', 'users', 'reports'].forEach(t => {
+            ['dashboard', 'requests', 'map', 'team', 'users', 'reports'].forEach(t => {
                 const el = document.getElementById(`tab-${t}`);
                 const navEl = document.getElementById(`nav-${t}`);
                 if (el) el.classList.add('hidden');
@@ -443,8 +533,12 @@
                 activeNav.className = 'w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl bg-emerald-600 text-white font-medium shadow-md transition';
             }
 
-            const titles = { requests: 'Move Operations', map: 'Live GPS Map', team: 'Field Crew Roster', users: 'Users & Access', reports: 'PDF Reports' };
+            const titles = { dashboard: 'Executive Dashboard', requests: 'Move Operations', map: 'Live GPS Map', team: 'Field Crew Roster', users: 'Users & Access', reports: 'PDF Reports' };
             document.getElementById('pageTitle').innerText = titles[tab];
+
+            if(tab === 'dashboard') {
+                updateDashboardKPIs();
+            }
 
             if(tab === 'map') {
                 setTimeout(() => {
@@ -456,10 +550,33 @@
             }
         }
 
+        function updateDashboardKPIs() {
+            document.getElementById('kpiTotalReqs').innerText = requests.length;
+            let inProgressCount = requests.filter(r => r.status === 'In Progress' || r.status === 'Pending Survey').length;
+            document.getElementById('kpiInProgress').innerText = inProgressCount;
+            document.getElementById('kpiStaffCount').innerText = staff.length;
+            document.getElementById('kpiUsersCount').innerText = users.length;
+
+            const tbody = document.getElementById('dashboardRecentTable');
+            if(tbody) {
+                tbody.innerHTML = '';
+                requests.slice(0, 5).forEach(req => {
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="py-2.5 px-4 font-mono text-slate-500">${req.id}</td>
+                            <td class="py-2.5 px-4 font-semibold text-slate-900">${req.title}</td>
+                            <td class="py-2.5 px-4 text-slate-600">${req.client}</td>
+                            <td class="py-2.5 px-4"><span class="px-2.5 py-0.5 text-[10px] font-bold rounded-full border ${req.badge}">${req.status}</span></td>
+                        </tr>`;
+                });
+            }
+        }
+
         function updateReportStats() {
             document.getElementById('reportTotalReqs').innerText = requests.length;
             document.getElementById('reportTotalStaff').innerText = staff.length;
             document.getElementById('reportTotalUsers').innerText = users.length;
+            updateDashboardKPIs();
         }
 
         function generatePDFReport() {
@@ -688,7 +805,9 @@
             saveToStorage(); renderRequests(); updateReportStats();
         }
 
+        // Initialize App on Dashboard Tab
         setRole('Admin');
+        switchTab('dashboard');
         renderRequests();
         renderUsers();
         renderStaff();
