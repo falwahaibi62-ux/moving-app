@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovePro Enterprise - Smart Dispatcher v5.4</title>
+    <title>MovePro Enterprise - Smart Dispatcher v5.5</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -200,11 +200,10 @@
         <div class="bg-white rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto custom-scrollbar">
             <h3 id="modalTitleText" class="text-base font-bold text-slate-900">Create New Dispatch Order</h3>
             
-            <!-- Smart Dispatcher Banner -->
             <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-xs text-emerald-800 flex items-start space-x-2">
                 <i class="fa-solid fa-robot text-emerald-600 text-sm mt-0.5"></i>
                 <div>
-                    <strong>Smart Dispatcher:</strong> AI has analyzed staff workloads and proximity to suggest the optimal driver automatically.
+                    <strong>Smart Dispatcher:</strong> AI has analyzed staff workloads and suggested the optimal driver automatically.
                 </div>
             </div>
 
@@ -222,7 +221,6 @@
                 </div>
                 <select id="modalAssignedStaff" class="w-full p-2.5 border rounded-xl text-sm bg-white font-medium"></select>
                 
-                <!-- Customer Signature Canvas -->
                 <div class="space-y-1">
                     <label class="block text-xs font-bold text-slate-700">Customer Signature</label>
                     <div class="border border-slate-300 rounded-xl bg-white overflow-hidden">
@@ -231,7 +229,6 @@
                     <button type="button" onclick="clearSignature()" class="text-xs text-red-500 font-semibold hover:underline">Clear Signature</button>
                 </div>
 
-                <!-- Image Upload -->
                 <div class="space-y-1">
                     <label class="block text-xs font-bold text-slate-700">Attach Photos (Camera or Gallery)</label>
                     <input type="file" id="modalImagesInput" accept="image/*" capture="environment" multiple class="w-full text-xs text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100">
@@ -240,6 +237,27 @@
                 <div class="flex justify-end space-x-2 pt-2 border-t">
                     <button type="button" onclick="closeModal()" class="px-4 py-2 border rounded-xl text-xs font-bold">Cancel</button>
                     <button type="submit" class="px-4 py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold">Save Order</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Staff Modal -->
+    <div id="staffModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-2xl w-full max-w-md p-6 space-y-4 shadow-2xl">
+            <h3 class="font-bold text-slate-900 text-base">Add Field Staff</h3>
+            <form onsubmit="handleStaffSubmit(event)" class="space-y-4">
+                <input type="text" id="staffNameInput" required placeholder="Staff Name" class="w-full p-2.5 border rounded-xl text-sm">
+                <input type="text" id="staffRoleInput" required placeholder="Role (e.g. Heavy Truck Driver)" class="w-full p-2.5 border rounded-xl text-sm">
+                <input type="text" id="staffPhoneInput" required placeholder="Phone (+968 ...)" class="w-full p-2.5 border rounded-xl text-sm">
+                <select id="staffStatusInput" class="w-full p-2.5 border rounded-xl text-sm bg-white">
+                    <option value="Available">Available</option>
+                    <option value="In Transit">In Transit</option>
+                    <option value="On Duty">On Duty</option>
+                </select>
+                <div class="flex justify-end space-x-2 pt-2 border-t">
+                    <button type="button" onclick="closeStaffModal()" class="px-4 py-2 border rounded-xl text-xs">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs">Save Staff</button>
                 </div>
             </form>
         </div>
@@ -276,8 +294,8 @@
         
         let staff = JSON.parse(localStorage.getItem('movepro_staff')) || [
             { id: 1, name: 'Salim Al-Harthy', role: 'Heavy Truck Driver', phone: '+968 9511 2233', status: 'Available', activeJobs: 1 },
-            { id: 2, name: 'Nasser Al-Rawahi', role: 'Van Driver', phone: '+968 9922 4455', status: 'Available', activeJobs: 0 },
-            { id: 3, name: 'Rashid Al-Habsi', role: 'Logistics Supervisor', phone: '+968 9233 1144', status: 'Available', activeJobs: 2 }
+            { id: 2, name: 'Tariq Mahmood', role: 'Furniture Tech Specialist', phone: '+968 9822 3344', status: 'On Duty', activeJobs: 0 },
+            { id: 3, name: 'Rashid Amur', role: 'Field Inspector', phone: '+968 9133 4455', status: 'On Duty', activeJobs: 2 }
         ];
 
         let users = JSON.parse(localStorage.getItem('movepro_users')) || [
@@ -291,12 +309,12 @@
             overlay.classList.toggle('hidden');
         }
 
-        // ================= AI SMART DISPATCHER ALGORITHM =================
         function getSmartRecommendedStaff() {
             if (!staff || staff.length === 0) return null;
-            // خوارزمية ذكية لاختيار السائق الأقل مهاماً حالياً (Workload Optimization)
             let bestStaff = staff.reduce((prev, curr) => {
-                return (prev.activeJobs < curr.activeJobs) ? prev : curr;
+                let pJobs = Number(prev.activeJobs) || 0;
+                let cJobs = Number(curr.activeJobs) || 0;
+                return (pJobs < cJobs) ? prev : curr;
             });
             return bestStaff;
         }
@@ -508,6 +526,7 @@
             if(grid) {
                 grid.innerHTML = '';
                 staff.forEach(s => {
+                    let jobsCount = (s.activeJobs !== undefined && !isNaN(s.activeJobs)) ? s.activeJobs : 0;
                     grid.innerHTML += `
                         <div class="bg-white p-4 rounded-2xl border shadow-sm space-y-2">
                             <div class="flex justify-between items-center">
@@ -515,7 +534,7 @@
                                 <span class="text-xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded">${s.role}</span>
                             </div>
                             <p class="text-xs text-slate-500">📞 ${s.phone}</p>
-                            <p class="text-xs text-emerald-600 font-semibold">Active Jobs: ${s.activeJobs} | Status: ${s.status}</p>
+                            <p class="text-xs text-emerald-600 font-semibold">Active Jobs: ${jobsCount} | Status: ${s.status || 'Available'}</p>
                         </div>`;
                 });
             }
@@ -526,7 +545,26 @@
                 alert('Permission Denied: Viewer role cannot add staff.');
                 return;
             }
-            alert('Add Staff modal placeholder.');
+            document.getElementById('staffModal').style.display = 'flex';
+        }
+
+        function closeStaffModal() {
+            document.getElementById('staffModal').style.display = 'none';
+        }
+
+        function handleStaffSubmit(e) {
+            e.preventDefault();
+            if (currentRole === 'Viewer') return;
+            const name = document.getElementById('staffNameInput').value;
+            const role = document.getElementById('staffRoleInput').value;
+            const phone = document.getElementById('staffPhoneInput').value;
+            const status = document.getElementById('staffStatusInput').value;
+
+            staff.push({ id: Date.now(), name, role, phone, status, activeJobs: 0 });
+            saveToStorage();
+            closeStaffModal();
+            renderStaff();
+            updateReportStats();
         }
 
         function openUserModal() {
@@ -564,7 +602,6 @@
         function openModalForAdd() {
             if (currentRole === 'Viewer') { alert('Permission Denied: Viewer role cannot create or input records.'); return; }
             
-            // تشغيل المساعد الذكي لاقتراح السائق الأنسب
             const smartRecommendation = getSmartRecommendedStaff();
             populateStaffOptions(smartRecommendation ? smartRecommendation.name : '');
 
@@ -629,10 +666,9 @@
                         images: processedImages
                     });
 
-                    // تحديث عدد المهام النشطة للسائق المختار
                     let assignedStaffObj = staff.find(s => s.name === assigned);
                     if(assignedStaffObj) {
-                        assignedStaffObj.activeJobs += 1;
+                        assignedStaffObj.activeJobs = (Number(assignedStaffObj.activeJobs) || 0) + 1;
                     }
                 }
                 saveToStorage(); 
