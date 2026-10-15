@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MovePro Enterprise - Secure Login v6.6</title>
+    <title>MovePro Enterprise - Advanced v6.7</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -68,7 +68,7 @@
                 </button>
             </form>
             <div class="text-[11px] text-center text-slate-400">
-                Protected by MovePro Security Protocol v6.6
+                Protected by MovePro Security Protocol v6.7
             </div>
         </div>
     </div>
@@ -86,7 +86,7 @@
                     </div>
                     <div>
                         <h2 class="text-lg font-bold text-white tracking-wide leading-none">MovePro</h2>
-                        <span class="text-[10px] text-emerald-400 font-semibold tracking-wider uppercase">Enterprise v6.6</span>
+                        <span class="text-[10px] text-emerald-400 font-semibold tracking-wider uppercase">Enterprise v6.7</span>
                     </div>
                 </div>
                 <button onclick="toggleMobileSidebar()" class="md:hidden text-slate-400 hover:text-white">
@@ -114,6 +114,10 @@
                 <button onclick="switchTab('users'); toggleMobileSidebar();" id="nav-users" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition hidden">
                     <i class="fa-solid fa-users-gear w-5 text-center text-emerald-400"></i>
                     <span>Users & Roles</span>
+                </button>
+                <button onclick="switchTab('trash'); toggleMobileSidebar();" id="nav-trash" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl hover:bg-slate-800 text-slate-400 hover:text-white transition hidden">
+                    <i class="fa-solid fa-trash-arrow-up w-5 text-center text-emerald-400"></i>
+                    <span>Trash Bin</span>
                 </button>
                 <button onclick="switchTab('reports'); toggleMobileSidebar();" id="nav-reports" class="w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl bg-emerald-600 text-white font-medium shadow-md transition hidden">
                     <i class="fa-solid fa-file-pdf w-5 text-center"></i>
@@ -153,11 +157,44 @@
                 </div>
             </div>
 
-            <div class="flex items-center space-x-2 shrink-0">
+            <!-- Profile Menu Dropdown -->
+            <div class="flex items-center space-x-3 shrink-0 relative">
                 <button onclick="openModalForAdd()" id="newReqBtn" class="bg-emerald-600 hover:bg-emerald-700 text-white p-2 md:px-4 md:py-2 rounded-xl text-xs md:text-sm font-semibold shadow flex items-center space-x-1.5 transition">
                     <i class="fa-solid fa-plus"></i>
                     <span class="hidden sm:inline">Create Dispatch</span>
                 </button>
+
+                <!-- Profile Avatar Button -->
+                <div class="relative">
+                    <button onclick="toggleProfileMenu()" class="w-10 h-10 rounded-full bg-emerald-700 text-white font-bold flex items-center justify-center shadow-md border-2 border-emerald-500/30 focus:outline-none" id="headerProfileAvatar">
+                        FA
+                    </button>
+
+                    <!-- Dropdown Menu Box -->
+                    <div id="profileDropdown" class="hidden absolute left-0 sm:left-auto sm:right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 text-xs text-slate-700">
+                        <div class="px-4 py-2 border-b border-slate-100">
+                            <p class="font-bold text-slate-900" id="dropUserName">Fatma Al-Wahaibi</p>
+                            <p class="text-slate-400 truncate" id="dropUserEmail">fatma@movepro.com</p>
+                        </div>
+                        <button onclick="switchTab('users'); toggleProfileMenu();" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center space-x-2">
+                            <i class="fa-solid fa-user-gear w-4 text-emerald-600"></i><span>حسابي / المستخدمون</span>
+                        </button>
+                        <button onclick="exportBackup(); toggleProfileMenu();" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center space-x-2">
+                            <i class="fa-solid fa-download w-4 text-emerald-600"></i><span>نسخة احتياطية (Backup)</span>
+                        </button>
+                        <label class="w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center space-x-2 cursor-pointer">
+                            <i class="fa-solid fa-upload w-4 text-emerald-600"></i><span>استعادة بيانات</span>
+                            <input type="file" id="importFile" accept=".json" onchange="importBackup(event)" class="hidden">
+                        </label>
+                        <button onclick="switchTab('trash'); toggleProfileMenu();" class="w-full text-left px-4 py-2.5 hover:bg-slate-50 flex items-center space-x-2">
+                            <i class="fa-solid fa-trash w-4 text-amber-600"></i><span>سلة المهملات</span>
+                        </button>
+                        <div class="border-t border-slate-100 my-1"></div>
+                        <button onclick="logout()" class="w-full text-left px-4 py-2.5 hover:bg-red-50 text-red-600 flex items-center space-x-2 font-bold">
+                            <i class="fa-solid fa-right-from-bracket w-4"></i><span>تسجيل الخروج</span>
+                        </button>
+                    </div>
+                </div>
             </div>
         </header>
 
@@ -285,7 +322,19 @@
                 </div>
             </div>
 
-            <!-- TAB 5: REPORTS -->
+            <!-- TAB 5: TRASH BIN -->
+            <div id="tab-trash" class="hidden space-y-6">
+                <div class="flex justify-between items-center bg-white p-6 rounded-2xl border shadow-sm">
+                    <div>
+                        <h3 class="font-bold text-slate-900 text-lg">سلة المهملات (Trash Bin)</h3>
+                        <p class="text-xs text-slate-500 mt-1">الطلبات المحذوفة مؤقتاً مع إمكانية استرجاعها أو حذفها نهائياً.</p>
+                    </div>
+                    <button onclick="emptyTrash()" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-xl text-xs font-bold transition">إفراغ السلة نهائياً</button>
+                </div>
+                <div id="trashGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+            </div>
+
+            <!-- TAB 6: REPORTS -->
             <div id="tab-reports" class="hidden space-y-6">
                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-2xl border shadow-sm no-print">
                     <div>
@@ -404,7 +453,6 @@
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // قائمة المستخدمين المصرح لهم بالدخول فقط
         const allowedUsers = [
             { email: 'fatma@movepro.com', role: 'Admin', name: 'Fatma Al-Wahaibi' },
             { email: 'member@movepro.com', role: 'Member', name: 'Field Member' },
@@ -420,6 +468,8 @@
             { id: 'REQ-2026-0141', title: 'Corporate HQ Move (CBD Ghubrah)', client: 'Oman Financial Corp', date: '2026-10-15', endDate: '2026-10-19', status: 'Completed', assigned: 'Tariq Mahmood', badge: 'bg-emerald-50 text-emerald-700 border-emerald-200', signature: '', images: [], notes: 'Standard move protocol.' },
             { id: 'REQ-2026-0142', title: 'Villa Relocation (Al Mouj to Qurum)', client: 'Ahmed Al-Balushi', date: '2026-10-18', endDate: '2026-10-19', status: 'In Progress', assigned: 'Salim Al-Harthy', badge: 'bg-blue-50 text-blue-700 border-blue-200', signature: '', images: [], notes: 'Heavy furniture items required.' }
         ];
+
+        let trashBin = JSON.parse(localStorage.getItem('movepro_trash')) || [];
         
         let staff = JSON.parse(localStorage.getItem('movepro_staff')) || [
             { id: 1, name: 'Salim Al-Harthy', role: 'Heavy Truck Driver', phone: '+968 9511 2233', status: 'Available', activeJobs: 1 },
@@ -429,7 +479,6 @@
 
         let users = JSON.parse(localStorage.getItem('movepro_users')) || allowedUsers;
 
-        // التحقق من حالة المصادقة عند التحميل
         window.addEventListener('DOMContentLoaded', () => {
             const savedUser = localStorage.getItem('movepro_logged_user');
             if (savedUser) {
@@ -447,7 +496,6 @@
             const roleInput = document.getElementById('loginRole').value;
             const errorBox = document.getElementById('loginErrorMsg');
 
-            // البحث عما إذا كان البريد موجوداً في قائمة المصرح لهم أو في جدول المستخدمين
             let foundUser = users.find(u => u.email.toLowerCase() === emailInput && u.role === roleInput);
 
             if (foundUser) {
@@ -465,8 +513,25 @@
             setRole(user.role);
             document.getElementById('currentUserNameLabel').innerText = user.name;
             document.getElementById('welcomeUserHeading').innerText = `Welcome, ${user.name}`;
-            document.getElementById('userAvatarInitials').innerText = user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            const initials = user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
+            document.getElementById('userAvatarInitials').innerText = initials;
+            document.getElementById('headerProfileAvatar').innerText = initials;
+            document.getElementById('dropUserName').innerText = user.name;
+            document.getElementById('dropUserEmail').innerText = user.email;
         }
+
+        function toggleProfileMenu() {
+            const menu = document.getElementById('profileDropdown');
+            menu.classList.toggle('hidden');
+        }
+
+        window.addEventListener('click', function(e) {
+            const avatarBtn = document.getElementById('headerProfileAvatar');
+            const menu = document.getElementById('profileDropdown');
+            if (avatarBtn && menu && !avatarBtn.contains(e.target) && !menu.contains(e.target)) {
+                menu.classList.add('hidden');
+            }
+        });
 
         function logout() {
             localStorage.removeItem('movepro_logged_user');
@@ -506,18 +571,62 @@
 
         function saveToStorage() {
             localStorage.setItem('movepro_requests', JSON.stringify(requests));
+            localStorage.setItem('movepro_trash', JSON.stringify(trashBin));
             localStorage.setItem('movepro_staff', JSON.stringify(staff));
             localStorage.setItem('movepro_users', JSON.stringify(users));
         }
 
-        function resetData() {
-            if(confirm('Reset local cache and sign out?')) { localStorage.clear(); location.reload(); }
+        // --- النسخة الاحتياطية والاستعادة ---
+        function exportBackup() {
+            if (currentRole !== 'Admin') { alert('صلاحية المدير مطلوبة لتصدير النسخ الاحتياطية.'); return; }
+            const backupData = {
+                requests: requests,
+                trashBin: trashBin,
+                staff: staff,
+                users: users,
+                version: '6.7',
+                exportDate: new Date().toISOString()
+            };
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupData, null, 2));
+            const dlAnchor = document.createElement('a');
+            dlAnchor.setAttribute("href", dataStr);
+            dlAnchor.setAttribute("download", `MovePro_Backup_${new Date().toISOString().slice(0,10)}.json`);
+            document.body.appendChild(dlAnchor);
+            dlAnchor.click();
+            dlAnchor.remove();
+        }
+
+        function importBackup(e) {
+            if (currentRole !== 'Admin') { alert('صلاحية المدير مطلوبة لاستعادة النسخ الاحتياطية.'); return; }
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const parsed = JSON.parse(event.target.result);
+                    if (parsed.requests && parsed.staff) {
+                        requests = parsed.requests;
+                        trashBin = parsed.trashBin || [];
+                        staff = parsed.staff;
+                        users = parsed.users || allowedUsers;
+                        saveToStorage();
+                        alert('تم استعادة النسخة الاحتياطية بنجاح!');
+                        location.reload();
+                    } else {
+                        alert('ملف النسخة الاحتياطية غير صالح.');
+                    }
+                } catch(err) {
+                    alert('حدث خطأ أثناء قراءة ملف النسخة الاحتياطية.');
+                }
+            };
+            reader.readAsText(file);
         }
 
         function setRole(role) {
             currentRole = role;
             document.getElementById('currentUserRoleBadge').innerText = role + ' Role';
             const userTabBtn = document.getElementById('nav-users');
+            const trashTabBtn = document.getElementById('nav-trash');
             const reportsTabBtn = document.getElementById('nav-reports');
             const newReqBtn = document.getElementById('newReqBtn');
             const addStaffBtn = document.getElementById('addStaffBtn');
@@ -525,23 +634,24 @@
             const isViewer = role === 'Viewer';
 
             userTabBtn.classList.toggle('hidden', !isAdmin);
+            trashTabBtn.classList.toggle('hidden', !isAdmin);
             reportsTabBtn.classList.toggle('hidden', !isAdmin);
             newReqBtn.classList.toggle('hidden', isViewer);
             if (addStaffBtn) addStaffBtn.classList.toggle('hidden', isViewer);
 
-            if (!isAdmin && (!document.getElementById('tab-users').classList.contains('hidden') || !document.getElementById('tab-reports').classList.contains('hidden'))) {
+            if (!isAdmin && (!document.getElementById('tab-users').classList.contains('hidden') || !document.getElementById('tab-reports').classList.contains('hidden') || !document.getElementById('tab-trash').classList.contains('hidden'))) {
                 switchTab('dashboard');
             }
 
-            renderRequests(); renderUsers(); renderStaff(); updateDashboardKPIs();
+            renderRequests(); renderUsers(); renderStaff(); renderTrash(); updateDashboardKPIs();
         }
 
         function switchTab(tab) {
-            if ((tab === 'users' || tab === 'reports') && currentRole !== 'Admin') {
+            if ((tab === 'users' || tab === 'reports' || tab === 'trash') && currentRole !== 'Admin') {
                 alert('Access Denied: Administrator role required.');
                 return;
             }
-            ['dashboard', 'requests', 'map', 'team', 'users', 'reports'].forEach(t => {
+            ['dashboard', 'requests', 'map', 'team', 'users', 'trash', 'reports'].forEach(t => {
                 const el = document.getElementById(`tab-${t}`);
                 const navEl = document.getElementById(`nav-${t}`);
                 if (el) el.classList.add('hidden');
@@ -551,10 +661,11 @@
             const activeNav = document.getElementById(`nav-${tab}`);
             if(activeNav) activeNav.className = 'w-full flex items-center space-x-3 px-3.5 py-3 rounded-xl bg-emerald-600 text-white font-medium shadow-md transition';
 
-            const titles = { dashboard: 'Executive Dashboard', requests: 'Move Operations', map: 'Live GPS Map', team: 'Field Crew Roster', users: 'Users & Access', reports: 'PDF Reports' };
+            const titles = { dashboard: 'Executive Dashboard', requests: 'Move Operations', map: 'Live GPS Map', team: 'Field Crew Roster', users: 'Users & Access', trash: 'Trash Bin', reports: 'PDF Reports' };
             document.getElementById('pageTitle').innerText = titles[tab];
 
             if(tab === 'dashboard') updateDashboardKPIs();
+            if(tab === 'trash') renderTrash();
             if(tab === 'reports') renderReportsTable();
             if(tab === 'map') {
                 setTimeout(() => {
@@ -615,7 +726,7 @@
             const grid = document.getElementById('requestsGrid');
             const search = document.getElementById('searchInput').value.toLowerCase();
             grid.innerHTML = requests.filter(r => r.title.toLowerCase().includes(search) || r.client.toLowerCase().includes(search)).map(req => {
-                let actionBtns = currentRole === 'Admin' ? `<button onclick="openModalForEdit('${req.id}')" class="text-blue-500 text-xs p-1">✏️</button><button onclick="deleteRequest('${req.id}')" class="text-red-400 text-xs p-1">🗑️</button>` : (currentRole === 'Member' ? `<button onclick="openModalForEdit('${req.id}')" class="text-blue-500 text-xs p-1">✏️</button>` : '');
+                let actionBtns = currentRole === 'Admin' ? `<button onclick="openModalForEdit('${req.id}')" class="text-blue-500 text-xs p-1">✏️</button><button onclick="deleteRequest('${req.id}')" class="text-red-400 text-xs p-1" title="نقل إلى سلة المهملات">🗑️</button>` : (currentRole === 'Member' ? `<button onclick="openModalForEdit('${req.id}')" class="text-blue-500 text-xs p-1">✏️</button>` : '');
                 return `
                     <div class="bg-white rounded-2xl border p-4 space-y-3 shadow-sm">
                         <div class="flex justify-between items-start"><span class="px-3 py-1 text-[11px] font-bold rounded-full border ${req.badge}">${req.status}</span><div class="flex items-center space-x-2"><span class="text-xs font-mono text-slate-400">${req.id}</span>${actionBtns}</div></div>
@@ -625,10 +736,70 @@
             }).join('') || '<p class="text-slate-400 col-span-full text-center py-12 text-sm">No orders found.</p>';
         }
 
+        // --- إدارة سلة المهملات ---
+        function deleteRequest(id) {
+            if (currentRole !== 'Admin') return;
+            const reqIndex = requests.findIndex(r => r.id === id);
+            if (reqIndex > -1) {
+                const deleted = requests.splice(reqIndex, 1)[0];
+                trashBin.unshift(deleted);
+                saveToStorage();
+                renderRequests();
+                renderTrash();
+                updateDashboardKPIs();
+            }
+        }
+
+        function renderTrash() {
+            const grid = document.getElementById('trashGrid');
+            if (!grid) return;
+            if (trashBin.length === { length: 0 }.length === 0 && trashBin.length === 0) {
+                grid.innerHTML = `<p class="text-slate-400 col-span-full text-center py-12 text-sm">سلة المهملات فارغة.</p>`;
+                return;
+            }
+            grid.innerHTML = trashBin.map(req => `
+                <div class="bg-white rounded-2xl border border-red-100 p-4 space-y-3 shadow-sm">
+                    <div class="flex justify-between items-start"><span class="px-3 py-1 text-[11px] font-bold rounded-full bg-red-50 text-red-600 border border-red-200">محذوف</span><span class="text-xs font-mono text-slate-400">${req.id}</span></div>
+                    <div><h3 class="font-bold text-slate-900 text-base">${req.title}</h3><p class="text-xs text-slate-500 mt-1">👤 Client: ${req.client}</p></div>
+                    <div class="border-t pt-3 flex justify-between text-xs">
+                        <button onclick="restoreRequest('${req.id}')" class="text-emerald-600 font-bold hover:underline">♻️ استرجاع</button>
+                        <button onclick="permanentDelete('${req.id}')" class="text-red-500 font-bold hover:underline">❌ حذف نهائي</button>
+                    </div>
+                </div>`).join('');
+        }
+
+        function restoreRequest(id) {
+            const idx = trashBin.findIndex(r => r.id === id);
+            if (idx > -1) {
+                const restored = trashBin.splice(idx, 1)[0];
+                requests.unshift(restored);
+                saveToStorage();
+                renderRequests();
+                renderTrash();
+                updateDashboardKPIs();
+            }
+        }
+
+        function permanentDelete(id) {
+            if (confirm('هل أنت متأكد من الحذف النهائي؟ لا يمكن استرجاع البيانات بعد ذلك.')) {
+                trashBin = trashBin.filter(r => r.id !== id);
+                saveToStorage();
+                renderTrash();
+            }
+        }
+
+        function emptyTrash() {
+            if (confirm('هل تريد إفراغ سلة المهملات نهائياً؟')) {
+                trashBin = [];
+                saveToStorage();
+                renderTrash();
+            }
+        }
+
         function renderUsers() {
             const tbody = document.getElementById('usersTableBody');
             if(tbody) {
-                tbody.innerHTML = users.map(u => `<tr><td class="py-3 px-6 font-semibold">${u.name}</td><td class="py-3 px-6 text-slate-500">${u.email}</td><td class="py-3 px-6"><span class="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-bold">${u.role}</span></td><td class="py-3 px-6 text-right">${currentRole === 'Admin' ? `<button onclick="deleteUser(${u.email})" class="text-red-400 text-xs font-semibold">Remove</button>` : ''}</td></tr>`).join('');
+                tbody.innerHTML = users.map(u => `<tr><td class="py-3 px-6 font-semibold">${u.name}</td><td class="py-3 px-6 text-slate-500">${u.email}</td><td class="py-3 px-6"><span class="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-full text-xs font-bold">${u.role}</span></td><td class="py-3 px-6 text-right">${currentRole === 'Admin' ? `<button onclick="deleteUser('${u.email}')" class="text-red-400 text-xs font-semibold">Remove</button>` : ''}</td></tr>`).join('');
             }
         }
 
@@ -690,12 +861,6 @@
                 requests.unshift({ id: 'REQ-2026-' + Math.floor(Math.random() * 9000 + 1000), title, client, date, endDate: date, status, assigned: staff[0]?.name || 'Unassigned', badge, signature: sig, images: [], notes: 'New order' });
             }
             saveToStorage(); closeModal(); renderRequests(); updateDashboardKPIs();
-        }
-
-        function deleteRequest(id) {
-            if (currentRole !== 'Admin') return;
-            requests = requests.filter(r => r.id !== id);
-            saveToStorage(); renderRequests(); updateDashboardKPIs();
         }
     </script>
 </body>
